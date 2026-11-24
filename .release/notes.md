@@ -1,0 +1,35 @@
+The first public release: the web portal of a DCS World virtual squadron, behind a Discord sign-in, on a desktop, a tablet or a phone, in English and in French.
+
+**Scheduling.**
+- The Board shows the wing's trainings, missions, campaigns and free play by month, by week or as an agenda, with their series, cancellations and changes.
+- Each member answers present, maybe or absent, in the Ready Room or from Discord; reminders go to those who have not answered.
+
+**Wing and debriefings.**
+- The order of battle and organisation chart of the wing, each squadron's unit file and each pilot's personal file.
+- Mission debriefings built from the DCS server's logs: the roster, each flight's log, kills, shots and weapon accuracy, and an optional written account of the mission.
+
+**Command Center.**
+- Members, ranks and rights, squadrons with their crests and liveries, campaigns and reference lists.
+- The server's settings on screen (time zone, Discord, the written account), backups, and the journal of every change.
+
+**Pilot's Manual.**
+- The illustrated guide to every screen, served with the application.
+
+**Installation.**
+- Docker Compose runs the application and PostgreSQL on a Linux server; members sign in through a Discord application.
+- An installation guide in English and in French, online and as two PDF files attached to this release, from preparing the server to backups, updates and uninstalling.
+
+**Known issue.**
+- The DCS server agent, which sends the server's logs to the Ready Room, is not published yet: it will come with its own first release. Until then, debriefings are uploaded by hand.
+
+The installation guide is online at <https://mirabellebenou.github.io/dcs-squadron-ready-room/>, and attached below as two PDF files (English, French).
+
+## Version numbers
+
+Each release is a GitHub release tagged `RR-V<major>.<minor>.<patch>`:
+
+- **Major** (**x**.0.0): a redesign, or a file format that breaks.
+- **Minor** (1.**x**.0): a new tool, screen or feature, or a change visible everywhere.
+- **Patch** (1.2.**x**): fixes.
+
+The footer of the home page shows the version the server runs: `RR-V1.2.0` for a release, `RR-V1.2.0+3` for the third update installed on the server since that release.
