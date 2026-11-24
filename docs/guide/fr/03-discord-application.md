@@ -19,7 +19,8 @@ Relevez ensuite, par un clic droit :
 
 - l'**identifiant du serveur** : clic droit sur l'icône du serveur › **Copier l'identifiant du serveur** ;
 - **votre identifiant** : clic droit sur votre nom › **Copier l'identifiant de l'utilisateur** — et celui de chaque
-  autre administrateur fondateur que vous voulez ([§5.3](05-configure.md#founders)).
+  autre administrateur fondateur que vous voulez ([§5.3](05-configure.md#founders)) ;
+- l'**identifiant du salon** où le bot postera les évènements, si vous voulez les boutons de présence : clic droit sur le salon › **Copier l'identifiant du salon**.
 
 Un identifiant Discord est un nombre de 17 à 20 chiffres.
 
@@ -119,6 +120,7 @@ Discord**. Prévoyez sur votre serveur, si vous ne les avez pas :
 
 - un rôle (ou plusieurs) qui **ouvre la Ready Room** — souvent le rôle de membre de l'escadre ;
 - un rôle pour ceux qui **créent les évènements** du planning ;
+- un rôle pour les **chefs d'escadrille** (un seul pour toute l'escadre) ;
 - **un rôle par escadrille**.
 
 Vous les relierez à la Ready Room à l'écran, au chapitre 8. D'ici là, seuls les administrateurs fondateurs entrent.
@@ -134,6 +136,7 @@ Vous les relierez à la Ready Room à l'écran, au chapitre 8. D'ici là, seuls 
 | jeton du bot | **Configuration** : *Jeton du bot* | chapitre 7 |
 | *Public Key* | **Configuration** : *Clé publique de l'application* | chapitre 7 |
 | adresse du webhook | **Configuration** : *Adresse du webhook du digest* | chapitre 7 |
+| identifiant du salon | **Configuration** : *Salon des réponses* | chapitre 7 |
 
 Gardez ces valeurs dans un gestionnaire de mots de passe le temps de l'installation ; une fois saisies, la Ready Room
 n'en a plus besoin ailleurs.

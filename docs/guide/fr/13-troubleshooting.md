@@ -115,7 +115,7 @@ réseau sortant fermé).
 
 **Montrer** : depuis le serveur, `curl -sI https://maps.dcsolympus.com/maps` (ou l'adresse réglée).
 
-**Remède** : rétablissez le réseau sortant, ou extrayez les archives de tuiles dans `TILES_HOST_DIR`
+**Remède** : rétablissez le réseau sortant, ou déposez dans `TILES_HOST_DIR` les tuiles que vous avez déjà
 ([§8.7](08-first-settings.md#optional-settings)). Une tuile qui n'existe pas chez Olympus ne répond pas `502` : elle
 reste simplement vide.
 

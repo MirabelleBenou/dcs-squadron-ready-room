@@ -14,7 +14,7 @@ cd /opt/readyroom
 sh init-env.sh
 ```
 
-Répondez avec les valeurs relevées aux chapitres 2 et 3. À la fin, il affiche **une fois** la clé des réglages
+Répondez avec les valeurs relevées aux chapitres 2 et 3 ; à la question *Option A or B*, répondez **A** pour votre nom de domaine avec Caddy, **B** pour tout autre moyen (Tailscale, Cloudflare, votre propre proxy). À la fin, il affiche **une fois** la clé des réglages
 (`CONFIG_KEY`) : copiez-la dans votre gestionnaire de mots de passe ([§5.4](#config-key)).
 
 !!! note "À la main"
@@ -91,7 +91,7 @@ Ready Room ; pour les mettre ailleurs (un disque de données, par exemple), ajou
 | variable | défaut | ce qu'on y met |
 |---|---|---|
 | `SUITES_HOST_DIR` | `./data/suites` | `dcs_mission_plan.html` et `dcs_mission_tools.html`, si la Ready Room doit servir Mission Plan et Mission Tools |
-| `TILES_HOST_DIR` | `./data/tiles` | les tuiles de la carte DCS, extraites des archives d'Olympus (lues seulement) |
+| `TILES_HOST_DIR` | `./data/tiles` | facultatif : des tuiles de la carte DCS que vous avez déjà, servies d'abord (lues seulement) |
 | `TILES_CACHE_HOST_DIR` | `./data/tiles-cache` | les tuiles venues d'Olympus, gardées par la Ready Room |
 
 Sans ces fonctions, laissez les défauts : rien ne casse si les dossiers sont vides.
@@ -103,7 +103,7 @@ Tout le reste se règle **dans la Ready Room**, sans redémarrer, par un adminis
 | réglage | où | quand |
 |---|---|---|
 | le fuseau de l'escadre | **Configuration** : *Fuseau horaire* | chapitre 7 |
-| le nom, le sigle et l'emblème de l'escadre | **Centre de Commandement › Escadre** | chapitre 8 |
+| le nom, le sigle, le tag et l'emblème de l'escadre | **Centre de Commandement › Escadre** | chapitre 8 |
 | les escadrilles, qui entre, qui crée les évènements | **Escadrilles**, **Droits** | chapitre 8 |
 | la commande `/readyroom`, les boutons de présence | **Configuration** : *Discord — les réponses* | chapitre 7 |
 | le digest hebdomadaire | **Configuration** : *Discord — le digest* | chapitre 7 |
@@ -116,9 +116,9 @@ La liste complète des variables et des réglages est à l'[annexe A](a-environm
 
 ```sh
 ls -l .env
-grep -n -E 'changeme|change_this|=$' .env
+grep -n -E 'changeme|change_this|^[A-Z_]+=$' .env
 ```
 
 !!! success "Vérifier"
     `ls -l` montre `-rw-------` (lisible par vous seul) ; `grep` n'affiche **rien** (plus aucune valeur d'exemple ni
-    vide). Sinon : `chmod 600 .env`, et complétez chaque ligne affichée.
+    variable vide). Sinon : `chmod 600 .env`, et complétez chaque ligne affichée.

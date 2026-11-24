@@ -14,7 +14,7 @@ cd /opt/readyroom
 
 1. Sur la page des releases, lisez le `CHANGELOG` de la nouvelle release et de celles que vous sautez : un geste à faire de
    votre part y est écrit.
-2. Notez la release installée : `cat VERSION`.
+2. Notez la release installée : `cat VERSION; echo`.
 3. **Centre de Commandement › Archives › Sauvegarder maintenant**, puis téléchargez **Base** et **Écussons**
    ([§11.3](11-backup-and-restore.md#off-server-copy)).
 
@@ -71,7 +71,7 @@ Si la release change la base, vous voyez passer, avant le démarrage :
 Sinon, l'application démarre directement : c'est normal.
 
 !!! success "Vérifier"
-    `cat VERSION` et `curl -s https://<adresse>/api/version` donnent la nouvelle release ; **Archives** montre une
+    `cat VERSION; echo` et `curl -s https://<adresse>/api/version` donnent la nouvelle release ; **Archives** montre une
     sauvegarde d'origine **Migration** si la base a changé.
 
 !!! failure "Si ça ne marche pas"

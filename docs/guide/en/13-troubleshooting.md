@@ -112,7 +112,7 @@ outbound network closed).
 
 **Show it**: from the server, `curl -sI https://maps.dcsolympus.com/maps` (or the address set).
 
-**Remedy**: restore the outbound network, or extract the tile archives into `TILES_HOST_DIR`
+**Remedy**: restore the outbound network, or put the tiles you already have into `TILES_HOST_DIR`
 ([§8.7](08-first-settings.md#optional-settings)). A tile that does not exist at Olympus does not answer `502`: it
 simply stays empty.
 

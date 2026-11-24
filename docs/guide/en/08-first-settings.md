@@ -12,6 +12,8 @@ station.
 
 ## 8.1 · Open access { #app-access }
 
+The role list comes from Discord through the bot: the bot must be on your server ([§3.5](03-discord-application.md#invite-bot)) and its token saved ([§7.6](07-first-start.md#discord-settings)). Otherwise the screen says *Discord server unreachable — can't add*.
+
 1. **Command Center › Rights**, block **Application access**.
 2. **Add**, then pick the role from your Discord server's role list.
 3. Repeat for each role that should open the Ready Room (for example a "member" role, or each squadron role).
@@ -164,8 +166,7 @@ written. What is then sent to Anthropic is described in [§14.4](14-security.md#
 not change it afterwards, or your members would lose their saved settings. **Configuration › Server folders**, line
 **The suites**, says what the Ready Room finds in their folder.
 
-**The DCS map**: the tiles extracted from the DCS Olympus archives, in `TILES_HOST_DIR`, are served as they are; a
-missing tile is requested from the **Tile server** (group **Map tiles**) and kept in `TILES_CACHE_HOST_DIR`.
+**The DCS map**: nothing to download. The Ready Room fetches each tile from DCS Olympus (the **Tile server**, group **Map tiles**) and keeps it in `TILES_CACHE_HOST_DIR`. `TILES_HOST_DIR` is optional: tiles you already have there, as `<map key>/<z>/<x>/<y>.png`, are served first.
 **Configuration › Server folders** says what each folder contains.
 
 ## 8.8 · The Pilot’s Manual { #pilot-manual }

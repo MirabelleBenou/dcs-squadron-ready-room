@@ -88,7 +88,7 @@ needs it, and chapter 6 will connect it to the Ready Room:
 
 | option | what you need | ports to open on the server |
 |---|---|---|
-| **A — your domain name** and the Caddy proxy shipped with the Ready Room (automatic certificate) | a domain or subdomain (for example `readyroom.example.org`) pointing to the server | 80 and 443 |
+| **A — your domain name** and the Caddy proxy shipped with the Ready Room (automatic certificate) | a domain or subdomain (for example `readyroom.example.org`) pointing to the server | 80 and 443 (TCP), 443/UDP |
 | **B — Tailscale Funnel** (no domain, no open port) | a free Tailscale account; the address looks like `https://<machine>.<tailnet>.ts.net` | none |
 | C — a Cloudflare tunnel | a domain managed by Cloudflare | none |
 
@@ -141,6 +141,8 @@ All of them are switched on **after** installation, in **Command Center › Conf
 | attendance buttons in Discord, the `/readyroom` command, the member roll call | the bot ([§3.4](03-discord-application.md#bot)), the *Server Members Intent* switch and the interactions address | members sign in and reply on the web page only |
 | mission report narratives | an Anthropic API key with prepaid credit | reports keep their facts; no narrative is written |
 | Mission Plan and Mission Tools served by the Ready Room | the two HTML files, placed in a server folder ([§5.5](05-configure.md#host-folders)) | the tiles open the public versions |
+
+The bot (token) is not an optional service: required to link roles (chapter 8) ([§3.4](03-discord-application.md#bot)).
 
 !!! note "Time zone"
     The Ready Room counts its days and hours in **the wing's time zone** — Europe/Paris by default. You will set it at

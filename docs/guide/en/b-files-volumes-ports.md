@@ -32,7 +32,7 @@ The host folders that the `app` container sees:
 |---|---|---|---|
 | `/backups` | `./backups` | read and write | the backups |
 | `/data/suites` | `SUITES_HOST_DIR` (default `./data/suites`) | read-only | Mission Plan and Mission Tools |
-| `/data/tiles` | `TILES_HOST_DIR` (default `./data/tiles`) | read-only | the tiles extracted from the Olympus archives |
+| `/data/tiles` | `TILES_HOST_DIR` (default `./data/tiles`) | read-only | optional: DCS map tiles you already have, served first |
 | `/data/tiles-cache` | `TILES_CACHE_HOST_DIR` (default `./data/tiles-cache`) | read and write | the tiles kept by the Ready Room |
 
 ## B.4 · Ports { #ports }

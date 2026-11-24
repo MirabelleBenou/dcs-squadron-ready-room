@@ -23,10 +23,17 @@ case "$LANGUE" in
     fr) TITRE="Guide d'installation" ; LANGUE_NOM="Français" ;;
     *) usage ;;
 esac
-# La version ne porte que des chiffres et des points (elle entre dans un nom de fichier et dans le CSS écrit plus bas).
-case "$VERSION" in
-    '' | *[!0-9.]*) echo "version must hold only digits and dots: $VERSION" >&2; exit 1 ;;
-esac
+# Lot « rr-release-v1-0-0 » : trois formes exactement, et rien d'autre -- des chiffres et des points (`1.0126`), `RR-V<x>.<y>.<z>`
+# (la release) et `RR-V<x>.<y>.<z>+<n>` (un numéro de dev après elle). La règle reste stricte : la version entre dans un nom de
+# fichier et dans le texte du CSS écrit plus bas.
+version_ok() {
+    case "$1" in
+        '' | *[!A-Za-z0-9.+-]*) return 1 ;;
+        *[!0-9.]*) printf '%s\n' "$1" | grep -Eqx 'RR-V[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?' ;;
+        *) return 0 ;;
+    esac
+}
+version_ok "$VERSION" || { echo "version must be digits and dots, RR-V<x.y.z> or RR-V<x.y.z>+<n>: $VERSION" >&2; exit 1; }
 
 DOCS=$(cd "$(dirname "$0")" && pwd)
 GUIDE=$DOCS/guide

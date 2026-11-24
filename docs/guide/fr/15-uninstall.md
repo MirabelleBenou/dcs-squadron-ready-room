@@ -6,10 +6,11 @@ une étape efface la base pour de bon.
 ## 15.1 · Garder une dernière sauvegarde { #last-backup }
 
 1. **Centre de Commandement › Archives › Sauvegarder maintenant**.
-2. Copiez `backups/` et `.env` hors du serveur ([§11.3](11-backup-and-restore.md#off-server-copy)).
+2. Archivez les dépôts bruts ([§11.2](11-backup-and-restore.md#raw-deposits)).
+3. Copiez `backups/` et `.env` hors du serveur ([§11.3](11-backup-and-restore.md#off-server-copy)).
 
 Avec elles, une Ready Room réinstallée plus tard ([chapitres 4 à 7](04-get-the-ready-room.md#get-the-ready-room))
-retrouve tout par la restauration du [§11.4](11-backup-and-restore.md#restore-database).
+retrouve tout par les [§11.4](11-backup-and-restore.md#restore-database) (la base), [§11.5](11-backup-and-restore.md#restore-crests) (les écussons) et §11.5 encore pour les dépôts bruts.
 
 ## 15.2 · Arrêter la Ready Room { #stop }
 

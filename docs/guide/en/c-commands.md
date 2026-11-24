@@ -69,7 +69,7 @@ Restoring the database takes six steps, none to be skipped: they are in
 ## C.5 · Update { #update-commands }
 
 ```sh
-cat VERSION                                     # the installed release (§12.1)
+cat VERSION; echo                               # the installed release (§12.1)
 curl -fL -o readyroom.tar.gz https://github.com/MirabelleBenou/dcs-squadron-ready-room/archive/refs/tags/<release>.tar.gz
 tar -xzf readyroom.tar.gz --strip-components=1  # over the folder in place (§12.2)
 rm readyroom.tar.gz

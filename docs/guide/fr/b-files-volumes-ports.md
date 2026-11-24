@@ -32,7 +32,7 @@ Les dossiers de l'hôte que voit le conteneur `app` :
 |---|---|---|---|
 | `/backups` | `./backups` | lecture et écriture | les sauvegardes |
 | `/data/suites` | `SUITES_HOST_DIR` (défaut `./data/suites`) | lecture seule | Mission Plan et Mission Tools |
-| `/data/tiles` | `TILES_HOST_DIR` (défaut `./data/tiles`) | lecture seule | les tuiles extraites des archives d'Olympus |
+| `/data/tiles` | `TILES_HOST_DIR` (défaut `./data/tiles`) | lecture seule | facultatif : des tuiles de la carte DCS que vous avez déjà, servies d'abord |
 | `/data/tiles-cache` | `TILES_CACHE_HOST_DIR` (défaut `./data/tiles-cache`) | lecture et écriture | les tuiles gardées par la Ready Room |
 
 ## B.4 · Les ports { #ports }

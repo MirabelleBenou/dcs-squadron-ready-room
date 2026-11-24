@@ -13,7 +13,7 @@ cd /opt/readyroom
 
 1. On the releases page, read the `CHANGELOG` of the new release and of those you skip: any step required on your side
    is written there.
-2. Note the installed release: `cat VERSION`.
+2. Note the installed release: `cat VERSION; echo`.
 3. **Command Center › Archives › Back up now**, then download **Database** and **Crests**
    ([§11.3](11-backup-and-restore.md#off-server-copy)).
 
@@ -69,7 +69,7 @@ If the release changes the database, you see, before start-up:
 Otherwise, the application starts straight away: that is normal.
 
 !!! success "Check"
-    `cat VERSION` and `curl -s https://<address>/api/version` give the new release; **Archives** shows a backup of
+    `cat VERSION; echo` and `curl -s https://<address>/api/version` give the new release; **Archives** shows a backup of
     origin **Migration** if the database changed.
 
 !!! failure "If it does not work"

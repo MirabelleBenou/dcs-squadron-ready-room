@@ -46,7 +46,8 @@ one included.
       ([§5.4](05-configure.md#config-key));
     - **`configuration refused (ADMIN_IDS empty: …)`**: no founding administrator ([§5.3](05-configure.md#founders));
     - **`DATABASE_URL, ou POSTGRES_USER, POSTGRES_PASSWORD et POSTGRES_DB, requis`** (*required*, in French in this
-      release): one of the three database variables is missing.
+      release), at the end of a Python error rather than on a `Failure` line: one of the three database variables is
+      missing. If `POSTGRES_PASSWORD` is the one missing, `db` itself does not start: read `docker compose logs db`.
 
     Fix `.env`, then recreate the container — a plain `restart` does not reread `.env`:
     ```sh
@@ -110,7 +111,7 @@ daily 6:00 pass in **the wing's time zone**. Set it **now**, before creating the
 
 ## 7.6 · Connect the bot and the interactions { #discord-settings }
 
-*Optional, but needed for `/readyroom` and the attendance buttons.*
+*The bot token is **required** before chapter 8: the Ready Room reads your server's roles and members with it. The public key and the interactions address (steps 3 to 5) are only needed for `/readyroom` and the attendance buttons.*
 
 1. Still in **Configuration › Server settings**, **Discord — replies** group.
 2. **Bot token**: **Enter**, paste the token from [§3.4](03-discord-application.md#bot), **Save**.
@@ -144,7 +145,7 @@ daily 6:00 pass in **the wing's time zone**. Set it **now**, before creating the
 
 **The digest**, if you want it: **Discord — digest** group, **Digest webhook URL** (the one from
 [§3.7](03-discord-application.md#webhook)), and **Digest language**. The **attendance buttons** are switched on with
-**Replies in Discord**, once the **Replies channel** is chosen: the Pilot’s Manual describes them to your members.
+**Replies in Discord**, once the **Replies channel** is entered (the channel ID of [§3.1](03-discord-application.md#developer-mode)): the Pilot’s Manual describes them to your members.
 
 ## 7.7 · Where you are { #where-you-are }
 

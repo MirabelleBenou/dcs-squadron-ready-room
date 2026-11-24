@@ -69,7 +69,7 @@ La restauration de la base se fait en six étapes, sans en sauter une : elles so
 ## C.5 · Mettre à jour { #update-commands }
 
 ```sh
-cat VERSION                                     # la release installée (§12.1)
+cat VERSION; echo                               # la release installée (§12.1)
 curl -fL -o readyroom.tar.gz https://github.com/MirabelleBenou/dcs-squadron-ready-room/archive/refs/tags/<release>.tar.gz
 tar -xzf readyroom.tar.gz --strip-components=1  # par-dessus le dossier en place (§12.2)
 rm readyroom.tar.gz

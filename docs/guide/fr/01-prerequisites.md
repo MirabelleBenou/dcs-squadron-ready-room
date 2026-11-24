@@ -87,7 +87,7 @@ Discord, qui en a besoin, et le chapitre 6 la branchera sur la Ready Room :
 
 | option | il vous faut | ports à ouvrir sur le serveur |
 |---|---|---|
-| **A — votre nom de domaine** et le proxy Caddy fourni avec la Ready Room (certificat automatique) | un domaine ou sous-domaine (par exemple `readyroom.example.org`) qui pointe vers le serveur | 80 et 443 |
+| **A — votre nom de domaine** et le proxy Caddy fourni avec la Ready Room (certificat automatique) | un domaine ou sous-domaine (par exemple `readyroom.example.org`) qui pointe vers le serveur | 80 et 443 (TCP), 443/UDP |
 | **B — Tailscale Funnel** (ni domaine, ni port ouvert) | un compte Tailscale gratuit ; l'adresse ressemble à `https://<machine>.<tailnet>.ts.net` | aucun |
 | C — un tunnel Cloudflare | un domaine géré par Cloudflare | aucun |
 
@@ -140,6 +140,8 @@ Tous s'allument **après** l'installation, à l'écran **Centre de Commandement 
 | les boutons de présence dans Discord, la commande `/readyroom`, l'appel des membres | le bot ([§3.4](03-discord-application.md#bot)), l'interrupteur *Server Members Intent* et l'adresse des interactions | les membres se connectent et répondent sur la page web seulement |
 | le récit des rapports de mission | une clé API Anthropic avec du crédit prépayé | les rapports gardent leurs faits ; le récit n'est pas rédigé |
 | Mission Plan et Mission Tools servis par la Ready Room | les deux fichiers HTML, posés dans un dossier du serveur ([§5.5](05-configure.md#host-folders)) | les tuiles ouvrent les versions publiques |
+
+Le bot (son jeton) n'est pas un service facultatif : obligatoire pour relier les rôles (chapitre 8) ([§3.4](03-discord-application.md#bot)).
 
 !!! note "Le fuseau horaire"
     La Ready Room compte ses jours et ses heures dans **le fuseau de l'escadre** — Europe/Paris par défaut. Vous le

@@ -6,10 +6,11 @@ you start: one step erases the database for good.
 ## 15.1 · Keep a last backup { #last-backup }
 
 1. **Command Center › Archives › Back up now**.
-2. Copy `backups/` and `.env` off the server ([§11.3](11-backup-and-restore.md#off-server-copy)).
+2. Archive the raw uploads ([§11.2](11-backup-and-restore.md#raw-deposits)).
+3. Copy `backups/` and `.env` off the server ([§11.3](11-backup-and-restore.md#off-server-copy)).
 
 With them, a Ready Room reinstalled later ([chapters 4 to 7](04-get-the-ready-room.md#get-the-ready-room)) gets
-everything back through the restore of [§11.4](11-backup-and-restore.md#restore-database).
+everything back through [§11.4](11-backup-and-restore.md#restore-database) (database), [§11.5](11-backup-and-restore.md#restore-crests) (crests) and §11.5 again for the raw uploads.
 
 ## 15.2 · Stop the Ready Room { #stop }
 

@@ -30,11 +30,13 @@ nommées au journal au démarrage (« Variables retirées du .env, sans effet »
 
 Lues par `docker compose`, jamais par l'application ; facultatives.
 
+Après un changement : `docker compose up -d` (pour un dossier, après y avoir déplacé son contenu).
+
 | variable | défaut | rôle |
 |---|---|---|
 | `COMPOSE_FILE` | `docker-compose.yml` | `docker-compose.yml:compose.caddy.yml` démarre aussi le proxy Caddy (option A, [§6.2](06-https.md#option-a)) |
 | `SUITES_HOST_DIR` | `./data/suites` | le dossier de Mission Plan et Mission Tools, lu seulement |
-| `TILES_HOST_DIR` | `./data/tiles` | les tuiles extraites des archives d'Olympus, lues seulement |
+| `TILES_HOST_DIR` | `./data/tiles` | facultatif : des tuiles de la carte DCS que vous avez déjà, servies d'abord (lues seulement) |
 | `TILES_CACHE_HOST_DIR` | `./data/tiles-cache` | les tuiles venues d'Olympus, écrites par la Ready Room |
 
 ## A.3 · Les réglages, dans la Ready Room { #settings }

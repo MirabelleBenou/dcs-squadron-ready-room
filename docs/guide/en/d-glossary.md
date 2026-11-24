@@ -40,6 +40,8 @@ The Ready Room follows the language each user chooses (**FR · EN**): the same s
 | **Archives** | **Archives** |
 | **Configuration** | **Configuration** |
 
+In the Command Center menu, **Archives**, **Configuration** and **Reference lists** appear shortened as **Arch**, **Config** and **Ref**.
+
 ## D.3 · Blocks and buttons quoted { #labels }
 
 | English | French | where |

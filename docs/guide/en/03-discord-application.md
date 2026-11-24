@@ -19,7 +19,8 @@ Then collect, by right-clicking:
 
 - the **server ID**: right-click the server icon › **Copy Server ID**;
 - **your user ID**: right-click your name › **Copy User ID** — and that of every other founding administrator you want
-  ([§5.3](05-configure.md#founders)).
+  ([§5.3](05-configure.md#founders));
+- the **ID of the channel** where the bot will post events, if you want the attendance buttons: right-click the channel › **Copy Channel ID**.
 
 A Discord ID is a number of 17 to 20 digits.
 
@@ -117,6 +118,7 @@ Plan on your server, if you do not have them yet:
 
 - one role (or more) that **opens the Ready Room** — often the wing's member role;
 - a role for those who **create schedule events**;
+- one role for **squadron leaders** (one for the whole wing);
 - **one role per squadron**.
 
 You will link them to the Ready Room on screen, in chapter 8. Until then, only founding administrators get in.
@@ -132,5 +134,6 @@ You will link them to the Ready Room on screen, in chapter 8. Until then, only f
 | bot token | **Configuration**: *Bot token* | chapter 7 |
 | *Public Key* | **Configuration**: *Application public key* | chapter 7 |
 | webhook URL | **Configuration**: *Digest webhook URL* | chapter 7 |
+| channel ID | **Configuration**: *Replies channel* | chapter 7 |
 
 Keep these values in a password manager during the installation; once entered, the Ready Room needs them nowhere else.

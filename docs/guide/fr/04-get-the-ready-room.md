@@ -8,7 +8,10 @@ La Ready Room vit dans un dossier à elle, qui gardera aussi ses sauvegardes. Ce
 sudo mkdir -p /opt/readyroom
 sudo chown "$USER": /opt/readyroom
 cd /opt/readyroom
+mkdir -p backups data/suites data/tiles data/tiles-cache
 ```
+
+Créez dès maintenant les dossiers que la Ready Room branche, pour qu'ils vous appartiennent et non à `root`.
 
 !!! warning "Attention"
     **Ne déplacez pas ce dossier une fois la Ready Room démarrée.** Les sauvegardes (`backups/`) et les dossiers de
@@ -33,7 +36,7 @@ rm readyroom.tar.gz
     (le dossier doit être vide).
 
 !!! success "Vérifier"
-    `cat VERSION` affiche le numéro de la release ; `ls` montre `docker-compose.yml`, `.env.example` (avec `ls -a`)
+    `cat VERSION; echo` affiche le numéro de la release ; `ls` montre `docker-compose.yml`, `.env.example` (avec `ls -a`)
     et `init-env.sh`.
 
 ## 4.3 · Facultatif : Mission Plan et Mission Tools { #suites }
@@ -60,7 +63,7 @@ curl -fL -o data/suites/dcs_mission_tools.html https://github.com/MirabelleBenou
 
 !!! note
     Si vous placez ce dossier ailleurs (`SUITES_HOST_DIR`, [§5.5](05-configure.md#host-folders)), téléchargez les deux
-    fichiers dans ce dossier-là. L'étape se fait aussi plus tard, sans redémarrer la Ready Room.
+    fichiers dans ce dossier-là. L'étape se fait aussi plus tard, sans redémarrer la Ready Room. Si `data/suites` a été créé par Docker (propriété de `root`) : `sudo chown -R "$USER": data`.
 
 ## 4.4 · Ce que contient le dossier { #contents }
 
@@ -73,7 +76,8 @@ curl -fL -o data/suites/dcs_mission_tools.html https://github.com/MirabelleBenou
 | `Dockerfile`, `entrypoint.sh`, `app/`, `alembic/`, `requirements.txt` | l'application elle-même, construite au premier démarrage |
 | `VERSION`, `CHANGELOG.md` | le numéro de la release et ce qui a changé |
 | `LICENSE`, `README.md` | la licence et la présentation |
+| `tests/`, `tools/`, `manuel/`, `release.py`, `ASSETS.md`, `README.fr.md` | pour les mainteneurs et les crédits ; rien à faire |
 
 Le démarrage créera à côté `backups/` (les sauvegardes) ; `data/` (les dossiers de l'hôte, [§5.5](05-configure.md#host-folders))
 existe déjà si vous avez fait le [§4.3](#suites).
-Ce guide n'est pas dans le dossier : il est en ligne et joint en PDF à chaque release.
+L'archive de la release ne contient pas ce guide (un `git clone`, si : sous `docs/`). Il est en ligne et joint en PDF à chaque release.

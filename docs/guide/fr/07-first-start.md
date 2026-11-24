@@ -47,8 +47,8 @@ de sa base, la première fois comprise.
     - **`configuration refused (CONFIG_KEY missing or invalid)`** : `CONFIG_KEY` absente ou mal formée
       ([§5.4](05-configure.md#config-key)) ;
     - **`configuration refused (ADMIN_IDS empty: …)`** : aucun administrateur fondateur ([§5.3](05-configure.md#founders)) ;
-    - **`DATABASE_URL, ou POSTGRES_USER, POSTGRES_PASSWORD et POSTGRES_DB, requis`** : l'une des trois variables de la
-      base manque.
+    - **`DATABASE_URL, ou POSTGRES_USER, POSTGRES_PASSWORD et POSTGRES_DB, requis`**, au bout d'une erreur Python plutôt que sur une ligne `Failure` : l'une des trois variables de la base
+      manque. Si c'est `POSTGRES_PASSWORD`, `db` lui-même ne démarre pas : lisez `docker compose logs db`.
 
     Corrigez `.env`, puis recréez le conteneur — un simple `restart` ne relit pas `.env` :
     ```sh
@@ -113,7 +113,7 @@ créer le premier évènement :
 
 ## 7.6 · Brancher le bot et les interactions { #discord-settings }
 
-*Facultatif, mais nécessaire pour `/readyroom` et les boutons de présence.*
+*Le jeton du bot est **obligatoire** avant le chapitre 8 : la Ready Room lit avec lui les rôles et les membres de votre serveur. La clé publique et l'adresse des interactions (étapes 3 à 5) ne servent qu'à `/readyroom` et aux boutons de présence.*
 
 1. Toujours dans **Configuration › Paramètres du serveur**, groupe **Discord — les réponses**.
 2. **Jeton du bot** : **Saisir**, collez le jeton du [§3.4](03-discord-application.md#bot), **Enregistrer**.
@@ -147,7 +147,7 @@ créer le premier évènement :
 
 **Le digest**, si vous le voulez : groupe **Discord — le digest**, **Adresse du webhook du digest** (celle du
 [§3.7](03-discord-application.md#webhook)), et **Langue du digest**. Les **boutons de présence** s'allument par
-**Réponses dans Discord**, une fois choisi le **Salon des réponses** : le Manuel Pilote les décrit à vos membres.
+**Réponses dans Discord**, une fois saisi le **Salon des réponses** (l'identifiant du salon du [§3.1](03-discord-application.md#developer-mode)) : le Manuel Pilote les décrit à vos membres.
 
 ## 7.7 · Où vous en êtes { #where-you-are }
 

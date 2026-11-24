@@ -12,6 +12,8 @@ menu en haut de la station.
 
 ## 8.1 · Ouvrir l'accès { #app-access }
 
+La liste des rôles vient de Discord par le bot : il doit être sur votre serveur ([§3.5](03-discord-application.md#invite-bot)) et son jeton enregistré ([§7.6](07-first-start.md#discord-settings)). Sinon, l'écran dit *serveur Discord injoignable — ajout impossible*.
+
 1. **Centre de Commandement › Droits**, bloc **Accès à l'application**.
 2. **Ajouter**, puis choisissez le rôle dans la liste des rôles de votre serveur Discord.
 3. Recommencez pour chaque rôle qui doit ouvrir la Ready Room (par exemple un rôle « membre », ou chaque rôle
@@ -170,9 +172,7 @@ modèle, le Récit ne se rédige pas. Ce qui part alors chez Anthropic est dit a
 ne la changez pas ensuite, vos membres perdraient leurs réglages enregistrés. **Configuration › Dossiers du serveur**,
 ligne **Les suites**, dit ce que la Ready Room trouve dans leur dossier.
 
-**La carte DCS** : les tuiles extraites des archives de DCS Olympus, dans `TILES_HOST_DIR`, sont servies telles quelles ;
-une tuile absente se demande au **Serveur de tuiles** (groupe **Les tuiles de la carte**) et se garde dans
-`TILES_CACHE_HOST_DIR`. **Configuration › Dossiers du serveur** dit ce que chaque dossier contient.
+**La carte DCS** : rien à télécharger. La Ready Room va chercher chaque tuile chez DCS Olympus (le **Serveur de tuiles**, groupe **Les tuiles de la carte**) et la garde dans `TILES_CACHE_HOST_DIR`. `TILES_HOST_DIR` est facultatif : les tuiles que vous y avez déjà, en `<clé de carte>/<z>/<x>/<y>.png`, sont servies d'abord. **Configuration › Dossiers du serveur** dit ce que chaque dossier contient.
 
 ## 8.8 · Le Manuel Pilote { #pilot-manual }
 

@@ -1,5 +1,9 @@
 # 10 · Connect a DCS server: the agent { #dcs-agent }
 
+!!! note "Not published yet"
+    The DCS server agent is not published yet: it will come with its own first release, `RRA-V1.0.0`. This chapter
+    describes its installation as it will be. Until then, debriefings are uploaded by hand from the Wing (**Upload**).
+
 *Optional.* The agent records each mission played on your DCS server and sends it to the Ready Room. Without it, the
 Ready Room works, and your pilots can still upload their debriefing files themselves.
 
@@ -65,6 +69,8 @@ In the Ready Room, as an administrator:
 3. The Ready Room shows the **Token** and the **Address**, **only once**: copy both.
 
 ![The DCS server block](../images/rr-serveur-dcs-en.png)
+
+The **Address** is always `https://<address>/api/agent/rrlog`.
 
 !!! warning "Warning"
     The token will never be shown again. If lost, it can be replaced (**Replace the token**): the old one stops working

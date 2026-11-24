@@ -14,7 +14,7 @@ cd /opt/readyroom
 sh init-env.sh
 ```
 
-Answer with the values collected in chapters 2 and 3. At the end it shows the settings key (`CONFIG_KEY`) **once**:
+Answer with the values collected in chapters 2 and 3; to the *Option A or B* question, answer **A** for your domain name with Caddy, **B** for every other means (Tailscale, Cloudflare, your own proxy). At the end it shows the settings key (`CONFIG_KEY`) **once**:
 copy it into your password manager ([§5.4](#config-key)).
 
 !!! note "By hand"
@@ -91,7 +91,7 @@ put them elsewhere (a data disk, for example), add these lines to `.env`:
 | variable | default | what goes there |
 |---|---|---|
 | `SUITES_HOST_DIR` | `./data/suites` | `dcs_mission_plan.html` and `dcs_mission_tools.html`, if the Ready Room is to serve Mission Plan and Mission Tools |
-| `TILES_HOST_DIR` | `./data/tiles` | the DCS map tiles, extracted from the Olympus archives (read only) |
+| `TILES_HOST_DIR` | `./data/tiles` | optional: DCS map tiles you already have, served first (read only) |
 | `TILES_CACHE_HOST_DIR` | `./data/tiles-cache` | the tiles fetched from Olympus, kept by the Ready Room |
 
 Without these features, keep the defaults: nothing breaks if the folders are empty.
@@ -103,7 +103,7 @@ Everything else is set **inside the Ready Room**, without restarting, by an admi
 | setting | where | when |
 |---|---|---|
 | the wing's time zone | **Configuration**: *Time zone* | chapter 7 |
-| the wing's name, tag and emblem | **Command Center › Wing** | chapter 8 |
+| the wing's name, code, tag and emblem | **Command Center › Wing** | chapter 8 |
 | squadrons, who gets in, who creates events | **Squadrons**, **Rights** | chapter 8 |
 | the `/readyroom` command, attendance buttons | **Configuration**: *Discord — replies* | chapter 7 |
 | the weekly digest | **Configuration**: *Discord — digest* | chapter 7 |
@@ -116,9 +116,9 @@ The full list of variables and settings is in [appendix A](a-environment.md).
 
 ```sh
 ls -l .env
-grep -n -E 'changeme|change_this|=$' .env
+grep -n -E 'changeme|change_this|^[A-Z_]+=$' .env
 ```
 
 !!! success "Check"
-    `ls -l` shows `-rw-------` (readable by you only); `grep` prints **nothing** (no example or empty value left).
+    `ls -l` shows `-rw-------` (readable by you only); `grep` prints **nothing** (no example value and no empty variable left).
     Otherwise: `chmod 600 .env`, and complete each line printed.

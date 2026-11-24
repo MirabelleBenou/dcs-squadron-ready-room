@@ -31,11 +31,13 @@ values: you can delete them.
 
 Read by `docker compose`, never by the application; optional.
 
+After a change: `docker compose up -d` (for a folder, after moving its content).
+
 | variable | default | role |
 |---|---|---|
 | `COMPOSE_FILE` | `docker-compose.yml` | `docker-compose.yml:compose.caddy.yml` also starts the Caddy proxy (option A, [§6.2](06-https.md#option-a)) |
 | `SUITES_HOST_DIR` | `./data/suites` | the Mission Plan and Mission Tools folder, read only |
-| `TILES_HOST_DIR` | `./data/tiles` | the tiles extracted from the Olympus archives, read only |
+| `TILES_HOST_DIR` | `./data/tiles` | optional: DCS map tiles you already have, served first (read only) |
 | `TILES_CACHE_HOST_DIR` | `./data/tiles-cache` | the tiles fetched from Olympus, written by the Ready Room |
 
 ## A.3 · Settings, inside the Ready Room { #settings }

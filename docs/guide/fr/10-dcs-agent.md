@@ -1,5 +1,10 @@
 # 10 · Brancher un serveur DCS : l'agent { #dcs-agent }
 
+!!! note "Pas encore publié"
+    L'agent du serveur DCS n'est pas encore publié : il viendra avec sa propre première release, `RRA-V1.0.0`. Ce
+    chapitre décrit son installation telle qu'elle sera. D'ici là, les débriefings se déposent à la main depuis
+    l'Escadre (**Déposer**).
+
 *Facultatif.* L'agent enregistre chaque mission jouée sur votre serveur DCS et l'envoie à la Ready Room. Sans lui, la
 Ready Room marche, et vos pilotes peuvent toujours déposer eux-mêmes leurs fichiers de débriefing.
 
@@ -63,6 +68,8 @@ Dans la Ready Room, en administrateur :
 3. La Ready Room affiche le **Jeton** et l'**Adresse**, **une seule fois** : copiez les deux.
 
 ![Le bloc Serveur DCS](../images/rr-serveur-dcs-fr.png)
+
+L'**Adresse** est toujours `https://<adresse>/api/agent/rrlog`.
 
 !!! warning "Attention"
     Le jeton ne sera plus jamais affiché. Perdu, il se remplace (**Remplacer le jeton**) : l'ancien cesse aussitôt de
