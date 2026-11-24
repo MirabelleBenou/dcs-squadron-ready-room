@@ -1,0 +1,6 @@
+# L'App — ce que l'archive de déploiement ne porte pas (git archive)
+/.gitattributes export-ignore
+/banc export-ignore
+/.github export-ignore
+/outils export-ignore
+/docs export-ignore

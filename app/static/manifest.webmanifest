@@ -1,0 +1,13 @@
+{
+  "name": "Squadron Ready Room",
+  "short_name": "Ready Room",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#1D2B4E",
+  "theme_color": "#1D2B4E",
+  "icons": [
+    {"src": "/static/assets/marque/icone-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/assets/marque/icone-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

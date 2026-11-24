@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ t.lien_titre_page|safe }}</title>
+  <link rel="icon" href="/static/assets/marque/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/static/assets/marque/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/assets/marque/apple-touch-icon.png">
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <style>
+    @font-face{font-family:'Oswald';src:url(/static/assets/fonts/oswald-600.woff2) format('woff2');font-weight:600;font-style:normal;font-display:swap;}
+    @font-face{font-family:'Oswald';src:url(/static/assets/fonts/oswald-700.woff2) format('woff2');font-weight:700;font-style:normal;font-display:swap;}
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:2rem 1.2rem;
+      font-family:system-ui,sans-serif;
+      color:#E8E6DC;
+      text-align:center;
+      background-image:linear-gradient(rgba(10,12,8,.72),rgba(10,12,8,.72)),url(/static/assets/img/landing-bg.jpg);
+      background-size:cover;background-position:center;
+    }
+    .logo{width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(0,0,0,.5));margin-bottom:.9rem;}
+    .eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;color:#E0A83A;margin-bottom:.3rem;}
+    h1{font-family:'Oswald',sans-serif;font-weight:600;font-size:1.7rem;letter-spacing:.02em;text-transform:uppercase;margin:0 0 .6rem;}
+    p{color:#B9BAA8;font-size:.92rem;max-width:26em;margin:0 auto 1.6rem;}
+    [hidden]{display:none !important;}
+    button.btn{
+      display:inline-flex;align-items:center;gap:.6em;
+      padding:.8rem 1.6rem;border:0;cursor:pointer;
+      background:#E0A83A;color:#14181d;
+      border-radius:6px;font-size:1rem;font-weight:600;font-family:'Oswald',sans-serif;letter-spacing:.02em;
+    }
+    button.btn:hover{filter:brightness(1.08);}
+    button.btn:disabled{opacity:.6;cursor:default;filter:none;}
+    #message{min-height:1.4em;margin:1.1rem auto 0;max-width:26em;font-size:.92rem;color:#E8E6DC;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img class="logo" alt="{{ wing_designation }}" src="{{ wing_emblem_url }}">
+    <div class="eyebrow">{{ wing_full_name }}</div>
+    <h1>DCS Squadron Ready Room</h1>
+    <p>{{ t.lien_paragraphe|safe }}</p>
+    <button class="btn" id="entrer" type="button">{{ t.lien_bouton|safe }}</button>
+    <div id="message" role="status" aria-live="polite" data-incomplet="{{ t.lien_incomplet }}" data-echec="{{ t.lien_echec }}"></div>
+  </div>
+  <div id="version-footer" style="position:fixed;right:.6rem;bottom:.4rem;display:flex;align-items:center;gap:.4rem;font-family:monospace;font-size:11px;color:#7E8272;pointer-events:none;user-select:none;"><img src="/static/assets/marque/pictogramme-16.svg" alt="" width="16" height="16"><span id="version-footer-txt"></span></div>
+  <script>
+    // Lot « La connexion de secours » : le jeton est dans le fragment de l'URL
+    // (le serveur ne le voit jamais). On le lit, on efface aussitôt le fragment,
+    // et on ne l'envoie qu'au clic : un robot qui exécuterait la page ne consomme rien.
+    (function(){
+      var bouton = document.getElementById('entrer');
+      var message = document.getElementById('message');
+      var token = location.hash.replace(/^#/, '');
+      try { history.replaceState(null, '', location.pathname); } catch(e) {}
+      if(!token){
+        bouton.hidden = true;
+        message.textContent = message.getAttribute('data-incomplet');
+        return;
+      }
+      var echec = message.getAttribute('data-echec');
+      bouton.addEventListener('click', function(){
+        bouton.disabled = true;
+        message.textContent = '';
+        fetch('/auth/lien', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({token: token})
+        }).then(function(r){
+          if(r.status === 204){ location.replace('/'); return; }
+          if(r.status === 400 || r.status === 403 || r.status === 410){
+            return r.json().then(function(d){ return d && d.detail; }, function(){ return null; }).then(function(detail){
+              bouton.hidden = true;
+              message.textContent = detail || echec;
+            });
+          }
+          message.textContent = echec;
+          bouton.disabled = false;
+        }).catch(function(){
+          message.textContent = echec;
+          bouton.disabled = false;
+        });
+      });
+    })();
+    // Pied de version, comme login.html (GET /api/version, non authentifié).
+    fetch('/api/version').then(r=>r.ok?r.json():null).then(d=>{
+      if(d && d.version){ var v = String(d.version); /* lot rr-release-auto : `RR-V…` tel quel, sinon le `v` devant */ document.getElementById('version-footer-txt').textContent = 'Squadron Ready Room · ' + (v.indexOf('RR-V') === 0 ? v : 'v' + v); }
+    }).catch(()=>{});
+  </script>
+</body>
+</html>

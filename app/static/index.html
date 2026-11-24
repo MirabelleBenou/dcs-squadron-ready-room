@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Squadron Ready Room</title>
+<link rel="icon" href="/static/assets/marque/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/static/assets/marque/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/assets/marque/apple-touch-icon.png">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<script>
+/* Anti-FOUC (Lot 0 socle, v0.40) : pose data-layout AVANT le premier paint
+   (script bloquant, avant le CSS de base = état Large). Reprend la même
+   logique de seuils que resolveLayout()/applyLayout() dans app.js -- copie
+   volontairement autonome, cette page n'a pas encore chargé app.js à ce
+   stade (même esprit que le footer de version inline de login.html). */
+(function(){
+  var w = window.innerWidth;
+  var portrait = window.matchMedia("(orientation:portrait)").matches;
+  var layout = w < 720 ? "compact" : (w >= 1600) ? "wide" : (w >= 1080 && !(portrait && w <= 1024)) ? "large" : "intermediate";
+  document.documentElement.setAttribute("data-layout", layout);
+})();
+</script>
+<script>
+/* Anti-FOUC thème (Lot 7 §4) : pose data-theme AVANT le premier paint,
+   même esprit que l'IIFE data-layout ci-dessus. Lit la préférence
+   persistée (theme_pref_v1) ou "system" par défaut, résout l'effectif via
+   prefers-color-scheme si besoin. app.js reprend la main ensuite
+   (applyTheme() à l'init + écoute du changement système). Évite le flash
+   sombre->clair (ou l'inverse) au chargement. */
+(function(){try{
+  var p = localStorage.getItem("theme_pref_v1") || "system";
+  var t = p === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark":"light") : p;
+  document.documentElement.setAttribute("data-theme", t);
+}catch(e){}})();
+</script>
+<link rel="stylesheet" href="/static/styles.css?v=__ASSET_VERSION__">
+<style>
+/* Correctif Lot 7 : cache navigateur sur les fonds landing. styles.css
+   référence /static/assets/img/landing-bg(-light).jpg SANS query de
+   version -- le navigateur les met en cache par URL, indépendamment du
+   ?v=__ASSET_VERSION__ qui ne busque que le fichier styles.css lui-même.
+   Résultat observé : après remplacement de l'asset sombre, l'ancienne
+   image reste servie depuis le cache tant qu'un hard-reload n'est pas
+   fait. Fix : ce bloc <style> inline est injecté dans index.html, DÉJÀ
+   soumis à la substitution __ASSET_VERSION__ (mécanisme existant, cf.
+   app/main.py) -- il réécrit les mêmes règles avec un ?v= sur les deux
+   images, et gagne sur styles.css par ordre de cascade (spécificité
+   égale, déclaré après). Toute bascule de version bust donc aussi les
+   fonds landing, sans toucher au backend. */
+#screen-landing{background-image:linear-gradient(var(--scrim),var(--scrim)),url(/static/assets/img/landing-bg.jpg?v=__ASSET_VERSION__);}
+html[data-theme="light"] #screen-landing{background-image:linear-gradient(var(--scrim),var(--scrim)),url(/static/assets/img/landing-bg-light.jpg?v=__ASSET_VERSION__);}
+
+/* Correctif v0.55 : fond portrait dédié (remplace le hack
+   background-position:20% 30% de Lot 7, retiré de styles.css). En
+   orientation portrait (mobile/tablette), sert un crop composé
+   spécifiquement (tableau de service visible) plutôt qu'une simple
+   tranche du fond paysage. Paysage (desktop/tablette large) garde
+   landing-bg(-light).jpg ci-dessus. */
+@media (orientation:portrait){
+  #screen-landing{background-image:linear-gradient(var(--scrim),var(--scrim)),url(/static/assets/img/landing-bg-portrait.jpg?v=__ASSET_VERSION__);}
+  html[data-theme="light"] #screen-landing{background-image:linear-gradient(var(--scrim),var(--scrim)),url(/static/assets/img/landing-bg-light-portrait.jpg?v=__ASSET_VERSION__);}
+}
+
+/* Correctif v0.55 : fonds de tuiles par MODULE (identité, pas état) par
+   thème (sombre + clair). Placé ici (et non dans styles.css) pour
+   bénéficier du cache-bust ?v=__ASSET_VERSION__ -- tile-planning.jpg/
+   tile-debrief.jpg sont remplacées (mêmes noms) et les variantes claires
+   sont swappées par thème, donc toutes deux sujettes au même risque de
+   cache navigateur que les fonds landing (cf. commentaire ci-dessus).
+   Correctif ②.1 (le porteur) : chaque tuile de module porte SA propre image
+   (tile-planning / tile-debrief) -- ce ne sont pas des états actif/voilé
+   partagés (le filtre grayscale .veiled reste un état orthogonal,
+   image-agnostique, cf. styles.css l.286-287). Gradient bas plus opaque
+   en clair (jusqu'à .80/.85 contre .92/.94 en sombre) : le fond clair est
+   naturellement plus lumineux, il faut donc plus d'obscurcissement bas
+   pour garder le texte blanc lisible. */
+.station-tile.mod-planning{background-image:linear-gradient(180deg,rgba(10,12,8,.05) 30%,rgba(10,12,8,.92)),url(/static/assets/img/tile-planning.jpg?v=__ASSET_VERSION__);}
+.station-tile.mod-debrief{background-image:linear-gradient(180deg,rgba(10,12,8,.05) 30%,rgba(10,12,8,.92)),url(/static/assets/img/tile-debrief.jpg?v=__ASSET_VERSION__);}
+html[data-theme="light"] .station-tile.mod-planning{background-image:linear-gradient(180deg,rgba(10,12,8,.05) 30%,rgba(10,12,8,.80)),url(/static/assets/img/tile-planning-light.jpg?v=__ASSET_VERSION__);}
+html[data-theme="light"] .station-tile.mod-debrief{background-image:linear-gradient(180deg,rgba(10,12,8,.05) 30%,rgba(10,12,8,.80)),url(/static/assets/img/tile-debrief-light.jpg?v=__ASSET_VERSION__);}
+.station-tile.mod-command{background-image:linear-gradient(180deg,rgba(10,12,8,.05) 30%,rgba(10,12,8,.92)),url(/static/assets/img/tile-command.webp?v=__ASSET_VERSION__);}
+html[data-theme="light"] .station-tile.mod-command{background-image:linear-gradient(180deg,rgba(10,12,8,.05) 30%,rgba(10,12,8,.80)),url(/static/assets/img/tile-command-light.webp?v=__ASSET_VERSION__);}
+</style>
+</head>
+<body>
+
+<!-- Lot D — filtre de fil "merrow" pour l'écusson, injecté une fois.
+     primitiveUnits="objectBoundingBox" est obligatoire : sert les quatre
+     paliers avec une seule déclaration (BRIEF §6). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<filter id="rr-merrow" primitiveUnits="objectBoundingBox"
+        x="-14%" y="-14%" width="128%" height="128%"
+        color-interpolation-filters="sRGB">
+  <feGaussianBlur in="SourceAlpha" stdDeviation="0.026" result="grown"/>
+  <feComponentTransfer in="grown" result="hard">
+    <feFuncA type="linear" slope="18" intercept="0"/>
+  </feComponentTransfer>
+  <feTurbulence type="fractalNoise" baseFrequency="45" numOctaves="2" seed="7" result="noise"/>
+  <feDisplacementMap in="hard" in2="noise" scale="0.012"
+                     xChannelSelector="R" yChannelSelector="G" result="woven"/>
+  <feComposite in="woven" in2="SourceAlpha" operator="out" result="ring"/>
+  <feFlood flood-color="#C9B896" result="tint"/>
+  <feComposite in="tint" in2="ring" operator="in" result="thread"/>
+  <feMerge>
+    <feMergeNode in="thread"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+<!-- Lot « Polish de l'écran du Débrief » : l'usure du tampon de training (natureStampHtml), déclarée une fois
+     pour tout le document — deux trainings à l'écran ne répètent plus l'identifiant. -->
+<filter id="nature-usure"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7"/><feComponentTransfer><feFuncA type="discrete" tableValues="0 1 1 1 1 1"/></feComponentTransfer><feComposite in="SourceGraphic" operator="in"/></filter>
+</defs></svg>
+
+<!-- Sprite d'icônes inline Débrief (Lot D2②, guide §11.2) : point de vérité
+     unique, servi inline (aucun fichier séparé, aucune requête HTTP). Copié
+     verbatim depuis debrief_d2_mockup_v2.html (l.553). Référencé partout par
+     <svg class="ic"><use href="#id"/></svg>, teinté currentColor. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="target-aa" viewBox="0 0 24 24"><path d="M4 18h11v-3H4z"/><circle cx="6.5" cy="18.5" r="1.3"/><circle cx="12.5" cy="18.5" r="1.3"/><path d="M9 15l7-8M11 15.5l7-8"/><path d="M14.5 6.5l1.5.5.5 1.5"/></symbol><symbol id="target-artillerie" viewBox="0 0 24 24"><circle cx="8" cy="15" r="3.2"/><path d="M9 13L20 5.5"/><path d="M18.5 4.5l1.5 1 .5 1.7"/><path d="M7.5 16.5L3 20M9 16L5.5 20"/><path d="M6 14.5l3 1"/></symbol><symbol id="target-avion" viewBox="0 0 24 24"><path d="M12 3c1 0 1.3 1.5 1.3 3.5v3.5l7 4v2l-7-2v4l2 1.5v1.5l-3.3-1-3.3 1v-1.5l2-1.5v-4l-7 2v-2l7-4V6.5C10.7 4.5 11 3 12 3z"/></symbol><symbol id="target-blinde-leger" viewBox="0 0 24 24"><path d="M3 14l2.5-4.5h9L18 14"/><path d="M3 14v2h15v-2"/><path d="M11 9.5V7h3.5"/><circle cx="7" cy="16.5" r="1.6"/><circle cx="14.5" cy="16.5" r="1.6"/></symbol><symbol id="target-char" viewBox="0 0 24 24"><path d="M5 15.5h8.5a2 2 0 0 1 0 4H5a2 2 0 0 1 0-4z"/><path d="M4 15.5v-3h11v3"/><path d="M7 12.5v-2h4v2"/><path d="M11 11h9.5"/></symbol><symbol id="target-helicoptere" viewBox="0 0 24 24"><path d="M3 7h14M9 7v3"/><rect x="4" y="10" width="8" height="5" rx="2.2"/><path d="M12 12.5h8M20 11v3"/><path d="M6 15v1.5M10 15v1.5"/></symbol><symbol id="target-inconnu" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.5a2.8 2.8 0 0 1 5.4 1c0 1.9-2.4 2-2.4 3.7"/><circle cx="12" cy="16.8" r=".4"/></symbol><symbol id="target-infanterie" viewBox="0 0 24 24"><circle cx="10" cy="5" r="2"/><path d="M10 7v6M10 13l-2.5 6M10 13l2.5 6"/><path d="M10 9l7-2M15 6.2v3"/></symbol><symbol id="target-navire" viewBox="0 0 24 24"><path d="M3 15h18l-2.5 4H5.5z"/><path d="M6 15v-3h7v3M9.5 12V9h3v3"/><path d="M11 9V5"/><path d="M2 21c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></symbol><symbol id="target-static" viewBox="0 0 24 24"><path d="M4 18v-4a8 4 0 0 1 16 0v4"/><path d="M3 18h18"/><path d="M8 13.5h8"/></symbol><symbol id="target-vehicule" viewBox="0 0 24 24"><path d="M2 8h10v7H2z"/><path d="M12 10h3l2.5 2.5V15h-5.5"/><circle cx="6" cy="16.5" r="1.6"/><circle cx="15" cy="16.5" r="1.6"/></symbol><symbol id="coa-friend" viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="17" height="11" rx="1.5"/></symbol><symbol id="coa-hostile" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z"/></symbol><symbol id="coa-unknown" viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="1"/></symbol><symbol id="sev-aimed" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/></symbol><symbol id="sev-hit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol><symbol id="sev-down" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M9 9l6 6M15 9l-6 6"/></symbol><symbol id="m-pilots" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.4a3 3 0 0 1 0 5.2"></path><path d="M17.5 13.6a5.5 5.5 0 0 1 3 5.4"></path></symbol><symbol id="m-flights" viewBox="0 0 24 24"><path d="M3.5 12.8l15.5-4.1a1.6 1.6 0 0 0-.9-3l-2.7.5-5.8-3.4-1.9.5 3.4 4.2-3.7 1-2.3-1.7-1.6.4 1.4 3.4z"></path><path d="M4 20h13"></path></symbol><symbol id="m-kills" viewBox="0 0 24 24"><path d="M12 3l2.5 5.3 5.7.7-4.2 4 1.1 5.7-5.1-2.8-5.1 2.8 1.1-5.7-4.2-4 5.7-.7z"></path></symbol><symbol id="m-duration" viewBox="0 0 24 24"><circle cx="12" cy="12.5" r="8"></circle><path d="M12 8v4.5l3 2"></path><path d="M9.5 2.5h5"></path><path d="M12 2.5v2"></path></symbol></defs></svg>
+
+<!-- ============ ÉCRAN 1 : LANDING (hub des stations) ============ -->
+<section id="screen-landing">
+  <!-- Lot 7 §5 : 2e instance du contrôle de thème sur la landing (roue
+       dentée en coin haut-droite, même patron settings-btn/settings-menu
+       que la topbar). Appelle le MÊME setThemePref via le sélecteur
+       commun [data-theme-pref] -- data-theme étant sur <html> et la
+       préférence en localStorage, le réglage se propage instantanément
+       entre landing et app et persiste, sans logique dupliquée. -->
+  <div id="landing-settings-wrap" class="settings-wrap landing-settings-wrap">
+    <button id="landing-settings-btn" type="button" class="btn btn-icon btn-sm settings-btn" aria-haspopup="true" aria-expanded="false" aria-controls="landing-theme-control" title="Réglages" aria-label="Réglages">
+      <svg class="settings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
+    <div id="landing-theme-control" class="theme-control landing-theme-control">
+      <button type="button" data-theme-pref="dark" data-i18n="theme_dark">Sombre</button>
+      <button type="button" data-theme-pref="light" data-i18n="theme_light">Greaseboard</button>
+      <button type="button" data-theme-pref="system" data-i18n="theme_system">Système</button>
+    </div>
+  </div>
+  <img class="landing-logo" alt="">
+  <div class="landing-eyebrow stencil"></div>
+  <h1 class="landing-title title-font" data-i18n="landing_title">Ready Room</h1>
+  <p class="landing-sub" data-i18n="landing_sub">Portail interne de l'escadre — planification des vols, présences et debriefing.</p>
+
+  <!-- L'utilisateur qui atteint cette page a déjà réussi l'auth Discord côté
+       serveur (cf. app/main.py : /  ne sert ce shell statique que si
+       authentifié). Ce bloc de connexion est conservé pour fidélité à la DA
+       validée mais reste masqué par défaut : on affiche directement le hub
+       des stations, déjà "connecté". -->
+  <div id="landing-login" class="hidden">
+    <button id="discord-signin" class="btn btn-accent discord-btn">
+      <svg class="discord-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="12" rx="4"></rect><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"></circle><path d="M8 6 8.8 4"></path><path d="M16 6 15.2 4"></path></svg>
+      <span data-i18n="signin">Se connecter avec Discord</span>
+    </button>
+  </div>
+
+  <div id="landing-stations">
+    <div class="guest-strip hidden">Accès invité · démonstration en lecture seule — jusqu'au {date}</div>
+    <div class="connected-pill"><span class="connected-dot"></span> <span data-i18n="connected">Connecté</span> — <span id="connected-name">…</span></div>
+    <button id="landing-logout" class="btn btn-ghost btn-sm" data-i18n="logout">Déconnexion</button>
+    <div class="stations-grid">
+      <div class="station-tile mod-planning">
+        <div class="station-body">
+          <div class="station-status" data-i18n="status_operational">Opérationnel</div>
+          <div class="station-name" data-i18n="station_planif">Planification</div>
+          <button id="station-planif-open" class="btn btn-accent btn-sm" data-i18n="open">Ouvrir</button>
+        </div>
+      </div>
+      <div class="station-tile mod-debrief" id="station-tile-debrief">
+        <div class="station-body">
+          <div class="station-status" data-i18n="status_operational">Opérationnel</div>
+          <div class="station-name" data-i18n="station_debrief">Escadre</div>
+          <button id="station-debrief-open" class="btn btn-accent btn-sm" data-i18n="open">Ouvrir</button>
+        </div>
+      </div>
+      <div class="station-tile mod-command hidden" id="station-tile-command">
+        <div class="station-body">
+          <div class="station-status" data-i18n="status_operational">Opérationnel</div>
+          <div class="station-name" data-i18n="station_command">Centre de Commandement</div>
+          <button id="station-command-open" class="btn btn-accent btn-sm" data-i18n="open">Ouvrir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lot 6 : tuiles-liens externes vers les autres outils de l'escadre
+         (Mission Plan / Mission Tools). Section distincte, clairement
+         "externe" (glyphe dedie, ouverture nouvel onglet) -- pas des
+         stations internes de la Ready Room. -->
+    <div class="external-tools">
+      <div class="external-tools-title" data-i18n="external_tools_title">Autres outils</div>
+      <div class="external-tiles-grid">
+        <a class="external-tile" href="/outils/mission-plan/" target="_blank" rel="noopener noreferrer">
+          <img class="external-tile-img" src="/static/assets/img/tile-mission-plan.webp" alt="">
+          <img class="external-tile-insigne" src="/static/assets/marque/insigne-mission-plan.svg" alt="" width="64" height="64">
+          <div class="external-tile-body">
+            <span class="external-tile-name">Mission Plan</span>
+            <span class="external-tile-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4 10 14"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></span>
+          </div>
+          <span class="sr-only" data-i18n="opens_new_tab">(ouvre un nouvel onglet)</span>
+        </a>
+        <a class="external-tile" href="/outils/mission-tools/" target="_blank" rel="noopener noreferrer">
+          <img class="external-tile-img" src="/static/assets/img/tile-mission-tools.webp" alt="">
+          <img class="external-tile-insigne" src="/static/assets/marque/insigne-mission-tools.svg" alt="" width="64" height="64">
+          <div class="external-tile-body">
+            <span class="external-tile-name">Mission Tools</span>
+            <span class="external-tile-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4 10 14"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></span>
+          </div>
+          <span class="sr-only" data-i18n="opens_new_tab">(ouvre un nouvel onglet)</span>
+        </a>
+        <a class="external-tile" href="/manuel/" target="_blank" rel="noopener noreferrer">
+          <img class="external-tile-img" src="/static/assets/img/tile-manuel.webp" alt="">
+          <img class="external-tile-insigne" src="/static/assets/marque/insigne-ready-room.svg" alt="" width="64" height="64">
+          <div class="external-tile-body">
+            <span class="external-tile-name" data-i18n="manual_tile">Manuel Pilote</span>
+            <span class="external-tile-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4 10 14"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></span>
+          </div>
+          <span class="sr-only" data-i18n="opens_new_tab">(ouvre un nouvel onglet)</span>
+        </a>
+      </div>
+      <div class="rr-signature"><img src="/static/assets/marque/pictogramme.svg" alt="" width="24" height="24"><span>Squadron Ready Room<span class="rr-signature-version" data-rr-version></span></span></div>
+      <p class="rr-credit">Based on Squadron Ready Room by MirabelleBenou and the 4th VEAW virtual wing — <a href="https://github.com/MirabelleBenou/dcs-squadron-ready-room" target="_blank" rel="noopener noreferrer">github.com/MirabelleBenou/dcs-squadron-ready-room</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP SHELL (La Planche / Tableau hebdo) ============ -->
+<section id="screen-app" class="hidden" data-module="planif" data-view="planche">
+  <header class="topbar">
+    <button id="back-to-landing" class="btn btn-icon btn-sm" title="Retour" aria-label="Retour">
+      <span aria-hidden="true">‹</span>
+    </button>
+    <img class="topbar-logo" alt="">
+    <span class="topbar-brand title-font">READY ROOM</span>
+    <nav class="topbar-nav" data-module-nav="planif">
+      <button data-view="planche" class="active">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 9h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path></svg>
+        <span class="tab-label" data-i18n="nav_planche">La Planche</span>
+      </button>
+      <button data-view="hebdo">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"></rect><rect x="3" y="10" width="18" height="4" rx="1"></rect><rect x="3" y="16" width="18" height="4" rx="1"></rect></svg>
+        <span class="tab-label" data-i18n="nav_hebdo">Tableau hebdo</span>
+      </button>
+    </nav>
+    <!-- Lot D2② : 2e groupe de nav, module Débrief (masqué par CSS tant que
+         #screen-app[data-module!="debrief"], cf. Volet 7).
+         Lot 1.5b §14 — navigation refaite en 5 entrées (source :
+         SPEC_READY_ROOM_Debrief_Carriere_v1.md §4). Les deux anciennes
+         entrées disparaissent (entrée, vue, clés i18n). Badge lock vide de texte :
+         il portait "D3", code d'une série de lots sans correspondance avec
+         les phases du plan v4 (arbitrage du porteur du 7 août : l'accès est
+         réservé aux administrateurs, le code n'apprend rien à personne et
+         vieillirait mal). -->
+    <nav class="topbar-nav" data-module-nav="debrief" hidden>
+      <button data-nav="accueil">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="8.5" rx="1.2"></rect><rect x="13.5" y="3" width="7.5" height="5" rx="1.2"></rect><rect x="3" y="14.5" width="7.5" height="6.5" rx="1.2"></rect><rect x="13.5" y="11" width="7.5" height="10" rx="1.2"></rect></svg>
+        <span class="tab-label" data-i18n="nav_accueil">Accueil</span>
+      </button>
+      <button data-nav="pilotes">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11a3.2 3.2 0 1 0 0-6.4A3.2 3.2 0 0 0 9 11z"></path><path d="M2.8 20.2a6.2 6.2 0 0 1 12.4 0"></path><path d="M17 5.2a3 3 0 0 1 0 5.9"></path><path d="M18.4 14.4a5.6 5.6 0 0 1 3.3 5"></path></svg>
+        <span class="tab-label" data-i18n="nav_pilotes">Dossier</span>
+      </button>
+      <button data-nav="campagnes">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 21V3.6"></path><path d="M5.5 4.4h11.2l-2.1 3.6 2.1 3.6H5.5"></path><path d="M9 14.6h9.5"></path><path d="M9 18h6"></path></svg>
+        <span class="tab-label" data-i18n="nav_campagnes">Campagnes</span>
+      </button>
+      <button data-nav="missions" class="active">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"></rect><rect x="3" y="10" width="18" height="4" rx="1"></rect><rect x="3" y="16" width="18" height="4" rx="1"></rect></svg>
+        <span class="tab-label" data-i18n="nav_missions">Missions</span>
+      </button>
+      <button data-nav="escadrilles">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8 4.6 5.6v6c0 4.3 3 8.2 7.4 9.6 4.4-1.4 7.4-5.3 7.4-9.6v-6z"></path><path d="M8.4 11.6 12 8.6l3.6 3"></path><path d="M8.4 15.6 12 12.6l3.6 3"></path></svg>
+        <span class="tab-label" data-i18n="nav_escadrilles">Escadrilles</span>
+      </button>
+    </nav>
+    <!-- Lot « Déposer depuis la barre du haut » : le bouton « Déposer » du Débrief, sur tous ses écrans (montré par
+         CSS dans le seul module Débrief) ; au téléphone, le bouton rond. Il remplace celui de la barre des Missions. -->
+    <button type="button" id="debrief-deposer-btn" class="btn btn-accent btn-sm rr-cta" data-open-deposer><span class="cta-label">＋ <span data-i18n="deposer">Déposer</span></span><span class="cta-plus" aria-hidden="true">＋</span></button>
+    <!-- Lot 3.2b, Volet 2 : 3e groupe de nav, module Centre de Commandement
+         (masqué par CSS tant que #screen-app[data-module!="command"], cf.
+         Volet 2/A-6). Les sept onglets sont servis (Escadre, Escadrilles,
+         Membres, Droits, Campagnes, Référentiels, Archives) -- sans
+         `disabled` (cf. brief §3③ : la nav du CC n'utilise ni `data-nav`
+         ni `data-view`, uniquement `data-cc-nav`). « Réf » et « Arch »
+         restent abrégés (en mots entiers, la barre ne tient plus à 1 150 px) :
+         le mot entier est en info-bulle (`data-i18n-title`). -->
+    <nav class="topbar-nav" data-module-nav="command" hidden>
+      <button data-cc-nav="escadre">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="8.5" rx="1.2"></rect><rect x="13.5" y="3" width="7.5" height="5" rx="1.2"></rect><rect x="3" y="14.5" width="7.5" height="6.5" rx="1.2"></rect><rect x="13.5" y="11" width="7.5" height="10" rx="1.2"></rect></svg>
+        <span class="tab-label" data-i18n="nav_cc_escadre">Escadre</span>
+      </button>
+      <button data-cc-nav="escadrilles" class="active">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8 4.6 5.6v6c0 4.3 3 8.2 7.4 9.6 4.4-1.4 7.4-5.3 7.4-9.6v-6z"></path><path d="M8.4 11.6 12 8.6l3.6 3"></path><path d="M8.4 15.6 12 12.6l3.6 3"></path></svg>
+        <span class="tab-label" data-i18n="nav_cc_escadrilles">Escadrilles</span>
+      </button>
+      <button data-cc-nav="membres">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11a3.2 3.2 0 1 0 0-6.4A3.2 3.2 0 0 0 9 11z"></path><path d="M2.8 20.2a6.2 6.2 0 0 1 12.4 0"></path><path d="M17 5.2a3 3 0 0 1 0 5.9"></path><path d="M18.4 14.4a5.6 5.6 0 0 1 3.3 5"></path></svg>
+        <span class="tab-label" data-i18n="nav_cc_membres">Membres</span>
+      </button>
+      <button data-cc-nav="droits">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="12" r="4"></circle><path d="M11 12h10"></path><path d="M17.5 12v3.6"></path><path d="M20 12v2.4"></path></svg>
+        <span class="tab-label" data-i18n="nav_cc_droits">Droits</span>
+      </button>
+      <button data-cc-nav="campagnes" class="rr-deborde">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 21V3.6"></path><path d="M5.5 4.4h11.2l-2.1 3.6 2.1 3.6H5.5"></path><path d="M9 14.6h9.5"></path><path d="M9 18h6"></path></svg>
+        <span class="tab-label" data-i18n="nav_cc_campagnes">Campagnes</span>
+      </button>
+      <button data-cc-nav="referentiels" class="rr-deborde" data-i18n-title="cc_ref_title" title="Référentiels">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.2c3.3-.6 6.3-.2 8.5 1.2 2.2-1.4 5.2-1.8 8.5-1.2V18c-3.3-.6-6.3-.2-8.5 1.2-2.2-1.4-5.2-1.8-8.5-1.2z"></path><path d="M12 6.4v12.8"></path></svg>
+        <span class="tab-label" data-i18n="nav_cc_referentiels">Référentiels</span>
+      </button>
+      <button data-cc-nav="archives" class="rr-deborde" data-i18n-title="cc_arch_title" title="Archives">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="4.5" rx="1"></rect><path d="M4.8 9v9.5a1.5 1.5 0 0 0 1.5 1.5h11.4a1.5 1.5 0 0 0 1.5-1.5V9"></path><path d="M9.8 13.4h4.4"></path></svg>
+        <span class="tab-label" data-i18n="nav_cc_archives">Archives</span>
+      </button>
+      <!-- Lot « La page Configuration du Centre » (v1.0106) : réservé aux administrateurs (`data-cc-admin`, `hidden` tant que ME n'est pas chargé). -->
+      <button data-cc-nav="configuration" class="rr-deborde" data-cc-admin hidden title="Configuration">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9"></path><path d="M17 6h3"></path><circle cx="15" cy="6" r="2"></circle><path d="M4 12h2"></path><path d="M10 12h10"></path><circle cx="8" cy="12" r="2"></circle><path d="M4 18h7"></path><path d="M15 18h5"></path><circle cx="13" cy="18" r="2"></circle></svg>
+        <span class="tab-label" data-i18n="nav_cc_configuration">Configuration</span>
+      </button>
+      <!-- rr-socle-charte (R594) : cinq onglets au plus dans la barre du bas, sinon « Plus » ;
+           .rr-deborde = les onglets qui passent dans la feuille (compact et tablette portrait). -->
+      <button type="button" class="rr-plus" data-plus aria-haspopup="menu" aria-expanded="false" aria-controls="cc-plus-feuille">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.3"></circle><circle cx="12" cy="12" r="1.3"></circle><circle cx="19" cy="12" r="1.3"></circle></svg>
+        <span class="tab-label" data-i18n="nav_plus">Plus</span>
+      </button>
+    </nav>
+    <div id="cc-plus-feuille" class="rr-plus-feuille" role="menu">
+      <button type="button" role="menuitem" data-plus-vers="campagnes"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 21V3.6"></path><path d="M5.5 4.4h11.2l-2.1 3.6 2.1 3.6H5.5"></path><path d="M9 14.6h9.5"></path><path d="M9 18h6"></path></svg><span data-i18n="nav_cc_campagnes">Campagnes</span></button>
+      <button type="button" role="menuitem" data-plus-vers="referentiels"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.2c3.3-.6 6.3-.2 8.5 1.2 2.2-1.4 5.2-1.8 8.5-1.2V18c-3.3-.6-6.3-.2-8.5 1.2-2.2-1.4-5.2-1.8-8.5-1.2z"></path><path d="M12 6.4v12.8"></path></svg><span data-i18n="cc_ref_title">Référentiels</span></button>
+      <button type="button" role="menuitem" data-plus-vers="archives"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="4.5" rx="1"></rect><path d="M4.8 9v9.5a1.5 1.5 0 0 0 1.5 1.5h11.4a1.5 1.5 0 0 0 1.5-1.5V9"></path><path d="M9.8 13.4h4.4"></path></svg><span data-i18n="cc_arch_title">Archives</span></button>
+      <button type="button" role="menuitem" data-plus-vers="configuration" data-cc-admin hidden><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9"></path><path d="M17 6h3"></path><circle cx="15" cy="6" r="2"></circle><path d="M4 12h2"></path><path d="M10 12h10"></path><circle cx="8" cy="12" r="2"></circle><path d="M4 18h7"></path><path d="M15 18h5"></path><circle cx="13" cy="18" r="2"></circle></svg><span data-i18n="cc_cfg_title">Configuration</span></button>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <!-- Lot « Manuel : le bouton ? » : ouvre le Manuel Pilote (un onglet neuf à chaque appui) à la section de l'écran
+           affiché ; l'adresse #vue=<écran> est traduite en ancre par le manuel (cf. openManuel dans app.js). -->
+      <a id="help-btn" class="btn btn-icon btn-sm" href="/manuel/" target="_blank" data-i18n-title="help_btn" data-i18n-aria="help_btn" title="Manuel — cet écran" aria-label="Manuel — cet écran">
+        <svg class="settings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2.9-1.2 1.7"></path><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"></circle></svg>
+      </a>
+      <div id="settings-wrap" class="settings-wrap">
+        <button id="settings-btn" type="button" class="btn btn-icon btn-sm settings-btn" aria-haspopup="true" aria-expanded="false" aria-controls="settings-menu" title="Réglages" aria-label="Réglages">
+          <svg class="settings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <div id="settings-menu" class="settings-menu">
+          <div class="lang-toggle">
+            <button data-lang="fr" class="active">FR</button>
+            <button data-lang="en">EN</button>
+          </div>
+          <div id="theme-control" class="theme-control">
+            <button type="button" data-theme-pref="dark" data-i18n="theme_dark">Sombre</button>
+            <button type="button" data-theme-pref="light" data-i18n="theme_light">Greaseboard</button>
+            <button type="button" data-theme-pref="system" data-i18n="theme_system">Système</button>
+          </div>
+        </div>
+      </div>
+      <div id="account-chip" class="account-chip">
+        <span id="account-avatar" class="avatar">··</span>
+        <span id="account-name" class="account-name">…</span>
+      </div>
+    </div>
+  </header>
+  <div class="guest-strip hidden">Accès invité · démonstration en lecture seule — jusqu'au {date}</div>
+
+  <!-- ---- Vue : La Planche ---- -->
+  <div id="view-planche" class="view">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="section_planche">La Planche</h2>
+    </div>
+
+    <div class="toolbar">
+      <div class="month-nav">
+        <button id="month-prev" class="btn btn-icon btn-sm" aria-label="précédent">‹</button>
+        <span id="month-label" class="month-label">Juillet 2026</span>
+        <button id="month-next" class="btn btn-icon btn-sm" aria-label="suivant">›</button>
+      </div>
+      <div class="view-toggle">
+        <button class="active" data-viewmode="month" data-i18n="view_month">Mois</button>
+        <button data-viewmode="week" data-i18n="view_week">Semaine</button>
+      </div>
+      <button id="mr-compteur" class="mr-compteur hidden" type="button"></button>
+      <div class="toolbar-spacer"></div>
+      <span class="pl-filter-label" data-i18n="filters_show">Afficher</span>
+      <div id="filter-chips" class="filter-chips"></div>
+      <button id="add-event-btn" class="btn btn-accent btn-sm rr-cta hidden">
+        <span class="cta-label" data-i18n="add_event">+ Événement</span>
+        <span class="cta-plus" aria-hidden="true">+</span>
+      </button>
+    </div>
+
+    <div id="cal-grid" class="cal-grid"></div>
+    <div id="agenda-list" class="agenda-list"></div>
+    <div id="week-strip" class="week-strip hidden"></div>
+    <aside id="pl-aside" class="pl-aside" aria-labelledby="pl-aside-titre"></aside>
+  </div>
+
+  <!-- ---- Vue : Tableau hebdo ---- -->
+  <div id="view-hebdo" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="section_hebdo">Tableau de présences hebdo</h2>
+    </div>
+    <div id="hebdo-sections"></div>
+  </div>
+
+  <!-- ============ VUES MODULE DÉBRIEF (Lot D2②) ============
+       Coquilles vides, module-scopées (visibles seulement en
+       #screen-app[data-module="debrief"], cf. Volet 7). Peuplement réel :
+       ③ (Missions), ④ (Session), ⑤ (Vol). Les 4 entrées verrouillées = stub
+       "À venir" (décision du porteur, pas d'aperçu riche, lot 1.5b §14). -->
+  <div id="view-missions" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="MSN/REGISTRE"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_missions">MISSIONS</span>
+            <span class="c-sub" data-i18n="cart_sub_missions">Registre des missions volées</span>
+          </div>
+          <span class="c-stamp copie"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="missions-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="view-session" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" id="session-mref" data-mref="MSN/NNNN"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_session">SESSION</span>
+            <span class="c-sub" data-i18n="cart_sub_session">Compte rendu de mission</span>
+          </div>
+          <span class="c-stamp secret"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="session-mount"></div></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="view-flight" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="rr-crest" id="flight-crest" hidden aria-hidden="true"></span>
+        <span class="mref" id="flight-mref" data-mref="MSN/NNNN/Vn"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_flight">VOL</span>
+            <span class="c-sub" data-i18n="cart_sub_flight">Fiche de vol</span>
+          </div>
+          <span class="c-stamp secret"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="flight-mount"></div></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---- Lot « L'écran B » : l'accueil du Débrief, poste de commandement de l'escadre ---- -->
+  <div id="view-accueil" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="WNG/PC"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_accueil">POSTE DE COMMANDEMENT</span>
+            <span class="c-sub" data-i18n="cart_sub_accueil">Tableau de bord de l'escadre</span>
+          </div>
+          <span class="c-stamp copie"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="accueil-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <!-- Lot « L'écran B » : le décorum de l'accueil se pose ici, en face du bloc NATO STANDARD. -->
+          <div class="acc-souvenir" id="accueil-souvenir" aria-hidden="true"></div>
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---- Lot « L'écran A » : le dossier personnel du pilote connecté (R208, R209) --
+       Lui seul le voit, admins compris (la route ne prend aucun identifiant). Même feuille que
+       #view-membre (F) ; ses blocs sont les enfants directs de #pilotes-mount. ---- -->
+  <div id="view-pilotes" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="PIL/PERS"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_pilotes">Dossier personnel</span>
+            <span class="c-sub" data-i18n="cart_sub_pilotes">Réservé au titulaire</span>
+          </div>
+          <span class="c-stamp secret"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <!-- L'attente se tient hors du montage : les enfants directs de #pilotes-mount sont les blocs, et eux seuls. -->
+        <div class="body"><p class="muted" id="pilotes-attente" data-i18n="loading">Chargement…</p><div id="pilotes-mount"></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---- Lot « L'écran C — la fiche campagne » : le registre des campagnes (#view-campagnes,
+       même feuille que #view-missions) et la fiche d'une campagne (#view-campagne, même
+       feuille que #view-accueil, décorum compris). ---- -->
+  <div id="view-campagnes" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="CMP/REGISTRE"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_campagnes">CAMPAGNES</span>
+            <span class="c-sub" data-i18n="cart_sub_campagnes">Registre des campagnes</span>
+          </div>
+          <span class="c-stamp copie"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="campagnes-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="view-campagne" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" id="campagne-mref" data-mref="CMP/NNNN"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_campagne">CAMPAGNE</span>
+            <span class="c-sub" data-i18n="cart_sub_campagne">Dossier de campagne</span>
+          </div>
+          <span class="c-stamp secret"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="campagne-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <!-- Le décorum de l'accueil, tiré sur la campagne, en face du bloc NATO STANDARD. -->
+          <div class="acc-souvenir" id="campagne-souvenir" aria-hidden="true"></div>
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Lot « L'écran D » (R177) : l'escadre sur une page -- état civil, ordre de
+       bataille, activité, organigramme --, rendue par renderEscadre() dans
+       #escadrilles-mount. Même feuille que #view-missions. -->
+  <div id="view-escadrilles" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="WNG/ORBAT"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_escadre">ESCADRE</span>
+            <span class="c-sub" data-i18n="cart_sub_escadre">Ordre de bataille</span>
+          </div>
+          <span class="c-stamp copie"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="escadrilles-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---- Lot « Les écrans E et F » : l'écran E, fiche d'une escadrille active,
+       et l'écran F, synthèse d'un membre -- sous-pages de l'onglet Escadrilles. ---- -->
+  <div id="view-escadrille" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="UNI"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_escadrille">ESCADRILLE</span>
+            <span class="c-sub" data-i18n="cart_sub_escadrille">Dossier d'unité</span>
+          </div>
+          <span class="c-stamp copie"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="escadrille-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="view-membre" class="view hidden">
+    <div class="stage">
+      <section class="sheet">
+        <div class="perfo"></div>
+        <span class="mref" data-mref="PIL"></span>
+        <div class="cartouche">
+          <span class="emb otan"></span>
+          <div class="c-tt">
+            <span class="c-title ink worn" data-i18n="cart_title_membre">FICHE DE SYNTHÈSE</span>
+            <span class="c-sub" data-i18n="cart_sub_membre">Consultable par l'escadre</span>
+          </div>
+          <span class="c-stamp copie"></span>
+          <div class="c-right"><div class="nato ink worn">NATO<small>COLD WAR · 1980&#8211;1990</small></div></div>
+        </div>
+        <div class="body"><div id="membre-mount"><p class="muted" data-i18n="loading">Chargement…</p></div></div>
+        <div class="foot" style="margin-top:.9rem">
+          <div class="aqap ink"><b>NATO STANDARD</b><br>AQAP-2110 · ÉD. 4</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Escadrilles (Lot 3.2b) ----
+       #view-cc-escadrilles, distincte de #view-escadrilles ci-dessus
+       (propriété du Débrief, cf. brief §3①). En-tête .section-head
+       recopié verbatim de #view-hebdo. Quatre états : chargement (table
+       + .skel), vide, erreur, partiel (table + bandeau sous le tableau).
+       Colonne d'actions posée et vide (R2 couvre son gabarit, boutons au
+       3.2e). -->
+  <div id="view-cc-escadrilles" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_squadrons_title">Escadrilles</h2>
+    </div>
+
+    <div class="cc-wrap">
+      <table class="cc-table" id="cc-sqn-table">
+        <thead>
+          <tr>
+            <th data-i18n="cc_sqn_col_designation">Identifiant</th>
+            <th data-i18n="cc_sqn_col_callsign">Callsign</th>
+            <th data-i18n="cc_sqn_col_fullname">Nom complet</th>
+            <th data-i18n="cc_sqn_col_status">Statut</th>
+            <th data-i18n="cc_sqn_col_role">Rôle Discord</th>
+            <th data-i18n="cc_sqn_col_actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="cc-sqn-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="cc-sqn-partial" class="cc-state hidden" data-i18n="cc_sqn_partial">Au moins une escadrille active n'a pas de rôle Discord associé — ses membres ne sont pas rattachés automatiquement.</div>
+
+    <div id="cc-sqn-empty" class="cc-state hidden" data-i18n="cc_sqn_empty">Aucune escadrille enregistrée.</div>
+
+    <div id="cc-sqn-error" class="cc-state hidden">
+      <div data-i18n="cc_sqn_error">Impossible de charger les escadrilles.</div>
+      <div class="cc-state-act">
+        <button type="button" id="cc-sqn-retry" class="btn btn-sm" data-i18n="cc_sqn_retry">Réessayer</button>
+      </div>
+    </div>
+
+    <!-- Ligne de conséquence (édition/armement) -- Lot 3.2e §7.2/§7.3.
+         Conteneur vide posé ici, rempli par app.js. -->
+    <div id="cc-sqn-note-zone"></div>
+
+    <!-- Bloc de création -- admin seul (§2 point 1), masqué au non-admin
+         et pendant le chargement. Structure exacte de la maquette. -->
+    <div class="cc-block hidden" id="cc-sqn-create">
+      <h3 class="cc-sub" data-i18n="cc_sqn_create_title">Créer une escadrille</h3>
+      <p class="cc-hint" data-i18n="cc_sqn_create_hint">L'identifiant est retiré des pseudos des membres partout dans l'application — saisissez-le exactement tel qu'il apparaît dans leurs noms Discord.</p>
+      <div class="cc-row">
+        <input class="cc-set" id="cc-sqn-new-desig" type="text" maxlength="24" size="16" data-i18n-ph="cc_sqn_col_designation" placeholder="Identifiant" data-i18n-aria="cc_sqn_col_designation" aria-label="Identifiant">
+        <input class="cc-set" id="cc-sqn-new-callsign" type="text" maxlength="32" size="12" data-i18n-ph="cc_sqn_col_callsign" placeholder="Callsign" data-i18n-aria="cc_sqn_col_callsign" aria-label="Callsign">
+        <input class="cc-set" id="cc-sqn-new-fullname" type="text" maxlength="100" size="24" data-i18n-ph="cc_sqn_col_fullname" placeholder="Nom complet" data-i18n-aria="cc_sqn_col_fullname" aria-label="Nom complet">
+        <span id="cc-sqn-new-role-wrap"></span>
+        <button type="button" class="btn btn-sm btn-accent cc-act" id="cc-sqn-create-btn" data-act="sqn-create" data-i18n="cc_sqn_create_submit">Créer</button>
+      </div>
+      <div id="cc-sqn-create-note"></div>
+    </div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Membres (Lot 3.2c) ----
+       #view-cc-membres. En-tête .section-head recopié verbatim de
+       #view-cc-escadrilles. Châssis de tableau (cc-table/cc-wrap) et
+       bande de groupe (cc-group) réemployés du 3.2b sans règle neuve.
+       Trois états seulement : chargement, vide, erreur -- pas de partiel
+       (aucune définition honnête n'est atteignable à ce lot, cf. brief
+       §6.6). Quatre colonnes, l'escadrille étant portée par la bande de
+       groupe et non par une colonne (leçon du lot v0.21). -->
+  <div id="view-cc-membres" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_members_title">Membres</h2>
+    </div>
+
+    <!-- Lot « L'appel » : la ligne d'appel, remplie par app.js
+         (renderCommandAppel). En tête : sous le tableau, elle serait à
+         2 000 px sur téléphone. -->
+    <div id="cc-mbr-appel"></div>
+
+    <!-- Lot « Les relances » (R8) : la liste des pilotes en retard de planning,
+         remplie par app.js (renderCommandRelances). Sous la ligne d'appel :
+         même famille (.cc-note), sans règle neuve. -->
+    <div id="cc-mbr-relances"></div>
+
+    <!-- Lot « Polish du Centre » : le diagnostic d'accès, rempli par app.js
+         (renderCommandAcces), pour un administrateur seul. -->
+    <div id="cc-mbr-acces"></div>
+
+    <!-- Lot « Le Centre au doigt et à la charte » (R5) : chercher un membre ; le filtre et le compte, app.js. -->
+    <div class="cc-search-row" id="cc-mbr-search"><input class="cc-set" id="cc-mbr-q" type="search" data-i18n-ph="cc_mbr_search_ph" placeholder="Chercher un membre" data-i18n-aria="cc_mbr_search_ph" aria-label="Chercher un membre"><span class="cc-count" id="cc-mbr-count" aria-live="polite"></span></div>
+
+    <div class="cc-wrap">
+      <table class="cc-table" id="cc-mbr-table">
+        <thead>
+          <tr>
+            <th data-i18n="cc_mbr_col_member">Membre</th>
+            <th data-i18n="cc_mbr_col_rank">Rang</th>
+            <th data-i18n="cc_mbr_col_admin">Administrateur</th>
+            <th data-i18n="cc_mbr_col_seen">Dernière connexion</th>
+          </tr>
+        </thead>
+        <tbody id="cc-mbr-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="cc-mbr-empty" class="cc-state hidden" data-i18n="cc_mbr_empty">Aucun membre enregistré.</div>
+
+    <div id="cc-mbr-error" class="cc-state hidden">
+      <div data-i18n="cc_mbr_error">Impossible de charger les membres.</div>
+      <div class="cc-state-act">
+        <button type="button" id="cc-mbr-retry" class="btn btn-sm" data-i18n="cc_mbr_retry">Réessayer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Droits (Lot 3.2d, premier temps) ----
+       #view-cc-droits. En-tête .section-head recopié verbatim de
+       #view-cc-membres. Huit blocs : rôle Discord des chefs (#blk-role),
+       commandement des escadrilles (#blk-cmd), éditeurs du planning
+       (#blk-plan), accès à l'application (#blk-conn), accès au Débriefing
+       (#blk-debrief), relances (#blk-relances), droits sur le contenu
+       (#blk-droits) et tableau de référence des rôles (#blk-ref).
+       Quatre états (chargement/vide/erreur/partiel, cf. brief §8.2) :
+       #cc-droits-loading / #cc-droits-empty / #cc-droits-error entourent
+       #cc-droits-content, réservé au rendu réel une fois GET /rights
+       résolu. Blocs 1 et 3 (réservés à l'administrateur) sont retirés par
+       `hidden` en vue chef -- jamais grisés (brief §8.2). -->
+  <div id="view-cc-droits" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_rights_title">Droits</h2>
+    </div>
+
+    <div id="cc-droits-loading"></div>
+
+    <div id="cc-droits-empty" class="cc-state hidden" data-i18n="cc_rights_empty">Aucune escadrille active.</div>
+
+    <div id="cc-droits-error" class="cc-state hidden">
+      <div data-i18n="cc_rights_error">Impossible de charger les droits.</div>
+      <div class="cc-state-act">
+        <button type="button" id="cc-droits-retry" class="btn btn-sm" data-i18n="cc_rights_retry">Réessayer</button>
+      </div>
+    </div>
+
+    <div id="cc-droits-content" class="hidden">
+      <div id="cc-partial"></div>
+
+      <div class="cc-block" id="blk-role">
+        <h3 class="cc-sub" data-i18n="cc_rights_role_title">Rôle Discord « chef d'escadrille »</h3>
+        <p class="cc-hint" data-i18n="cc_rights_role_hint">Un seul rôle pour toute l'escadre, choisi dans la liste des rôles du serveur Discord — aucun identifiant à saisir. Tant qu'il n'est pas renseigné, seuls les administrateurs et les adjoints entrent dans le module, et aucun chef ne peut être désigné ci-dessous.</p>
+        <div class="cc-row" id="row-role"></div>
+      </div>
+
+      <div class="cc-block" id="blk-cmd">
+        <h3 class="cc-sub" data-i18n="cc_rights_cmd_title">Commandement des escadrilles</h3>
+        <p class="cc-hint" id="hint-cmd"></p>
+        <div class="cc-wrap">
+          <table class="cc-table" id="tbl-cmd">
+            <thead>
+              <tr>
+                <th data-i18n="cc_rights_col_squadron">Escadrille</th>
+                <th data-i18n="cc_rights_col_chef">Chef</th>
+                <th data-i18n="cc_rights_col_deputy">Adjoint</th>
+              </tr>
+            </thead>
+            <tbody id="tb-cmd"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="cc-block" id="blk-plan">
+        <h3 class="cc-sub" data-i18n="cc_rights_plan_title">Édition des événements du planning</h3>
+        <p class="cc-hint" data-i18n-html="cc_rights_plan_hint">Qui peut créer des événements. Par rôle du serveur Discord, ou personne par personne. <b>Chacun modifie ensuite ce qu'il a créé</b> — modifier l'événement d'un autre est un droit distinct, plus bas.</p>
+        <p class="cc-hint"><b data-i18n="cc_rights_plan_by_role">Par rôle Discord</b></p>
+        <div class="cc-row" id="row-plan-roles"></div>
+        <p class="cc-hint" style="margin-top:.7rem"><b data-i18n="cc_rights_plan_by_person">Nominativement</b></p>
+        <div class="cc-row" id="row-plan-ids"></div>
+      </div>
+
+      <div class="cc-block" id="blk-conn">
+        <h3 class="cc-sub" data-i18n="cc_rights_conn_title">Accès à l'application</h3>
+        <p class="cc-hint" data-i18n="cc_rights_conn_hint">Les rôles Discord qui ouvrent la connexion. Un membre qui n'en porte aucun ne peut pas entrer. Les administrateurs entrent toujours, quels que soient leurs rôles.</p>
+        <p class="cc-hint" id="conn-src"></p>
+        <p class="cc-hint" data-i18n="cc_rights_conn_effect">Un retrait prend effet immédiatement : la personne retombe sur la page de garde à son geste suivant. Le remettre la fait rentrer aussitôt.</p>
+
+        <div class="cc-row" id="row-conn"></div>
+
+        <div id="conn-notes"></div>
+      </div>
+
+      <!-- ============ BLOC NEUF · lot « L'accès invité » (R12) : entre #blk-conn et #blk-debrief ============ -->
+      <div class="cc-block" id="blk-invites">
+        <h3 class="cc-sub" data-i18n="cc_inv_title">Invités — démonstration</h3>
+        <p class="cc-hint" data-i18n-html="cc_inv_hint">Une personne hors du serveur Discord de l'escadre, autorisée par son identifiant Discord, pour lui montrer la Ready Room. Elle voit tout ce qu'un chef voit, <b>strictement en lecture seule</b>, et n'apparaît dans aucun tableau. Elle entre par « Se connecter avec Discord ».</p>
+        <p class="cc-hint" data-i18n="cc_inv_hint_duree">Trente jours, prolongeables. Une révocation prend effet à son geste suivant.</p>
+        <div class="cc-row"><input class="cc-set" type="text" inputmode="numeric" size="24" id="inv-id" aria-label="Identifiant Discord" placeholder="Identifiant Discord"><button type="button" class="btn btn-sm cc-act" id="inv-verifier" data-i18n="cc_inv_verifier">Vérifier</button></div>
+        <div id="inv-note"></div>
+        <div class="cc-wrap" id="inv-liste" style="margin-top:.9rem"></div>
+      </div>
+
+      <!-- ============ BLOC NEUF · brief « Accès au module Débriefing », 22 août 2026 ============ -->
+      <div class="cc-block" id="blk-debrief">
+        <h3 class="cc-sub" data-i18n="cc_rights_debrief_title">Accès au module Escadre</h3>
+        <p class="cc-hint" data-i18n="cc_rights_debrief_hint">Les porteurs de ces rôles entrent dans le module Escadre, en plus des administrateurs, qui y entrent toujours.</p>
+        <p class="cc-hint" data-i18n="cc_rights_debrief_reload_hint">Un octroi ne prend effet qu'au rechargement de la page — pas immédiatement, à la différence de l'accès à l'application.</p>
+
+        <div class="cc-row" id="row-debrief"></div>
+      </div>
+
+      <!-- ============ BLOC NEUF · lot « Les relances » (R7) : gabarit de #blk-debrief ============ -->
+      <div class="cc-block" id="blk-relances">
+        <h3 class="cc-sub" data-i18n="cc_rights_relances_title">Relances de planning</h3>
+        <p class="cc-hint" data-i18n="cc_rights_relances_hint">Les porteurs de ces rôles et ces comptes reçoivent un MP Discord quand un pilote d'escadrille n'a répondu à aucune occurrence du planning, ni des quatre dernières semaines ni des 90 jours à venir — une fois, quand son nom s'ajoute. Un destinataire ajouté reçoit aussitôt la liste en cours. Sans destinataire, aucun MP ne part ; la liste reste à l'écran Membres.</p>
+
+        <div class="cc-row" id="row-relances"></div>
+        <!-- Lot « Les relances nominatives » (R1) : la rangée des comptes, gabarit de #row-plan-ids -->
+        <p class="cc-hint" style="margin-top:.7rem"><b data-i18n="cc_rights_relances_ids">Comptes</b></p>
+        <div class="cc-row" id="row-relances-ids"></div>
+      </div>
+
+      <!-- ============ BLOC 5 — ÉTENDU · LOT 3.4 §6 (2 → 4 droits) ============ -->
+      <div class="cc-block" id="blk-droits">
+        <h3 class="cc-sub" data-i18n="cc_rights_content_title">Droits sur le contenu</h3>
+        <p class="cc-hint" data-i18n="cc_rights_content_hint">Quatre droits qui s'accordent par rôle Discord. Les administrateurs les ont toujours.</p>
+
+        <p class="cc-hint"><b data-i18n="cc_rights_content_sess_title">Renommer une mission et écrire la note d'escadre</b><br>
+          <span data-i18n="cc_rights_content_sess_hint">Portée globale : les sessions sont multi-escadrilles.</span></p>
+        <div class="cc-row" id="row-sess"></div>
+
+        <p class="cc-hint" style="margin-top:.9rem"><b data-i18n="cc_rights_content_evt_title">Modifier l'événement de quelqu'un d'autre</b><br>
+          <span data-i18n="cc_rights_content_evt_hint">S'ajoute à l'édition du planning ci-dessus, qui ne permet de corriger que ses propres événements.</span></p>
+        <div class="cc-row" id="row-evt"></div>
+        <p class="cc-hint" data-i18n="cc_rights_content_evt_reload_hint">Un octroi ne prend effet qu'au rechargement de la page — pas immédiatement, à la différence de l'accès à l'application.</p>
+
+        <p class="cc-hint" style="margin-top:.9rem"><b data-i18n="cc_rights_content_camp_title">Créer et modifier une campagne</b><br>
+          <span data-i18n="cc_rights_content_camp_hint">Même droit pour les deux gestes : c'est le même métier sur le même objet.</span></p>
+        <div class="cc-row" id="row-camp"></div>
+
+        <p class="cc-hint" style="margin-top:.9rem"><b data-i18n="cc_rights_content_campdel_title">Supprimer une campagne</b><br>
+          <span data-i18n="cc_rights_content_campdel_hint">Droit distinct, volontairement. Une campagne à laquelle des missions sont rattachées ne peut pas être supprimée, quel que soit le porteur.</span></p>
+        <div class="cc-row" id="row-campdel"></div>
+        <p class="cc-hint" data-i18n="cc_rights_content_camp_reload_hint">Pour ces deux droits aussi, un octroi ne prend effet qu'au rechargement de la page.</p>
+      </div>
+
+      <!-- ============ BLOC 6 — NEUF · LOT 3.3 (2 offices neufs, LOT 3.4 §6) ============ -->
+      <div class="cc-block" id="blk-ref">
+        <h3 class="cc-sub" data-i18n="cc_rights_ref_title">Les rôles Discord, et ce qu'ils font ici</h3>
+        <p class="cc-hint" data-i18n="cc_rights_ref_hint">Référence de lecture, pour tenir les rôles à jour côté Discord. Chaque membre porte un rôle qui ouvre l'accès ; les rôles d'escadrille et le rôle des chefs sont des rôles distincts, et n'ont pas à figurer dans la liste d'accès.</p>
+        <div class="cc-wrap">
+          <table class="cc-table">
+            <thead>
+              <tr>
+                <th data-i18n="cc_rights_ref_col_role">Rôle Discord</th>
+                <th data-i18n="cc_rights_ref_col_office">Ce qu'il fait ici</th>
+                <th style="text-align:right" data-i18n="cc_rights_ref_col_count">Membres connus</th>
+              </tr>
+            </thead>
+            <tbody id="tb-ref"></tbody>
+          </table>
+        </div>
+        <p class="cc-hint" style="margin-top:.7rem" data-i18n-html="cc_rights_ref_limit_hint">Le décompte porte sur les membres <b>connus de la Ready Room</b>, d'après les rôles relevés à leur connexion et à chaque appel.</p>
+        <div id="ref-notes"></div>
+      </div>
+
+      <div id="cc-note-zone"></div>
+    </div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Escadre (lot « L'écran Escadre du Centre ») ----
+       #view-cc-escadre. En-tête .section-head recopié verbatim de
+       #view-cc-campagnes ; le contenu (tête, fiche, confirmation) est
+       rempli par app.js (renderCommandEscadre), en quatre états : chargement,
+       erreur, vue administrateur, lecture seule. -->
+  <div id="view-cc-escadre" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_escadre_title">Escadre</h2>
+    </div>
+    <div class="cc-block" id="cc-esc-fiche"></div>
+    <div id="cc-esc-note-zone"></div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Référentiels (lot « Les référentiels : types et armes ») ----
+       #view-cc-referentiels. En-tête .section-head recopié verbatim de
+       #view-cc-campagnes ; la zone de note (confirmation d'import, messages)
+       est en tête, la fiche (barre, deux tableaux) est remplie par app.js
+       (renderCommandRef), en quatre états : chargement, erreur, vue
+       administrateur, lecture seule. -->
+  <div id="view-cc-referentiels" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_ref_title">Référentiels</h2>
+    </div>
+    <div id="cc-ref-note-zone"></div>
+    <div id="cc-ref-fiche"></div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Archives (lot « L'écran Archives du Centre ») ---- -->
+  <div id="view-cc-archives" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_arch_title">Archives</h2>
+    </div>
+    <div id="cc-arch-fiche"></div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Configuration (lot « La page Configuration du Centre », v1.0106) ----
+       #view-cc-configuration. En-tête .section-head recopié verbatim de #view-cc-archives ; la page (les
+       administrateurs, puis les réglages du serveur) est remplie par app.js (renderCommandConfig). -->
+  <div id="view-cc-configuration" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_cfg_title">Configuration</h2>
+    </div>
+    <div id="cc-cfg-fiche"></div>
+  </div>
+
+  <!-- ---- Vue : Centre de Commandement / Campagnes (Lot 3.4) ----
+       #view-cc-campagnes. En-tête .section-head recopié verbatim de
+       #view-cc-escadrilles/#view-cc-droits. Structure : gabarit exact de
+       #view-cc-escadrilles (table .cc-table + états .cc-state + zone de
+       conséquence + bloc de formulaire), qui sert ICI à la fois la
+       création ET l'édition (§3 : « Un seul bloc. Modifier une campagne
+       le bascule en édition ») -- même gabarit exact que le bloc « Créer
+       une escadrille » (3.2e ①). Zéro règle CSS neuve (§8 P2, porte
+       critique) : l'inventaire de la maquette validée est vide, tout le
+       mobilier existe déjà. -->
+  <div id="view-cc-campagnes" class="view hidden">
+    <div class="section-head">
+      <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" role="img" aria-label="Cadre d&#39;entête de section">
+  <line x1="4" y1="8" x2="356" y2="8"></line>
+  <path d="M4 8 L4 22"></path>
+  <path d="M4 22 L14 22"></path>
+  <path d="M356 8 L356 22"></path>
+  <path d="M356 22 L346 22"></path>
+  <line x1="10" y1="8" x2="10" y2="2.5"></line>
+  <line x1="18" y1="8" x2="18" y2="2.5"></line>
+  <line x1="4" y1="40" x2="356" y2="40" stroke-width="1" opacity="0.5"></line>
+  <line x1="4" y1="40" x2="4" y2="34" opacity="0.5"></line>
+  <line x1="356" y1="40" x2="356" y2="34" opacity="0.5"></line>
+</svg>
+      <h2 data-i18n="cc_campaigns_title">Campagnes</h2>
+    </div>
+
+    <div class="cc-wrap">
+      <table class="cc-table" id="cc-camp-table">
+        <thead>
+          <tr>
+            <th data-i18n="cc_camp_col_name">Campagne</th>
+            <th data-i18n="cc_camp_col_sim">Simulateur</th>
+            <th data-i18n="cc_camp_col_theater">Théâtre</th>
+            <th data-i18n="cc_camp_col_status">Statut</th>
+            <th style="text-align:right" data-i18n="cc_camp_col_missions">Missions</th>
+            <th data-i18n="cc_camp_col_actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="cc-camp-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="cc-camp-empty" class="cc-state hidden" data-i18n="cc_camp_empty">Aucune campagne enregistrée. Une mission déposée sans campagne reste une mission normale — le rattachement est facultatif.</div>
+
+    <div id="cc-camp-error" class="cc-state hidden">
+      <div data-i18n="cc_camp_error">Impossible de charger les campagnes.</div>
+      <div class="cc-state-act">
+        <button type="button" id="cc-camp-retry" class="btn btn-sm" data-i18n="cc_camp_retry">Réessayer</button>
+      </div>
+    </div>
+
+    <!-- Zone de conséquence (suppression sous garde, §7) -- conteneur vide
+         posé ici, rempli par app.js. -->
+    <div id="cc-camp-note-zone"></div>
+
+    <!-- Bloc de création ET d'édition (§3) -- masqué sans le droit
+         `campaign.manage`, et pendant le chargement. Structure exacte de
+         la maquette validée : cinq champs, un seul bloc. -->
+    <div class="cc-block hidden" id="cc-camp-create">
+      <h3 class="cc-sub" id="cc-camp-form-title" data-i18n="cc_camp_create_title">Créer une campagne</h3>
+      <p class="cc-hint" id="cc-camp-form-hint" data-i18n="cc_camp_create_hint">Seul le nom est obligatoire. Deux campagnes ne peuvent pas porter le même nom sur un même simulateur — la casse n'y change rien.</p>
+      <div class="cc-row">
+        <input class="cc-set" id="cc-camp-name" type="text" size="26" maxlength="80" data-i18n-ph="cc_camp_field_name_ph" placeholder="Nom de la campagne" data-i18n-aria="cc_camp_field_name_ph" aria-label="Nom de la campagne">
+        <select class="cc-set" id="cc-camp-sim" data-i18n-aria="cc_camp_col_sim" aria-label="Simulateur"></select>
+        <input class="cc-set" id="cc-camp-theater" type="text" size="18" data-i18n-ph="cc_camp_col_theater" placeholder="Théâtre" data-i18n-aria="cc_camp_col_theater" aria-label="Théâtre">
+        <select class="cc-set" id="cc-camp-status" data-i18n-aria="cc_camp_col_status" aria-label="Statut">
+          <option value="en_cours" data-i18n="cc_camp_status_en_cours">En cours</option>
+          <option value="close" data-i18n="cc_camp_status_close">Close</option>
+        </select>
+      </div>
+      <div class="cc-row" style="margin-top:.5rem">
+        <input class="cc-set" id="cc-camp-desc" type="text" size="52" data-i18n-ph="cc_camp_field_desc_ph" placeholder="Description — apparaîtra sur l'écran Campagnes du module Escadre" data-i18n-aria="cc_camp_field_desc" aria-label="Description">
+        <button type="button" class="btn btn-sm btn-accent cc-act" id="cc-camp-submit" data-act="camp-submit" data-i18n="cc_camp_submit_create">Créer</button>
+        <button type="button" class="btn btn-sm cc-act hidden" id="cc-camp-cancel" data-act="camp-cancel" data-i18n="cc_rights_cancel">Annuler</button>
+      </div>
+      <div id="cc-camp-form-note"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">DCS Squadron Ready Room</footer>
+</section>
+
+<!-- ============ MODALE ÉVÉNEMENT ============ -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal">
+    <!-- Lot R3 §A1 : barre d'accent de type, couleur posée en JS (--modal-accent)
+         à chaque ouverture (événement/création/édition/jour) -- shell partagé. -->
+    <div id="modal-accent-bar" class="modal-accent-bar"></div>
+    <div class="modal-head">
+      <span id="modal-type-ico" class="modal-type-ico"></span>
+      <div class="modal-head-text">
+        <div id="modal-type-label" class="modal-type-label"></div>
+        <h3 id="modal-title" class="modal-title"></h3>
+        <!-- Correctif R6 §5b : datetime + pastille de présence sur la même
+             ligne (économie d'une ligne), wrapper flex dédié. -->
+        <div class="modal-datetime-row">
+          <div id="modal-datetime" class="modal-datetime"></div>
+          <!-- Lot R3 §A2 : pastille résumé de présence, peuplée par renderModalView()
+               uniquement (vide/masquée par CSS :empty dans les autres modes). -->
+          <div id="modal-presence-summary" class="modal-presence-summary"></div>
+          <!-- Lot « Les liens de la soirée » (v1.0107) : les sessions du jour d'une fiche passée, peuplées par renderModalView(). -->
+          <div id="fiche-soiree" class="hidden"></div>
+        </div>
+      </div>
+      <button id="modal-close" class="modal-close" aria-label="fermer">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-rsvp-section">
+        <div class="modal-section-title" data-i18n="my_answer">Ma réponse</div>
+        <div id="rsvp-control" class="rsvp-control"></div>
+        <!-- v0.80 : application du RSVP à toute la série. Action SECONDAIRE
+             et explicite (jamais un mode) — affichée uniquement pour une
+             occurrence récurrente ET après un choix RSVP. -->
+        <div id="rsvp-series" class="rsvp-series hidden">
+          <span id="rsvp-series-label" class="rsvp-series-label"></span>
+          <button type="button" id="rsvp-series-btn" class="btn btn-ghost btn-sm" data-i18n="rsvp_series_apply">Appliquer</button>
+        </div>
+      </div>
+
+      <!-- Correctif R3.1 : preferences RSVP deplacees ici (body scrollable)
+           depuis le footer fige -- cf. BRIEF_SONNET_ReadyRoom_Refonte_R3-1.
+           Lot 6 : preferences RSVP (appareils + types de mission),
+           affichees uniquement pour Mission/Entrainement -- cf. SPEC
+           Escadrilles_et_RSVP §B.5. Masque/rempli par renderRsvpPrefs(). -->
+      <div id="rsvp-prefs" class="rsvp-prefs hidden">
+        <div class="modal-section-title" data-i18n="my_choices">Mes choix — facultatif</div>
+        <div class="rsvp-prefs-field">
+          <label class="rsvp-prefs-label" data-i18n="pref_aircraft_label">Appareils souhaités</label>
+          <div id="aircraft-picker" class="chip-picker">
+            <div class="chip-picker-input">
+              <div id="aircraft-chips" class="chip-picker-chips"></div>
+              <button type="button" id="aircraft-add-btn" class="chip-picker-add-btn" data-i18n="pref_add" aria-haspopup="listbox">+ Ajouter</button>
+            </div>
+            <div id="aircraft-dropdown" class="chip-picker-dropdown hidden">
+              <input type="text" id="aircraft-filter" class="chip-picker-filter" data-i18n-ph="pref_filter_ph" placeholder="Filtrer…" autocomplete="off">
+              <div id="aircraft-options" class="chip-picker-options" role="listbox"></div>
+            </div>
+          </div>
+        </div>
+        <div class="rsvp-prefs-field">
+          <label class="rsvp-prefs-label" data-i18n="pref_missions_label">Types de mission</label>
+          <div id="mission-chips" class="mission-toggle-chips"></div>
+        </div>
+      </div>
+
+      <div id="modal-desc" class="modal-desc"></div>
+      <div id="modal-creator" class="modal-creator"></div>
+
+      <div id="modal-roster-section">
+        <div class="modal-section-title" data-i18n="roster">Roster</div>
+        <div id="roster-groups" class="roster-groups"></div>
+      </div>
+    </div>
+    <!-- Lot 4 (refonte) : footer figé -- portée de série et actions. La réponse
+         est en tête du corps depuis v1.0074 (la fiche qui répond). -->
+    <div class="modal-footer">
+      <div id="recurrence-note" class="recurrence-note hidden">
+        ↻ <span data-i18n="recurrence_scope">Cette occurrence / toute la série</span> :
+        <select id="scope-select">
+          <option value="occurrence" data-i18n="recurrence_this">Cette occurrence</option>
+          <option value="series" data-i18n="recurrence_all">Toute la série</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button id="modal-edit-btn" class="btn btn-ghost btn-sm hidden" data-i18n="edit">Éditer</button>
+        <button id="modal-delete-btn" class="btn btn-ghost btn-sm hidden" data-i18n="delete">Supprimer</button>
+        <button id="modal-save-btn" class="btn btn-accent btn-sm hidden" data-i18n="save">Enregistrer</button>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-sm" id="modal-secondary-close" data-i18n="close">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE : DÉPOSER (Lot D2③) ============
+     Overlay DISTINCT de #modal-overlay (Planification) -- jamais réutilisé
+     ni modifié (brief §Interdits). Classes de shell partagées à l'identique
+     (.modal-overlay/.modal/.modal-accent-bar/.modal-head/.modal-type-label/
+     .modal-title/.modal-close/.modal-body/.modal-footer) ; contenu propre
+     (dropzone/champs/carte de confirmation) scopé #modal-deposer dans
+     styles.css. Structure reprise de debrief_d2_mockup_v2.html. -->
+<div id="modal-deposer" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-accent-bar"></div>
+    <div class="modal-head">
+      <div class="modal-head-text">
+        <div class="modal-type-label ink" data-i18n="deposer_modal_type">Alimenter le débrief</div>
+        <div class="modal-title ink worn" data-i18n="deposer_modal_title">Déposer des fichiers</div>
+      </div>
+      <button type="button" class="modal-close" data-close aria-label="Fermer">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="dropzone" id="dz">
+        <div class="big ink worn dz-souris" data-i18n="deposer_dz_big">Glissez un ACMI ou un débrief.log</div>
+        <div class="big ink worn dz-toucher" data-i18n="deposer_dz_big_touch">Touchez pour choisir vos fichiers</div>
+        <div class="sub dz-souris" data-i18n="deposer_dz_sub">.acmi (TacView) · debrief.log — ou cliquez pour parcourir</div>
+        <div class="sub dz-toucher" data-i18n="deposer_dz_sub_touch">.acmi (TacView) · debrief.log</div>
+        <input type="file" id="dz-input" multiple accept=".acmi,.zip.acmi,.log,.txt">
+      </div>
+      <div id="deposer-file-list" class="file-list"></div>
+      <div class="field hidden" id="field-depositor">
+        <label data-i18n="deposer_depositor_label">Qui dépose ce débrief ?</label>
+        <select id="depositor-select"></select>
+      </div>
+      <div class="field" id="field-mission-name">
+        <label data-i18n="deposer_mission_name_label">Nom de la mission</label>
+        <input type="text" id="mission-name-input" maxlength="80">
+      </div>
+      <div class="field" id="field-nature">
+        <label data-i18n="deposer_nature_label">Nature de la session</label>
+        <select id="nature-select"><option value="mission" data-i18n="nature_mission" selected>Mission</option><option value="training" data-i18n="nature_training">Training</option></select>
+      </div>
+      <div class="field" id="field-mission-note">
+        <label data-i18n="deposer_wing_note_label">Note pour l'escadre</label>
+        <textarea id="wing-note-input" maxlength="2000" rows="3"></textarea>
+      </div>
+      <p class="modal-hint" data-i18n="deposer_mission_name_hint">Le nom ne s'applique que si la mission n'en a pas déjà un.</p>
+      <p class="modal-hint" data-i18n="deposer_depositor_note">Un débrief ne contient pas d'identité fiable : vous devez déclarer le pilote. La mission est rattachée automatiquement (aucun choix à faire).</p>
+      <div id="deposer-results"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="deposer-status hidden" id="deposer-status" data-i18n="deposer_in_progress">Dépôt en cours…</span>
+      <button type="button" class="btn" data-close data-i18n="close">Fermer</button>
+      <button type="button" class="btn btn-primary modal-submit" id="btn-do-upload" data-i18n="deposer_submit">Déposer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE : RAPPORT DE MISSION (Lot D2⑤) ============
+     Overlay DISTINCT de #modal-overlay/#modal-deposer -- classes de shell
+     partagées à l'identique, contenu propre scopé #modal-report dans
+     styles.css. Structure reprise de debrief_d2_mockup_v2.html (#modal-report). -->
+<div id="modal-report" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-accent-bar"></div>
+    <div class="modal-head">
+      <div class="modal-head-text">
+        <div class="modal-type-label" data-i18n="report_form_number">IMPRIMÉ 4V-12 · RAPPORT</div>
+        <div class="modal-title" data-i18n="report_modal_title">Rapport de mission</div>
+        <div class="modal-subject" id="report-subject"></div>
+      </div>
+      <button type="button" class="modal-close" data-close aria-label="Fermer">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="report-toggle">
+        <button type="button" class="btn btn-sm" id="report-narrative-btn" data-i18n="report_toggle_narrative">Récit</button>
+        <button type="button" class="btn btn-sm" id="report-raw-btn" data-i18n="report_toggle_raw">Brut horodaté</button>
+      </div>
+      <div class="report-body" id="report-body"></div>
+      <div class="bilan-note" data-i18n="report_note">Récit rédigé par un modèle de langage à partir des faits assemblés par le serveur (aucun chiffre n'est jamais inventé).</div>
+    </div>
+    <!-- Lot R5 §4 : pied figé -- extension du patron #modal-deposer (jetons
+         de pied de modale déjà existants, cf. styles.css). Bouton
+         Rédiger/Réécrire (réservé aux éditeurs, masqué sinon, cf.
+         renderModalReport) + tampon "À CORRIGER" (R80, INCHANGÉ, sa famille
+         .stamp n'est pas touchée) et zone d'erreur de rédaction (masquée
+         hors échec) : les deux restent accessibles sans faire défiler,
+         même sur un récit de plusieurs écrans -- le message d'échec
+         s'affiche désormais toujours près du bouton qui l'a déclenché. -->
+    <div class="modal-footer">
+      <div class="report-actions">
+        <button type="button" class="btn btn-sm" id="report-generate-btn" data-i18n="report_generate_btn">Rédiger</button>
+        <span class="stamp ink worn hidden" id="report-stamp" data-i18n="report_stamp_a_corriger">À CORRIGER</span>
+      </div>
+      <div class="report-gen-busy hidden" id="report-gen-busy"></div>
+      <div class="report-gen-error hidden" id="report-gen-error"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="app-version-footer" class="app-version-footer"></div>
+
+<!-- Lot 1.3 §1.2 : filtre d'usure du module Débrief, cf. styles.css
+     #screen-app[data-module="debrief"] .worn{filter:url(#inkbite);}.
+     Unique instance de #inkbite dans le document servi. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="inkbite" x="-4%" y="-8%" width="108%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.14" numOctaves="2" seed="6" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.4" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+
+<script src="/static/app.js?v=__ASSET_VERSION__"></script>
+</body>
+</html>

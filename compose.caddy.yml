@@ -1,0 +1,23 @@
+# Lot « rr-public-guide-1 » : le proxy HTTPS de l'option A du guide (docs/guide, chapitre 6).
+# Caddy reçoit les ports 80 et 443, obtient seul le certificat du nom de BASE_URL, le renouvelle,
+# et passe le trafic à l'application. Il s'allume par la ligne
+#   COMPOSE_FILE=docker-compose.yml:compose.caddy.yml
+# du fichier .env (init-env.sh l'écrit pour l'option A). Aucune variable neuve : BASE_URL est celle de l'App.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    command: caddy reverse-proxy --from ${BASE_URL} --to app:8000
+
+volumes:
+  caddy_data:
+  caddy_config:

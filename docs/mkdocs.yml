@@ -1,0 +1,62 @@
+# Lot « rr-public-guide-1 » : le guide d'installation de la Squadron Ready Room (site MkDocs, thème Material).
+# Les textes sont dans guide/en/ et guide/fr/ ; les images sont communes, dans guide/images/.
+# L'ordre de `nav` est la seule source de l'ordre des chapitres : le site et les PDF (construire_pdf.sh) le lisent ici.
+site_name: Squadron Ready Room — Installation Guide
+docs_dir: guide
+# Le feuillet de style des PDF n'est pas une page du site.
+exclude_docs: |
+  pdf.css
+
+theme:
+  name: material
+  logo: images/insigne-ready-room.svg
+  favicon: images/insigne-ready-room.svg
+
+plugins:
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+          site_name: Squadron Ready Room — Installation Guide
+        - locale: fr
+          name: Français
+          build: true
+          site_name: Squadron Ready Room — Guide d'installation
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - index.md
+  - 01-prerequisites.md
+  - 02-prepare-the-server.md
+  - 03-discord-application.md
+  - 04-get-the-ready-room.md
+  - 05-configure.md
+  - 06-https.md
+  - 07-first-start.md
+  - 08-first-settings.md
+  - 09-running-on-its-own.md
+  - 10-dcs-agent.md
+  - 11-backup-and-restore.md
+  - 12-update.md
+  - 13-troubleshooting.md
+  - 14-security.md
+  - 15-uninstall.md
+  - a-environment.md
+  - b-files-volumes-ports.md
+  - c-commands.md
+  - d-glossary.md
+  - e-licence-and-credits.md

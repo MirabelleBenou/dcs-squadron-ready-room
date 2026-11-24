@@ -1,0 +1,206 @@
+name: Guide
+
+# Lot « rr-public-guide-1 » : le guide d'installation (site MkDocs et PDF).
+#  - une branche ou une demande de fusion qui touche le guide : on le construit (--strict) et on garde le résultat en
+#    artefacts, sans rien publier ;
+#  - la fin de l'action Release (`workflow_run`) : si la release est une vraie (pas une branche d'essai) et a réussi, on lit
+#    le tag dans `.release/manifest.json`, on construit au commit du tag, on joint les deux PDF à la release et, si le
+#    dépôt est public, on publie le site sur Pages ;
+#  - `workflow_dispatch` avec `tag` : le même rejeu, à la main.
+# `workflow_run` et `workflow_dispatch` ne lisent ce fichier que sur la branche par défaut.
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'compose.caddy.yml'
+      - 'init-env.sh'
+      - '.env.example'
+      - '.github/workflows/guide.yml'
+  push:
+    branches:
+      - '**'
+      - '!main'
+    paths:
+      - 'docs/**'
+      - 'compose.caddy.yml'
+      - 'init-env.sh'
+      - '.env.example'
+      - '.github/workflows/guide.yml'
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of the release the guide is built for (for example RR-V1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: guide-${{ github.event_name }}-${{ github.event.workflow_run.head_sha || github.ref }}-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  cible:
+    # Dit si un tag est à publier, et lequel : l'entrée (rejeu à la main) ou le manifeste de la release qui vient de finir.
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.cible.outputs.tag }}
+      publier: ${{ steps.cible.outputs.publier }}
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ github.event_name == 'workflow_run' }}
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - id: cible
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENEMENT: ${{ github.event_name }}
+          ENTREE: ${{ inputs.tag }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          BRANCHE: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          tag=
+          publier=false
+          case "$EVENEMENT" in
+            workflow_dispatch)
+              tag=$ENTREE
+              ;;
+            workflow_run)
+              if [ "$CONCLUSION" != success ]; then
+                echo "The Release run did not succeed ($CONCLUSION): no guide to publish." >> "$GITHUB_STEP_SUMMARY"
+              else
+                case "$BRANCHE" in
+                  release/essai-*)
+                    echo "Trial branch $BRANCHE: no release, no guide to publish." >> "$GITHUB_STEP_SUMMARY"
+                    ;;
+                  *)
+                    if [ -f .release/manifest.json ]; then
+                      tag=$(python3 -c "import json; print(json.load(open('.release/manifest.json'))['tag'])")
+                    else
+                      echo "No .release/manifest.json at the commit of the Release run: no guide to publish." >> "$GITHUB_STEP_SUMMARY"
+                    fi
+                    ;;
+                esac
+              fi
+              ;;
+          esac
+          if [ -n "$tag" ]; then
+            # Le motif de RE_TAG de tools/release.py, avant tout usage du tag.
+            if ! printf '%s' "$tag" | grep -Eqx 'RR-V[0-9]+\.[0-9]+\.[0-9]+'; then
+              echo "Not a release tag." >&2
+              exit 1
+            fi
+            # Seul un 404 vaut « pas encore de release » ; toute autre erreur fait échouer la tâche.
+            if reponse=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" 2>&1); then
+              publier=true
+            elif printf '%s' "$reponse" | grep -q 'HTTP 404'; then
+              if [ "$EVENEMENT" = workflow_dispatch ]; then
+                echo "No release found for the tag $tag." >&2
+                exit 1
+              fi
+              echo "No release found for the tag $tag yet (the Release run may have ended waiting for its manifest): nothing published." >> "$GITHUB_STEP_SUMMARY"
+              tag=
+            else
+              echo "Could not read the release of the tag $tag: $reponse" >&2
+              exit 1
+            fi
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "publier=$publier" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: cible
+    if: ${{ github.event_name != 'workflow_run' || needs.cible.outputs.publier == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      NO_MKDOCS_2_WARNING: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.cible.outputs.tag != '' && format('refs/tags/{0}', needs.cible.outputs.tag) || '' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc libpango-1.0-0 libpangoft2-1.0-0
+          python -m pip install -r docs/requirements.txt
+      - name: Build the site (strict)
+        run: mkdocs build --strict -f docs/mkdocs.yml -d "$GITHUB_WORKSPACE/site"
+      - name: Build the PDFs
+        run: |
+          version=$(cat VERSION)
+          mkdir pdf
+          for langue in en fr; do
+            sh docs/construire_pdf.sh "$langue" "$version" "pdf/ReadyRoom-Installation-Guide-${version}-${langue}.pdf"
+          done
+          ls -l pdf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: guide-site
+          path: site
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: guide-pdf
+          path: pdf
+          if-no-files-found: error
+
+  attach:
+    # Joint les deux PDF à la release du tag ; dit dans le résumé si le site est publié ou non.
+    if: ${{ needs.cible.outputs.publier == 'true' }}
+    needs: [cible, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.cible.outputs.tag }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: guide-pdf
+          path: pdf
+      - name: Attach the PDFs to the release
+        run: |
+          gh release upload "$TAG" pdf/*.pdf --clobber --repo "$GITHUB_REPOSITORY"
+          echo "PDFs attached to the release $TAG." >> "$GITHUB_STEP_SUMMARY"
+      - name: Say whether the site is published
+        env:
+          PRIVE: ${{ github.event.repository.private }}
+        run: |
+          if [ "$PRIVE" = "true" ]; then
+            echo "Pages step skipped: the repository is private, the site is not published." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "The site is published on Pages by the next job." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  pages:
+    # Seulement si le dépôt est public.
+    if: ${{ needs.cible.outputs.publier == 'true' && github.event.repository.private == false }}
+    needs: [cible, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: guide-site
+          path: site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploiement
+        uses: actions/deploy-pages@v4

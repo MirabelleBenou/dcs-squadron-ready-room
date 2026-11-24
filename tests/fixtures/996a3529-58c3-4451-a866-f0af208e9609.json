@@ -1,0 +1,806 @@
+{
+ "id": "996a3529-58c3-4451-a866-f0af208e9609",
+ "title": "CHARLIE33_Schatten über der Grenze",
+ "display_title": "CHARLIE33 Schatten über der Grenze",
+ "reference_time": "2026-10-12T19:34:13.686000+00:00",
+ "wing_note": null,
+ "flights": [
+  {
+   "id": "8b124253-1ee5-57a5-b2b6-bf88b51d1008",
+   "session_id": "996a3529-58c3-4451-a866-f0af208e9609",
+   "object_id": "17013505",
+   "acmi_track_id": null,
+   "aircraft_type": "Mi-24P",
+   "coalition": "1",
+   "pilote_profile_id": "800000000000000008",
+   "pilot_callsign": "DRAGOON 11 | Wren5",
+   "pilote_nom": "CHARLIE-33 | сова5",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 0.0,
+   "t_end": 4212.82,
+   "slot_mission": "KHG-5-2",
+   "mission_id_dcs": "1042",
+   "stats": {
+    "kills": [],
+    "bursts": [],
+    "phases": [
+     {
+      "t": 528.94,
+      "type": "engine startup"
+     },
+     {
+      "t": 771.64,
+      "type": "takeoff"
+     },
+     {
+      "t": 4081.64,
+      "type": "land"
+     },
+     {
+      "t": 4212.82,
+      "type": "engine shutdown"
+     }
+    ],
+    "alt_max": null,
+    "crashed": false,
+    "ejected": false,
+    "landings": 1,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 1,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 2597.875,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2597.898,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 4212.8,
+    "pilot_deposited": true,
+    "shots_by_weapon": {},
+    "weapon_families": {},
+    "cannon_by_weapon": {},
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  },
+  {
+   "id": "8de7b83a-54c9-5dc7-b976-ed0b7bd1a787",
+   "session_id": "996a3529-58c3-4451-a866-f0af208e9609",
+   "object_id": "16777474",
+   "acmi_track_id": null,
+   "aircraft_type": "Mi-24P",
+   "coalition": "1",
+   "pilote_profile_id": "800000000000000007",
+   "pilot_callsign": "Dragoon 2-1 | DawN-FyX35",
+   "pilote_nom": "CHARLIE-33 | DawNFyX",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 14.702,
+   "t_end": 4184.705,
+   "slot_mission": "KHG-5-1",
+   "mission_id_dcs": "1041",
+   "stats": {
+    "kills": [
+     {
+      "t": 2761.305,
+      "weapon": "PTAB-2.5KO",
+      "target_coalition": "2",
+      "target_object_id": "17012225",
+      "target_unit_type": "M-113"
+     },
+     {
+      "t": 2768.262,
+      "weapon": "PTAB-2.5KO",
+      "target_coalition": "2",
+      "target_object_id": "17013249",
+      "target_unit_type": "Hummer"
+     },
+     {
+      "t": 2811.641,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2811.641,
+      "target_coalition": "2",
+      "target_object_id": "17012737",
+      "target_unit_type": "M-113"
+     },
+     {
+      "t": 2812.006,
+      "weapon": null,
+      "explosion": {
+       "wreck": "M-113",
+       "wreck_t": 2761.305
+      },
+      "target_coalition": "2",
+      "target_object_id": "17012481",
+      "target_unit_type": "M-113"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 2710.542,
+      "hits": 0,
+      "salvo": true,
+      "shots": 16,
+      "weapon": "BKF - 12 x PTAB-2.5KO",
+      "targets": [
+       {
+        "n": 2,
+        "type": "Hummer"
+       },
+       {
+        "n": 2,
+        "type": "M-113"
+       }
+      ],
+      "outcomes": [
+       {
+        "n": 1,
+        "type": "Hummer",
+        "issue": "intact"
+       }
+      ],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2806.352,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 1,
+        "type": "M-113"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17012737"
+      ],
+      "target_unit_types": [
+       "M-113"
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 467.002,
+      "type": "engine startup"
+     },
+     {
+      "t": 687.582,
+      "type": "takeoff"
+     },
+     {
+      "t": 4048.002,
+      "type": "land"
+     },
+     {
+      "t": 4129.562,
+      "type": "engine shutdown"
+     }
+    ],
+    "alt_max": null,
+    "crashed": false,
+    "ejected": false,
+    "landings": 1,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 1,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 2704.996,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2705.009,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.485,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.504,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.601,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.62,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.833,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.856,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.936,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.938,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2710.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.033,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.037,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.054,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.07,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.157,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.19,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.243,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2711.269,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2714.459,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2714.468,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2714.678,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2714.707,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2715.651,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2715.684,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2715.748,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2715.758,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012225",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2727.724,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2727.748,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2727.856,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2727.869,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2727.987,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2728.0,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2728.1,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2728.119,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2728.227,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2728.246,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012481",
+      "initiator_unit_type": "M-113"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 4170.0,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "BKF - 12 x PTAB-2.5KO": {
+      "salvos": 1,
+      "releases": 16,
+      "salvos_hit": 1
+     },
+     "9M114 Shturm (AT-6 Spiral)": {
+      "shots": 1,
+      "touched": 1,
+      "precision": 1.0
+     }
+    },
+    "weapon_families": {
+     "BKF - 12 x PTAB-2.5KO": 38,
+     "9M114 Shturm (AT-6 Spiral)": 8
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  },
+  {
+   "id": "7bb2ad4a-cf73-5c1b-b003-a15969640026",
+   "session_id": "996a3529-58c3-4451-a866-f0af208e9609",
+   "object_id": "16777475",
+   "acmi_track_id": null,
+   "aircraft_type": "Mi-24P",
+   "coalition": "1",
+   "pilote_profile_id": "800000000000000002",
+   "pilot_callsign": "MistyKestrel42",
+   "pilote_nom": "CHARLIE-33 | MistyKestrel42",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 103.89,
+   "t_end": 4189.338,
+   "slot_mission": "Rotary-1-1",
+   "mission_id_dcs": "1025",
+   "stats": {
+    "kills": [
+     {
+      "t": 2411.005,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2411.005,
+      "target_coalition": "2",
+      "target_object_id": "17011969",
+      "target_unit_type": "M-2 Bradley"
+     },
+     {
+      "t": 2558.824,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2558.824,
+      "target_coalition": "2",
+      "target_object_id": "17011713",
+      "target_unit_type": "M-2 Bradley"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 2405.39,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 1,
+        "type": "M-2 Bradley"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17011969"
+      ],
+      "target_unit_types": [
+       "M-2 Bradley"
+      ]
+     },
+     {
+      "t": 2552.99,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 1,
+        "type": "M-2 Bradley"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17011713"
+      ],
+      "target_unit_types": [
+       "M-2 Bradley"
+      ]
+     },
+     {
+      "t": 2778.17,
+      "hits": 0,
+      "salvo": true,
+      "shots": 16,
+      "weapon": "BKF - 12 x PTAB-2.5KO",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     }
+    ],
+    "phases": [
+     {
+      "t": 496.63,
+      "type": "engine startup"
+     },
+     {
+      "t": 729.47,
+      "type": "takeoff"
+     },
+     {
+      "t": 4098.39,
+      "type": "land"
+     },
+     {
+      "t": 4150.19,
+      "type": "engine shutdown"
+     }
+    ],
+    "alt_max": null,
+    "crashed": false,
+    "ejected": false,
+    "landings": 1,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 1,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 2777.416,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2777.433,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2777.632,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2777.644,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2777.732,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2777.755,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.243,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.28,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.352,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.361,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.485,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.503,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.602,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2792.632,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2793.321,
+      "type": "hit",
+      "weapon": "12.7mm",
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     },
+     {
+      "t": 2793.345,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17012737",
+      "initiator_unit_type": "M-113"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 4085.4,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "BKF - 12 x PTAB-2.5KO": {
+      "salvos": 1,
+      "releases": 16,
+      "salvos_hit": 0
+     },
+     "9M114 Shturm (AT-6 Spiral)": {
+      "shots": 2,
+      "touched": 2,
+      "precision": 1.0
+     }
+    },
+    "weapon_families": {
+     "BKF - 12 x PTAB-2.5KO": 38,
+     "9M114 Shturm (AT-6 Spiral)": 8
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  }
+ ]
+}

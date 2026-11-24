@@ -1,0 +1,7 @@
+Vignettes des cartes DCS — Squadron Ready Room
+
+Dessinées pour la Ready Room à partir du trait de côte, des frontières et des
+fleuves de GSHHG (Global Self-consistent, Hierarchical, High-resolution
+Geography Database, P. Wessel et W. H. F. Smith), distribué sous licence LGPL
+par le paquet basemap-data-hires. Les emprises des théâtres sont approchées.
+Aucun visuel de l'éditeur du jeu.

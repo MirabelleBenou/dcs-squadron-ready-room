@@ -1,0 +1,27 @@
+fastapi==0.136.3
+starlette==1.10.0
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+authlib==1.9.9
+httpx==0.28.1
+pydantic-settings==2.7.0
+itsdangerous==2.2.0
+jinja2==3.1.6
+# Lot D1 -- requis par FastAPI pour tout endpoint File()/Form() (multipart),
+# utilisé par POST /api/debrief/upload (cf. BRIEF_SONNET_ReadyRoom_Debrief_
+# D1_data_engine §4). Absent du projet jusqu'ici (aucune route existante
+# n'utilisait de multipart) -- nécessité absolue, pas une dépendance de confort.
+python-multipart==0.0.34
+# Lot 2b-1 -- verification cryptographique Ed25519 des interactions Discord
+# entrantes (POST /discord/interactions), cf. BRIEF_SONNET_ReadyRoom_Lot2b-1
+# Socle_Bot_Interactions §2. Absent du projet jusqu'ici.
+PyNaCl==1.6.2
+# Lot 3.2e, volet ② -- normalisation des écussons d'escadrille (app/crests.py) :
+# la normalisation ne peut pas se faire côté navigateur (un client peut mentir
+# sur tout), le serveur doit redécoder puis ré-encoder le fichier lui-même --
+# nécessité absolue, pas une commodité (cf. BRIEF_SONNET_ReadyRoom_Lot_3_2e_
+# Volet2 §4.4). Décodage WebP vérifié dans l'environnement de build (roues
+# officielles, libwebp embarqué) -- cf. bundle de preuve.
+Pillow==13.0.0

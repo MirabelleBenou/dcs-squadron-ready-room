@@ -1,0 +1,18 @@
+#!/bin/sh
+# Faux docker du banc : n'accepte que « compose exec -T -e K=V app python -B - »,
+# joue le Python reçu sur stdin dans la copie d'essai, l'API Discord pointée sur le faux serveur.
+[ "$1" = compose ] && [ "$2" = exec ] || { echo "FAUX DOCKER : appel inattendu : $*" >&2; exit 97; }
+shift 2
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -T) shift ;;
+    -e) export "$2"; shift 2 ;;
+    app) shift; break ;;
+    *) echo "FAUX DOCKER : option inattendue : $1" >&2; exit 98 ;;
+  esac
+done
+[ "$1" = python ] && [ "$2" = -B ] && [ "$3" = - ] && [ $# -eq 3 ] || { echo "FAUX DOCKER : commande inattendue : $*" >&2; exit 99; }
+[ "$(pwd)" = "$HOME/readyroom" ] || { echo "FAUX DOCKER : pas lancé depuis ~/readyroom ($(pwd))" >&2; exit 95; }
+cd "$ESSAI" || exit 96
+set -a; . "$TEST_ENV"; set +a
+exec "${PY:-python3.12}" -B -c "import os,sys; sys.path.insert(0,'.'); import app.discord_rsvp as d; d._API_BASE=os.environ['FAUX_DISCORD']; exec(compile(sys.stdin.read(),'<sonde>','exec'),{'__name__':'__main__'})"

@@ -1,0 +1,72 @@
+name: readyroom
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # Lot D1 -- module Debriefing : conservation des fichiers bruts (ACMI +
+      # debrief.log) à travers les redéploiements (le service tourne 100%
+      # depuis l'image, sans bind-mount -- un dossier applicatif serait
+      # perdu à chaque `up --build`). Permet le re-parse de l'historique
+      # après évolution du moteur (statics, roquettes Mi-24 non stabilisés).
+      # Cohérent avec DEBRIEF_STORAGE_DIR (app/config.py, défaut identique).
+      - debrief_raw:/data/debrief_raw
+      # Lot 3.2e, volet ② -- module Centre de Commandement : écussons
+      # d'escadrille (conservation à travers les redéploiements, même
+      # raison exacte que `debrief_raw` ci-dessus -- le service tourne 100%
+      # depuis l'image, sans bind-mount, un dossier applicatif serait perdu
+      # à chaque `up --build`). Volume DÉDIÉ et non un sous-dossier de
+      # `debrief_raw` : les dépôts bruts du Débrief sont volumineux,
+      # rejouables et régénérables ; les écussons sont légers, uniques et
+      # irremplaçables -- les mêmes règles de sauvegarde ne s'y appliquent
+      # pas (addendum CC v1.2 §10.4). Cohérent avec CREST_STORAGE_DIR
+      # (app/config.py, défaut identique).
+      - crests:/data/crests
+      # Lot 2.2a -- sauvegardes pg_dump prises avant chaque migration en
+      # attente (entrypoint.sh §3). Montage lié (pas volume nommé) : le
+      # fichier est récupérable directement sur l'hôte, sans `docker cp`.
+      - ./backups:/backups
+      # Lot « Les suites servies par la Ready Room » -- Mission Plan et
+      # Mission Tools (`dcs_mission_plan.html`, `dcs_mission_tools.html`).
+      # Montage lié en lecture seule (pas volume nommé) : le porteur y dépose les
+      # fichiers, l'application ne fait que les lire. Le dossier de l'hôte est
+      # `SUITES_HOST_DIR` (défaut `./data/suites`, annexe A du guide : docs/guide/en/a-environment.md). Cohérent avec
+      # SUITES_DIR (app/config.py, défaut identique).
+      - ${SUITES_HOST_DIR:-./data/suites}:/data/suites:ro
+      # Lot « Le miroir des tuiles DCS » -- les tuiles de la couche « Carte DCS »
+      # du Route Planner. Deux montages liés (pas volumes nommés) : les archives
+      # d'Olympus extraites restent en LECTURE SEULE (l'application ne fait que
+      # les lire, le porteur les dépose) ; les tuiles venues
+      # d'Olympus s'écrivent dans un dossier à part, en ÉCRITURE, pour que les
+      # archives restent intactes. Les dossiers de l'hôte sont `TILES_HOST_DIR`
+      # (défaut `./data/tiles`) et `TILES_CACHE_HOST_DIR` (défaut
+      # `./data/tiles-cache`), annexe A du guide (docs/guide/en/a-environment.md). Cohérent avec TILES_DIR et TILES_CACHE_DIR
+      # (app/config.py, défauts identiques).
+      - ${TILES_HOST_DIR:-./data/tiles}:/data/tiles:ro
+      - ${TILES_CACHE_HOST_DIR:-./data/tiles-cache}:/data/tiles-cache
+
+volumes:
+  pgdata:
+  debrief_raw:
+  crests:

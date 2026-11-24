@@ -1,0 +1,3713 @@
+{
+ "id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+ "title": "Foothold_GCW_V5.2.5_Coldwar-Modern_radios_20260705-2209",
+ "display_title": "Mission du 27/07",
+ "reference_time": "2026-07-27T19:17:24.065000+00:00",
+ "wing_note": null,
+ "flights": [
+  {
+   "id": "d1cd6bb1-f817-509a-b8c6-371ca259c320",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16777475",
+   "acmi_track_id": "104",
+   "aircraft_type": "Mirage-F1EE",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000005",
+   "pilot_callsign": "GRIFFON",
+   "pilote_nom": "Griffon",
+   "identity_state": "nomme",
+   "identity_source": "nom_acmi",
+   "t_start": 31.02,
+   "t_end": 5372.445,
+   "slot_mission": null,
+   "mission_id_dcs": null,
+   "stats": {
+    "kills": [
+     {
+      "t": 2066.666,
+      "weapon": "R550 Magic 2",
+      "impact_t": 2064.651,
+      "target_coalition": "1",
+      "target_object_id": "17563393",
+      "target_unit_type": "MiG-21Bis"
+     },
+     {
+      "t": 2191.046,
+      "weapon": "R550 Magic 2",
+      "impact_t": 2189.016,
+      "target_coalition": "1",
+      "target_object_id": "17563649",
+      "target_unit_type": "Su-25"
+     },
+     {
+      "t": 3572.308,
+      "weapon": "S530F",
+      "impact_t": 3570.277,
+      "target_coalition": "1",
+      "target_object_id": "17711105",
+      "target_unit_type": "Su-25"
+     },
+     {
+      "t": 3684.957,
+      "weapon": "S530F",
+      "impact_t": 3683.944,
+      "target_coalition": "1",
+      "target_object_id": "17812993",
+      "target_unit_type": "Mirage-F1EE"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 1988.205,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2062.848,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "R550 Magic 2",
+      "targets": [
+       {
+        "n": 1,
+        "type": "MiG-21Bis"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17563393"
+      ],
+      "target_unit_types": [
+       "MiG-21Bis"
+      ]
+     },
+     {
+      "t": 2142.42,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2186.076,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "R550 Magic 2",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Su-25"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17563649"
+      ],
+      "target_unit_types": [
+       "Su-25"
+      ]
+     },
+     {
+      "t": 3481.782,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "R550 Magic 2",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 3534.443,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "R550 Magic 2",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 3544.02,
+      "hits": 0,
+      "shots": 2,
+      "cannon": true,
+      "rounds": 64,
+      "weapon": "defa_553",
+      "targets": [],
+      "outcomes": [],
+      "rounds_hit": 0,
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 3566.895,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Su-25"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17711105"
+      ],
+      "target_unit_types": [
+       "Su-25"
+      ]
+     },
+     {
+      "t": 3681.003,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Mirage-F1EE"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17812993"
+      ],
+      "target_unit_types": [
+       "Mirage-F1EE"
+      ]
+     },
+     {
+      "t": 3757.64,
+      "hits": 0,
+      "shots": 1,
+      "cannon": true,
+      "rounds": 8,
+      "weapon": "defa_553",
+      "targets": [],
+      "outcomes": [],
+      "rounds_hit": 0,
+      "target_object_ids": [],
+      "target_unit_types": []
+     }
+    ],
+    "phases": [
+     {
+      "t": 889.063,
+      "type": "takeoff"
+     },
+     {
+      "t": 2640.184,
+      "type": "land"
+     },
+     {
+      "t": 2641.134,
+      "type": "land"
+     },
+     {
+      "t": 3028.916,
+      "type": "takeoff"
+     },
+     {
+      "t": 3761.872,
+      "type": "eject"
+     },
+     {
+      "t": 3763.694,
+      "type": "crash"
+     }
+    ],
+    "alt_max": 5619.16,
+    "crashed": true,
+    "ejected": true,
+    "landings": 2,
+    "takeoffs": 2,
+    "engine_on": 0,
+    "engine_off": 0,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 3754.676,
+      "type": "shot",
+      "weapon": "AIM-9JULI",
+      "gravite": "visé",
+      "initiator_object_id": "17812737",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 3757.723,
+      "type": "hit",
+      "weapon": "AIM-9JULI",
+      "gravite": "touché",
+      "initiator_object_id": "17812737",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 3761.872,
+      "type": "kill",
+      "weapon": "AIM-9JULI",
+      "gravite": "abattu",
+      "initiator_object_id": "17812737",
+      "initiator_unit_type": "Mirage-F1EE"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 6,
+    "flight_time_s": 5341.4,
+    "pilot_deposited": false,
+    "shots_by_weapon": {
+     "S530F": {
+      "shots": 4,
+      "touched": 2,
+      "precision": 0.5
+     },
+     "R550 Magic 2": {
+      "shots": 4,
+      "touched": 2,
+      "precision": 0.5
+     }
+    },
+    "weapon_families": {
+     "S530F": 7,
+     "R550 Magic 2": 7
+    },
+    "cannon_by_weapon": {
+     "defa_553": {
+      "bursts": 3,
+      "rounds": 72,
+      "bursts_hit": 0,
+      "rounds_hit": 0
+     }
+    },
+    "precision_reliability": "partielle"
+   },
+   "crest": null
+  },
+  {
+   "id": "3a322098-647d-5a55-b38b-d993ae1a4fc6",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16897796",
+   "acmi_track_id": null,
+   "aircraft_type": "F-4E-45MC",
+   "coalition": "2",
+   "pilote_profile_id": null,
+   "pilot_callsign": null,
+   "pilote_nom": null,
+   "identity_state": "anonyme",
+   "identity_source": null,
+   "t_start": 264.5,
+   "t_end": 3899.227,
+   "slot_mission": null,
+   "mission_id_dcs": null,
+   "stats": {
+    "kills": [
+     {
+      "t": 3292.728,
+      "weapon": "AGM-65D",
+      "impact_t": 3292.728,
+      "also_engaged_by": [
+       {
+        "t": 2938.721,
+        "pilot": "Vortex",
+        "weapon": "BLU-49/B"
+       }
+      ],
+      "target_coalition": "1",
+      "target_object_id": "17308929",
+      "target_unit_type": "BRDM-2_malyutka"
+     },
+     {
+      "t": 3391.024,
+      "weapon": "AGM-65D",
+      "impact_t": 3391.024,
+      "target_coalition": "1",
+      "target_object_id": "17562113",
+      "target_unit_type": "Grad-URAL"
+     },
+     {
+      "t": 3412.878,
+      "weapon": "AGM-65D",
+      "impact_t": 3391.024,
+      "target_coalition": "1",
+      "target_object_id": "17562369",
+      "target_unit_type": "Grad-URAL"
+     },
+     {
+      "t": 3497.793,
+      "weapon": "AGM-65D",
+      "impact_t": 3497.793,
+      "target_coalition": "1",
+      "target_object_id": "17310209",
+      "target_unit_type": "PT_76"
+     },
+     {
+      "t": 3755.235,
+      "weapon": "AGM-65D",
+      "impact_t": 3755.235,
+      "target_coalition": "1",
+      "target_object_id": "17309953",
+      "target_unit_type": "BRDM-2_malyutka"
+     },
+     {
+      "t": 3756.905,
+      "weapon": "AGM-65D",
+      "impact_t": 3755.235,
+      "target_coalition": "1",
+      "target_object_id": "17810177",
+      "target_unit_type": "Paratrooper RPG-16"
+     },
+     {
+      "t": 3757.845,
+      "weapon": "AGM-65D",
+      "impact_t": 3755.235,
+      "target_coalition": "1",
+      "target_object_id": "17810433",
+      "target_unit_type": "Infantry AK ver3"
+     },
+     {
+      "t": 3355.091,
+      "weapon": null,
+      "explosion": {
+       "wreck": "BRDM-2_malyutka",
+       "wreck_t": 3292.728
+      },
+      "target_coalition": "1",
+      "target_object_id": "17309185",
+      "target_unit_type": "Ural-4320T"
+     },
+     {
+      "t": 3385.373,
+      "weapon": null,
+      "explosion": {
+       "wreck": "BRDM-2_malyutka",
+       "wreck_t": 3292.728
+      },
+      "also_engaged_by": [
+       {
+        "t": 2939.602,
+        "pilot": "Vortex",
+        "weapon": "BLU-18/B"
+       }
+      ],
+      "target_coalition": "1",
+      "target_object_id": "17308673",
+      "target_unit_type": "tt_DSHK"
+     },
+     {
+      "t": 3423.606,
+      "weapon": null,
+      "explosion": {
+       "wreck": "tt_DSHK",
+       "wreck_t": 3385.373
+      },
+      "target_coalition": "1",
+      "target_object_id": "17308417",
+      "target_unit_type": "BRDM-2"
+     },
+     {
+      "t": 3861.185,
+      "weapon": null,
+      "explosion": {
+       "wreck": "BRDM-2_malyutka",
+       "wreck_t": 3755.235
+      },
+      "target_coalition": "1",
+      "target_object_id": "17309697",
+      "target_unit_type": "BRDM-2_malyutka"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 1596.033,
+      "hits": 0,
+      "salvo": true,
+      "shots": 6,
+      "weapon": "Mk-20 Rockeye",
+      "targets": [
+       {
+        "n": 1,
+        "type": "SAU Msta"
+       }
+      ],
+      "outcomes": [
+       {
+        "t": 2346.007,
+        "by": "F-4E-45MC",
+        "type": "SAU Msta",
+        "issue": "detruit",
+        "by_weapon": "Mk-82",
+        "by_unit_type": "F-4E-45MC"
+       }
+      ],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 3259.286,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "AGM-65D",
+      "targets": [
+       {
+        "n": 1,
+        "type": "BRDM-2"
+       },
+       {
+        "n": 1,
+        "type": "BRDM-2_malyutka"
+       },
+       {
+        "n": 1,
+        "type": "Ural-4320T"
+       },
+       {
+        "n": 1,
+        "type": "tt_DSHK"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17308929",
+       "17308673",
+       "17309185",
+       "17308417"
+      ],
+      "target_unit_types": [
+       "BRDM-2",
+       "BRDM-2_malyutka",
+       "Ural-4320T",
+       "tt_DSHK"
+      ]
+     },
+     {
+      "t": 3385.444,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "AGM-65D",
+      "targets": [
+       {
+        "n": 2,
+        "type": "Grad-URAL"
+       },
+       {
+        "n": 1,
+        "type": "PT_76"
+       },
+       {
+        "n": 1,
+        "type": "ural_4230_civil_b"
+       }
+      ],
+      "outcomes": [
+       {
+        "t": 3738.774,
+        "by": "Vortex",
+        "type": "ural_4230_civil_b",
+        "issue": "detruit",
+        "by_weapon": "AGM-65D",
+        "by_unit_type": "F-4E-45MC"
+       }
+      ],
+      "target_object_ids": [
+       "17562113",
+       "17310209",
+       "17562369",
+       "17562625"
+      ],
+      "target_unit_types": [
+       "Grad-URAL",
+       "PT_76",
+       "ural_4230_civil_b"
+      ],
+      "destroyed_by_other": [
+       {
+        "kill_t": 3738.774,
+        "killer": "Vortex",
+        "killer_weapon": "AGM-65D",
+        "target_unit_type": "ural_4230_civil_b"
+       }
+      ]
+     },
+     {
+      "t": 3491.273,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "AGM-65D",
+      "targets": [
+       {
+        "n": 1,
+        "type": "PT_76"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": [
+       "PT_76"
+      ]
+     },
+     {
+      "t": 3736.947,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "AGM-65D",
+      "targets": [
+       {
+        "n": 2,
+        "type": "BRDM-2_malyutka"
+       },
+       {
+        "n": 1,
+        "type": "Infantry AK ver3"
+       },
+       {
+        "n": 1,
+        "type": "PT_76"
+       },
+       {
+        "n": 1,
+        "type": "Paratrooper RPG-16"
+       }
+      ],
+      "outcomes": [
+       {
+        "n": 1,
+        "type": "PT_76",
+        "issue": "intact"
+       }
+      ],
+      "target_object_ids": [
+       "17309953",
+       "17309697",
+       "17810433",
+       "17810177",
+       "17309441"
+      ],
+      "target_unit_types": [
+       "BRDM-2_malyutka",
+       "Infantry AK ver3",
+       "PT_76",
+       "Paratrooper RPG-16"
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 264.5,
+      "type": "engine startup"
+     },
+     {
+      "t": 1160.075,
+      "type": "takeoff"
+     },
+     {
+      "t": 3779.604,
+      "type": "eject"
+     },
+     {
+      "t": 3780.018,
+      "type": "crash"
+     }
+    ],
+    "alt_max": null,
+    "crashed": true,
+    "ejected": true,
+    "landings": 0,
+    "takeoffs": 1,
+    "engine_on": 2,
+    "engine_off": 0,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 3598.388,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3598.388,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3598.429,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3598.491,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3598.491,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3598.491,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3598.507,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3604.792,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3604.792,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3604.955,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3604.955,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3765.598,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3765.598,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3769.55,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3769.55,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3769.55,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3769.55,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3779.604,
+      "type": "kill",
+      "weapon": null,
+      "gravite": "abattu",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     }
+    ],
+    "cannon_hits": 1,
+    "cannon_bursts": 0,
+    "flight_time_s": 3634.7,
+    "pilot_deposited": false,
+    "shots_by_weapon": {
+     "AGM-65D": {
+      "shots": 4,
+      "touched": 4,
+      "precision": 1.0
+     },
+     "Mk-20 Rockeye": {
+      "salvos": 1,
+      "releases": 6,
+      "salvos_hit": 1
+     }
+    },
+    "weapon_families": {
+     "AGM-65D": 8,
+     "Mk-20 Rockeye": 38
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "partielle"
+   },
+   "crest": null
+  },
+  {
+   "id": "6123f9e3-38c1-556f-988b-fd0a46d360aa",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16777479",
+   "acmi_track_id": "108",
+   "aircraft_type": "Mirage-F1EE",
+   "coalition": "2",
+   "pilote_profile_id": "8000000000000000001",
+   "pilot_callsign": "MAMBA 1-1 I Golem",
+   "pilote_nom": "Golem",
+   "identity_state": "nomme",
+   "identity_source": "nom_acmi",
+   "t_start": 354.56,
+   "t_end": 5341.807,
+   "slot_mission": null,
+   "mission_id_dcs": null,
+   "stats": {
+    "kills": [
+     {
+      "t": 2004.782,
+      "weapon": "S530F",
+      "impact_t": 2002.775,
+      "target_coalition": "1",
+      "target_object_id": "17563137",
+      "target_unit_type": "MiG-21Bis"
+     },
+     {
+      "t": 2823.348,
+      "weapon": "S530F",
+      "impact_t": 2821.324,
+      "target_coalition": "1",
+      "target_object_id": "17570305",
+      "target_unit_type": "MiG-21Bis"
+     },
+     {
+      "t": 2972.761,
+      "weapon": "R550 Magic 2",
+      "impact_t": 2970.727,
+      "target_coalition": "1",
+      "target_object_id": "17570049",
+      "target_unit_type": "MiG-21Bis"
+     },
+     {
+      "t": 3901.624,
+      "weapon": "S530F",
+      "impact_t": 3900.603,
+      "target_coalition": "1",
+      "target_object_id": "17812737",
+      "target_unit_type": "Mirage-F1EE"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 1988.569,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [
+       {
+        "n": 1,
+        "type": "MiG-21Bis"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17563137"
+      ],
+      "target_unit_types": [
+       "MiG-21Bis"
+      ]
+     },
+     {
+      "t": 2815.974,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [
+       {
+        "n": 1,
+        "type": "MiG-21Bis"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17570305"
+      ],
+      "target_unit_types": [
+       "MiG-21Bis"
+      ]
+     },
+     {
+      "t": 2966.641,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "R550 Magic 2",
+      "targets": [
+       {
+        "n": 1,
+        "type": "MiG-21Bis"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17570049"
+      ],
+      "target_unit_types": [
+       "MiG-21Bis"
+      ]
+     },
+     {
+      "t": 3894.481,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "S530F",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Mirage-F1EE"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17812737"
+      ],
+      "target_unit_types": [
+       "Mirage-F1EE"
+      ]
+     },
+     {
+      "t": 4409.74,
+      "hits": 0,
+      "shots": 1,
+      "cannon": true,
+      "rounds": 4,
+      "weapon": "defa_553",
+      "targets": [],
+      "outcomes": [],
+      "rounds_hit": 0,
+      "target_object_ids": [],
+      "target_unit_types": []
+     }
+    ],
+    "phases": [
+     {
+      "t": 887.075,
+      "type": "takeoff"
+     },
+     {
+      "t": 3342.135,
+      "type": "land"
+     },
+     {
+      "t": 3720.073,
+      "type": "takeoff"
+     },
+     {
+      "t": 5230.437,
+      "type": "land"
+     },
+     {
+      "t": 5319.82,
+      "type": "engine shutdown"
+     }
+    ],
+    "alt_max": 6263.29,
+    "crashed": false,
+    "ejected": false,
+    "landings": 2,
+    "takeoffs": 2,
+    "engine_on": 0,
+    "engine_off": 1,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 2177.918,
+      "type": "shot",
+      "weapon": "3M9M Kub (SA-6 Gainful)",
+      "gravite": "visé",
+      "initiator_object_id": "17331457",
+      "initiator_unit_type": "Kub 2P25 ln"
+     },
+     {
+      "t": 2182.946,
+      "type": "shot",
+      "weapon": "3M9M Kub (SA-6 Gainful)",
+      "gravite": "visé",
+      "initiator_object_id": "17331713",
+      "initiator_unit_type": "Kub 2P25 ln"
+     },
+     {
+      "t": 2938.63,
+      "type": "shot",
+      "weapon": "R-3R",
+      "gravite": "visé",
+      "initiator_object_id": "17570049",
+      "initiator_unit_type": "MiG-21Bis"
+     },
+     {
+      "t": 4430.578,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17815553",
+      "initiator_unit_type": "Infantry AK Ins"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 2,
+    "flight_time_s": 4987.2,
+    "pilot_deposited": false,
+    "shots_by_weapon": {
+     "S530F": {
+      "shots": 3,
+      "touched": 3,
+      "precision": 1.0
+     },
+     "R550 Magic 2": {
+      "shots": 1,
+      "touched": 1,
+      "precision": 1.0
+     }
+    },
+    "weapon_families": {
+     "S530F": 7,
+     "R550 Magic 2": 7
+    },
+    "cannon_by_weapon": {
+     "defa_553": {
+      "bursts": 1,
+      "rounds": 4,
+      "bursts_hit": 0,
+      "rounds_hit": 0
+     }
+    },
+    "precision_reliability": "partielle"
+   },
+   "crest": null
+  },
+  {
+   "id": "0287bed6-3012-5cf9-9718-146a3974e5ad",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16777477",
+   "acmi_track_id": "106",
+   "aircraft_type": "Mi-24P",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000002",
+   "pilot_callsign": "MistyKestrel42",
+   "pilote_nom": "CHARLIE-33 | MistyKestrel42",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 530.34,
+   "t_end": 4389.047,
+   "slot_mission": "",
+   "mission_id_dcs": "1000665",
+   "stats": {
+    "kills": [
+     {
+      "t": 1700.347,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17374465",
+      "target_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1915.389,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17382913",
+      "target_unit_type": "BRDM-2"
+     },
+     {
+      "t": 2092.382,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2092.382,
+      "target_coalition": "1",
+      "target_object_id": "17400833",
+      "target_unit_type": "BMP-3"
+     },
+     {
+      "t": 2327.251,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2327.251,
+      "target_coalition": "1",
+      "target_object_id": "17401601",
+      "target_unit_type": "BTR-82A"
+     },
+     {
+      "t": 2653.772,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17569281",
+      "target_unit_type": "Paratrooper RPG-16"
+     },
+     {
+      "t": 2654.666,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17568257",
+      "target_unit_type": "Infantry AK ver2"
+     },
+     {
+      "t": 2654.658,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17568769",
+      "target_unit_type": "Infantry AK ver3"
+     },
+     {
+      "t": 2654.655,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17569793",
+      "target_unit_type": "Infantry AK ver3"
+     },
+     {
+      "t": 2654.683,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17569025",
+      "target_unit_type": "Infantry AK ver2"
+     },
+     {
+      "t": 2654.677,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17568001",
+      "target_unit_type": "Infantry AK ver3"
+     },
+     {
+      "t": 2654.685,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17568513",
+      "target_unit_type": "Infantry AK ver2"
+     },
+     {
+      "t": 2654.68,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17569537",
+      "target_unit_type": "Infantry AK ver3"
+     },
+     {
+      "t": 2918.946,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2862.656,
+      "target_coalition": "1",
+      "target_object_id": "17401857",
+      "target_unit_type": "Grad_FDDM"
+     },
+     {
+      "t": 2993.432,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "impact_t": 2862.656,
+      "target_coalition": "1",
+      "target_object_id": "17402369",
+      "target_unit_type": "BTR-70"
+     },
+     {
+      "t": 3076.017,
+      "weapon": null,
+      "target_coalition": "1",
+      "target_object_id": "17401089",
+      "target_unit_type": "Grad_FDDM"
+     },
+     {
+      "t": 2927.254,
+      "weapon": null,
+      "explosion": {
+       "wreck": "Grad_FDDM",
+       "wreck_t": 2918.946
+      },
+      "target_coalition": "1",
+      "target_object_id": "17402625",
+      "target_unit_type": "BTR-70"
+     },
+     {
+      "t": 2938.94,
+      "weapon": null,
+      "explosion": {
+       "wreck": "Grad_FDDM",
+       "wreck_t": 2918.946
+      },
+      "target_coalition": "1",
+      "target_object_id": "17402113",
+      "target_unit_type": "Grad_FDDM"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 1603.36,
+      "hits": 0,
+      "shots": 1,
+      "cannon": true,
+      "rounds": 3,
+      "weapon": "GSh-30-2K",
+      "targets": [],
+      "outcomes": [],
+      "rounds_hit": 0,
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 1687.34,
+      "hits": 1,
+      "shots": 9,
+      "cannon": true,
+      "rounds": 43,
+      "weapon": "GSh-30-2K",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Infantry AK"
+       }
+      ],
+      "outcomes": [],
+      "rounds_hit": 1,
+      "target_object_ids": [
+       "17374465"
+      ],
+      "target_unit_types": [
+       "Infantry AK"
+      ]
+     },
+     {
+      "t": 1820.44,
+      "hits": 2,
+      "shots": 8,
+      "cannon": true,
+      "rounds": 52,
+      "weapon": "GSh-30-2K",
+      "targets": [
+       {
+        "n": 1,
+        "type": "BRDM-2"
+       },
+       {
+        "n": 1,
+        "type": "Ural-375"
+       }
+      ],
+      "outcomes": [],
+      "rounds_hit": 5,
+      "target_object_ids": [
+       "17382657",
+       "17382913"
+      ],
+      "target_unit_types": [
+       "BRDM-2",
+       "Ural-375"
+      ]
+     },
+     {
+      "t": 2082.476,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 1,
+        "type": "BMP-3"
+       },
+       {
+        "n": 1,
+        "type": "Grad_FDDM"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17400833",
+       "17401089"
+      ],
+      "target_unit_types": [
+       "BMP-3",
+       "Grad_FDDM"
+      ]
+     },
+     {
+      "t": 2317.062,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 2,
+        "type": "BTR-70"
+       },
+       {
+        "n": 2,
+        "type": "Grad_FDDM"
+       },
+       {
+        "n": 1,
+        "type": "BTR-82A"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17401601",
+       "17402113",
+       "17401857",
+       "17402369",
+       "17402625"
+      ],
+      "target_unit_types": [
+       "BTR-70",
+       "BTR-82A",
+       "Grad_FDDM"
+      ]
+     },
+     {
+      "t": 2646.98,
+      "hits": 1,
+      "shots": 9,
+      "cannon": true,
+      "rounds": 119,
+      "weapon": "GSh-30-2K",
+      "targets": [
+       {
+        "n": 4,
+        "type": "Infantry AK ver3"
+       },
+       {
+        "n": 3,
+        "type": "Infantry AK ver2"
+       },
+       {
+        "n": 1,
+        "type": "Paratrooper RPG-16"
+       }
+      ],
+      "outcomes": [],
+      "rounds_hit": 8,
+      "target_object_ids": [
+       "17568513",
+       "17569281",
+       "17568769",
+       "17569025",
+       "17568257",
+       "17569537",
+       "17569793",
+       "17568001"
+      ],
+      "target_unit_types": [
+       "Infantry AK ver2",
+       "Infantry AK ver3",
+       "Paratrooper RPG-16"
+      ]
+     },
+     {
+      "t": 2749.38,
+      "hits": 0,
+      "shots": 1,
+      "cannon": true,
+      "rounds": 10,
+      "weapon": "GSh-30-2K",
+      "targets": [],
+      "outcomes": [],
+      "rounds_hit": 0,
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2859.639,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 2,
+        "type": "BTR-70"
+       },
+       {
+        "n": 2,
+        "type": "Grad_FDDM"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": [
+       "BTR-70",
+       "Grad_FDDM"
+      ]
+     },
+     {
+      "t": 2971.121,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Grad_FDDM"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": [
+       "Grad_FDDM"
+      ]
+     },
+     {
+      "t": 2999.82,
+      "hits": 1,
+      "shots": 3,
+      "cannon": true,
+      "rounds": 23,
+      "weapon": "GSh-30-2K",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Grad_FDDM"
+       }
+      ],
+      "outcomes": [],
+      "rounds_hit": 1,
+      "target_object_ids": [
+       "17401089"
+      ],
+      "target_unit_types": [
+       "Grad_FDDM"
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 918.661,
+      "type": "engine startup"
+     },
+     {
+      "t": 1268.541,
+      "type": "takeoff"
+     },
+     {
+      "t": 3543.821,
+      "type": "land"
+     }
+    ],
+    "alt_max": 790.61,
+    "crashed": false,
+    "ejected": false,
+    "landings": 1,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 0,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 1778.53,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17382913",
+      "initiator_unit_type": "BRDM-2"
+     },
+     {
+      "t": 1819.862,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17382913",
+      "initiator_unit_type": "BRDM-2"
+     },
+     {
+      "t": 1829.588,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17382913",
+      "initiator_unit_type": "BRDM-2"
+     },
+     {
+      "t": 1832.701,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1834.93,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1836.896,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1836.997,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1837.091,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1837.357,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1837.539,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1837.659,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1842.011,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 1842.132,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17383169",
+      "initiator_unit_type": "Infantry AK"
+     },
+     {
+      "t": 2654.368,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17401089",
+      "initiator_unit_type": "Grad_FDDM"
+     },
+     {
+      "t": 2654.427,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17401089",
+      "initiator_unit_type": "Grad_FDDM"
+     },
+     {
+      "t": 2860.493,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17402369",
+      "initiator_unit_type": "BTR-70"
+     },
+     {
+      "t": 2861.045,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17402625",
+      "initiator_unit_type": "BTR-70"
+     },
+     {
+      "t": 2881.939,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17402369",
+      "initiator_unit_type": "BTR-70"
+     },
+     {
+      "t": 2885.905,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17402369",
+      "initiator_unit_type": "BTR-70"
+     }
+    ],
+    "cannon_hits": 15,
+    "cannon_bursts": 31,
+    "flight_time_s": 3858.7,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "9M114 Shturm (AT-6 Spiral)": {
+      "shots": 4,
+      "touched": 4,
+      "precision": 1.0
+     }
+    },
+    "weapon_families": {
+     "9M114 Shturm (AT-6 Spiral)": 8
+    },
+    "cannon_by_weapon": {
+     "GSh-30-2K": {
+      "bursts": 31,
+      "rounds": 250,
+      "bursts_hit": 5,
+      "rounds_hit": 15
+     }
+    },
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  },
+  {
+   "id": "bf8e4b2a-57a0-54c0-9f8a-a23bb60386cc",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16897538",
+   "acmi_track_id": "1d603",
+   "aircraft_type": "F-4E-45MC",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000003",
+   "pilot_callsign": "COLT 1-1 | Vortex",
+   "pilote_nom": "Vortex",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 609.39,
+   "t_end": 3164.157,
+   "slot_mission": "",
+   "mission_id_dcs": "1000670",
+   "stats": {
+    "kills": [
+     {
+      "t": 2941.937,
+      "weapon": "BLU-18/B",
+      "target_coalition": "1",
+      "target_object_id": "17308161",
+      "target_unit_type": "SA-18 Igla-S manpad"
+     },
+     {
+      "t": 2942.165,
+      "weapon": "BLU-18/B",
+      "target_coalition": "1",
+      "target_object_id": "17810689",
+      "target_unit_type": "Infantry AK ver3"
+     },
+     {
+      "t": 2942.274,
+      "weapon": "BLU-18/B",
+      "target_coalition": "1",
+      "target_object_id": "17809921",
+      "target_unit_type": "Infantry AK ver2"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 1506.512,
+      "hits": 0,
+      "shots": 2,
+      "weapon": "Mk 4 FFAR M156 SM",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2210.048,
+      "hits": 0,
+      "shots": 3,
+      "weapon": "Mk 4 FFAR M156 SM",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2259.392,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "Mk 4 FFAR M156 SM",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 2935.376,
+      "hits": 2,
+      "shots": 55,
+      "weapon": "BLU-49/B",
+      "targets": [
+       {
+        "n": 1,
+        "type": "BRDM-2_malyutka"
+       },
+       {
+        "n": 1,
+        "type": "tt_ZU-23"
+       }
+      ],
+      "weapons": [
+       {
+        "shots": 28,
+        "weapon": "BLU-49/B"
+       },
+       {
+        "shots": 27,
+        "weapon": "Bomblets - BLU-18/B x 30, HE"
+       }
+      ],
+      "outcomes": [
+       {
+        "t": 3292.728,
+        "by": "F-4E-45MC",
+        "type": "BRDM-2_malyutka",
+        "issue": "detruit",
+        "by_weapon": "AGM-65D",
+        "by_unit_type": "F-4E-45MC"
+       },
+       {
+        "n": 1,
+        "type": "tt_ZU-23",
+        "issue": "intact"
+       }
+      ],
+      "target_object_ids": [
+       "17306369",
+       "17308929"
+      ],
+      "target_unit_types": [
+       "BRDM-2_malyutka",
+       "tt_ZU-23"
+      ],
+      "destroyed_by_other": [
+       {
+        "kill_t": 3292.728,
+        "killer": "F-4E-45MC",
+        "killer_weapon": "AGM-65D",
+        "target_unit_type": "BRDM-2_malyutka"
+       }
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 698.494,
+      "type": "engine startup"
+     },
+     {
+      "t": 1066.334,
+      "type": "takeoff"
+     },
+     {
+      "t": 3025.474,
+      "type": "eject"
+     },
+     {
+      "t": 3035.914,
+      "type": "crash"
+     }
+    ],
+    "alt_max": 3514.43,
+    "crashed": true,
+    "ejected": true,
+    "landings": 0,
+    "takeoffs": 1,
+    "engine_on": 2,
+    "engine_off": 0,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 2927.207,
+      "type": "shot",
+      "weapon": "9M39 Igla",
+      "gravite": "visé",
+      "initiator_object_id": "17308161",
+      "initiator_unit_type": "SA-18 Igla-S manpad"
+     },
+     {
+      "t": 2931.905,
+      "type": "hit",
+      "weapon": "9M39 Igla",
+      "gravite": "touché",
+      "initiator_object_id": "17308161",
+      "initiator_unit_type": "SA-18 Igla-S manpad"
+     },
+     {
+      "t": 2936.513,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.513,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.612,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.662,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.662,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.662,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.662,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.69,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.717,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.717,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 2936.884,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 3025.474,
+      "type": "kill",
+      "weapon": null,
+      "gravite": "abattu",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 2554.8,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "BLU-49/B": {
+      "shots": 28,
+      "touched": 2,
+      "precision": 0.071
+     },
+     "Mk 4 FFAR M156 SM": {
+      "shots": 6,
+      "touched": 0,
+      "precision": 0.0
+     },
+     "Bomblets - BLU-18/B x 30, HE": {
+      "salvos": 1,
+      "releases": 27,
+      "salvos_hit": 1
+     }
+    },
+    "weapon_families": {
+     "BLU-49/B": 9,
+     "Mk 4 FFAR M156 SM": 33,
+     "Bomblets - BLU-18/B x 30, HE": 38
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  },
+  {
+   "id": "a522e647-20ca-5237-86b6-2717b0e64c89",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16777734",
+   "acmi_track_id": null,
+   "aircraft_type": "F-4E-45MC",
+   "coalition": "2",
+   "pilote_profile_id": null,
+   "pilot_callsign": null,
+   "pilote_nom": null,
+   "identity_state": "anonyme",
+   "identity_source": null,
+   "t_start": 1296.52,
+   "t_end": 4396.547,
+   "slot_mission": null,
+   "mission_id_dcs": null,
+   "stats": {
+    "kills": [
+     {
+      "t": 2246.672,
+      "weapon": "Mk-82",
+      "impact_t": 2234.334,
+      "target_coalition": "1",
+      "target_object_id": "17403905",
+      "target_unit_type": "SAU Msta"
+     },
+     {
+      "t": 2253.868,
+      "weapon": "Mk-82",
+      "impact_t": 2234.167,
+      "target_coalition": "1",
+      "target_object_id": "17404673",
+      "target_unit_type": "Ural-375"
+     },
+     {
+      "t": 2346.007,
+      "weapon": "Mk-82",
+      "impact_t": 2234.257,
+      "also_engaged_by": [
+       {
+        "t": 1605.383,
+        "pilot": "F-4E-45MC",
+        "weapon": "Mk 118"
+       }
+      ],
+      "target_coalition": "1",
+      "target_object_id": "17404161",
+      "target_unit_type": "SAU Msta"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 2229.284,
+      "hits": 4,
+      "shots": 12,
+      "weapon": "Mk-82",
+      "targets": [
+       {
+        "n": 2,
+        "type": "SAU Msta"
+       },
+       {
+        "n": 1,
+        "type": "Ural-375"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17404673",
+       "17404161",
+       "17403905"
+      ],
+      "target_unit_types": [
+       "SAU Msta",
+       "Ural-375"
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 1296.52,
+      "type": "engine startup"
+     },
+     {
+      "t": 1690.864,
+      "type": "takeoff"
+     },
+     {
+      "t": 4284.422,
+      "type": "eject"
+     },
+     {
+      "t": 4284.876,
+      "type": "crash"
+     }
+    ],
+    "alt_max": null,
+    "crashed": true,
+    "ejected": true,
+    "landings": 0,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 0,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 3503.438,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307137",
+      "initiator_unit_type": "MTLB"
+     },
+     {
+      "t": 3503.488,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307137",
+      "initiator_unit_type": "MTLB"
+     },
+     {
+      "t": 3503.628,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3503.698,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3504.012,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3504.192,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3592.83,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3593.016,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3593.068,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3595.833,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3595.922,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3596.006,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3596.086,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 3596.164,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     },
+     {
+      "t": 4284.422,
+      "type": "kill",
+      "weapon": null,
+      "gravite": "abattu",
+      "initiator_object_id": "17307393",
+      "initiator_unit_type": "BTR-80"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 3100.0,
+    "pilot_deposited": false,
+    "shots_by_weapon": {
+     "Mk-82": {
+      "shots": 12,
+      "touched": 4,
+      "precision": 0.333
+     }
+    },
+    "weapon_families": {
+     "Mk-82": 9
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "partielle"
+   },
+   "crest": null
+  },
+  {
+   "id": "e6346e5c-8941-5305-bbba-7745ca0d9967",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "17155074",
+   "acmi_track_id": "5c403",
+   "aircraft_type": "F-4E-45MC",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000003",
+   "pilot_callsign": "COLT 1-1 | Vortex",
+   "pilote_nom": "Vortex",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 3064.86,
+   "t_end": 4794.687,
+   "slot_mission": "Hahn_F-4E-45MC_731-1",
+   "mission_id_dcs": "1000732",
+   "stats": {
+    "kills": [
+     {
+      "t": 3727.083,
+      "weapon": "AGM-65D",
+      "impact_t": 3727.083,
+      "target_coalition": "1",
+      "target_object_id": "17562881",
+      "target_unit_type": "Grad_FDDM"
+     },
+     {
+      "t": 3738.774,
+      "weapon": "AGM-65D",
+      "impact_t": 3727.083,
+      "also_engaged_by": [
+       {
+        "t": 3391.024,
+        "pilot": "F-4E-45MC",
+        "weapon": "AGM-65D"
+       }
+      ],
+      "target_coalition": "1",
+      "target_object_id": "17562625",
+      "target_unit_type": "ural_4230_civil_b"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 3696.392,
+      "hits": 1,
+      "shots": 1,
+      "weapon": "AGM-65D",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Grad_FDDM"
+       },
+       {
+        "n": 1,
+        "type": "ural_4230_civil_b"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17562881",
+       "17562625"
+      ],
+      "target_unit_types": [
+       "Grad_FDDM",
+       "ural_4230_civil_b"
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 3164.186,
+      "type": "engine startup"
+     },
+     {
+      "t": 3464.306,
+      "type": "takeoff"
+     },
+     {
+      "t": 4282.208,
+      "type": "pilot dead"
+     },
+     {
+      "t": 4282.208,
+      "type": "crash"
+     }
+    ],
+    "alt_max": 2507.57,
+    "crashed": true,
+    "ejected": false,
+    "landings": 0,
+    "takeoffs": 1,
+    "engine_on": 2,
+    "engine_off": 0,
+    "pilot_dead": true,
+    "threat_log": [
+     {
+      "t": 3718.947,
+      "type": "shot",
+      "weapon": "AIM-9JULI",
+      "gravite": "visé",
+      "initiator_object_id": "17813249",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 3726.029,
+      "type": "hit",
+      "weapon": "AIM-9JULI",
+      "gravite": "touché",
+      "initiator_object_id": "17813249",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 3726.029,
+      "type": "hit",
+      "weapon": "AIM-9JULI",
+      "gravite": "touché",
+      "initiator_object_id": "17813249",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 4282.208,
+      "type": "kill",
+      "weapon": "AIM-9JULI",
+      "gravite": "abattu",
+      "initiator_object_id": "17813249",
+      "initiator_unit_type": "Mirage-F1EE"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 1729.8,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "AGM-65D": {
+      "shots": 1,
+      "touched": 1,
+      "precision": 1.0
+     }
+    },
+    "weapon_families": {
+     "AGM-65D": 8
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  },
+  {
+   "id": "e4abb88b-231d-5c52-a52a-7358465e8f83",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16864776",
+   "acmi_track_id": null,
+   "aircraft_type": "F-4E-45MC",
+   "coalition": "2",
+   "pilote_profile_id": null,
+   "pilot_callsign": null,
+   "pilote_nom": null,
+   "identity_state": "anonyme",
+   "identity_source": null,
+   "t_start": 3153.72,
+   "t_end": 3952.826,
+   "slot_mission": null,
+   "mission_id_dcs": null,
+   "stats": {
+    "kills": [],
+    "bursts": [],
+    "phases": [
+     {
+      "t": 3153.72,
+      "type": "engine startup"
+     },
+     {
+      "t": 3465.747,
+      "type": "takeoff"
+     },
+     {
+      "t": 3826.007,
+      "type": "eject"
+     },
+     {
+      "t": 3829.357,
+      "type": "crash"
+     }
+    ],
+    "alt_max": null,
+    "crashed": true,
+    "ejected": true,
+    "landings": 0,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 0,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 3805.09,
+      "type": "shot",
+      "weapon": "AIM-9JULI",
+      "gravite": "visé",
+      "initiator_object_id": "17812737",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 3809.887,
+      "type": "hit",
+      "weapon": "AIM-9JULI",
+      "gravite": "touché",
+      "initiator_object_id": "17812737",
+      "initiator_unit_type": "Mirage-F1EE"
+     },
+     {
+      "t": 3826.007,
+      "type": "kill",
+      "weapon": "AIM-9JULI",
+      "gravite": "abattu",
+      "initiator_object_id": "17812737",
+      "initiator_unit_type": "Mirage-F1EE"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 799.1,
+    "pilot_deposited": false,
+    "shots_by_weapon": {},
+    "weapon_families": {},
+    "cannon_by_weapon": {},
+    "precision_reliability": "partielle"
+   },
+   "crest": null
+  },
+  {
+   "id": "b4f9c00b-f457-55f9-afdc-fc202a027913",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "17052677",
+   "acmi_track_id": "43406",
+   "aircraft_type": "Mi-24P",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000002",
+   "pilot_callsign": "MistyKestrel42",
+   "pilote_nom": "CHARLIE-33 | MistyKestrel42",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 3503.99,
+   "t_end": 5048.715,
+   "slot_mission": "",
+   "mission_id_dcs": "1000771",
+   "stats": {
+    "kills": [
+     {
+      "t": 4430.341,
+      "weapon": "S-5KP HEAT/Frag",
+      "impact_t": 4388.759,
+      "target_coalition": "1",
+      "target_object_id": "17382657",
+      "target_unit_type": "Ural-375"
+     }
+    ],
+    "bursts": [
+     {
+      "t": 4192.429,
+      "hits": 0,
+      "shots": 4,
+      "weapon": "S-5KP HEAT/Frag",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 4343.153,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 4385.731,
+      "hits": 2,
+      "shots": 60,
+      "weapon": "S-5KP HEAT/Frag",
+      "targets": [
+       {
+        "n": 1,
+        "type": "Ural-375"
+       }
+      ],
+      "outcomes": [],
+      "target_object_ids": [
+       "17382657"
+      ],
+      "target_unit_types": [
+       "Ural-375"
+      ]
+     },
+     {
+      "t": 4982.663,
+      "hits": 0,
+      "shots": 1,
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     }
+    ],
+    "phases": [
+     {
+      "t": 3775.623,
+      "type": "engine startup"
+     },
+     {
+      "t": 4151.593,
+      "type": "takeoff"
+     },
+     {
+      "t": 4705.461,
+      "type": "land"
+     },
+     {
+      "t": 4866.503,
+      "type": "takeoff"
+     },
+     {
+      "t": 4984.804,
+      "type": "pilot dead"
+     }
+    ],
+    "alt_max": 634.89,
+    "crashed": false,
+    "ejected": false,
+    "landings": 1,
+    "takeoffs": 2,
+    "engine_on": 1,
+    "engine_off": 0,
+    "pilot_dead": true,
+    "threat_log": [
+     {
+      "t": 4984.804,
+      "type": "hit",
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 4984.804,
+      "type": "hit",
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 4984.804,
+      "type": "kill",
+      "weapon": "9M114 Shturm (AT-6 Spiral)",
+      "gravite": "abattu",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5019.592,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5019.675,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5019.803,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.742,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.766,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.796,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.796,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.796,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.825,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.873,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.873,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.873,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.873,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.932,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.932,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.958,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5021.958,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.005,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.005,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.046,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.046,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.046,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.046,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.046,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.046,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5022.168,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5023.253,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5023.953,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5023.953,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5023.953,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5023.953,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.015,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.015,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.015,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.015,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.066,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.066,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.066,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.066,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.066,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.137,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.137,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.137,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.137,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.137,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.386,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.386,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.659,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.659,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.715,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.715,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.715,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.715,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.769,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.769,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.769,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.769,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.829,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.829,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.829,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.829,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.829,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.901,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.901,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.901,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.901,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.901,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.996,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     },
+     {
+      "t": 5024.996,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17906177",
+      "initiator_unit_type": "Mi-24V"
+     }
+    ],
+    "cannon_hits": 0,
+    "cannon_bursts": 0,
+    "flight_time_s": 1544.7,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "S-5KP HEAT/Frag": {
+      "shots": 64,
+      "touched": 2,
+      "precision": 0.031
+     },
+     "9M114 Shturm (AT-6 Spiral)": {
+      "shots": 2,
+      "touched": 0,
+      "precision": 0.0
+     }
+    },
+    "weapon_families": {
+     "S-5KP HEAT/Frag": 33,
+     "9M114 Shturm (AT-6 Spiral)": 8
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  },
+  {
+   "id": "f263ecac-84c2-5c50-9dcb-6150d1456628",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "16940040",
+   "acmi_track_id": "27c09",
+   "aircraft_type": "F-4E-45MC",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000004",
+   "pilot_callsign": "COLT 2-1 | Noctis",
+   "pilote_nom": "BRAVO-22 | Noctis",
+   "identity_state": "nomme",
+   "identity_source": "nom_acmi",
+   "t_start": 3851.98,
+   "t_end": 5525.87,
+   "slot_mission": null,
+   "mission_id_dcs": null,
+   "stats": {
+    "kills": [],
+    "bursts": [
+     {
+      "t": 4610.08,
+      "hits": 0,
+      "salvo": true,
+      "shots": 19,
+      "weapon": "Bomblets BLU-3B x 22, HE",
+      "targets": [
+       {
+        "n": 1,
+        "type": "tt_ZU-23"
+       }
+      ],
+      "outcomes": [
+       {
+        "n": 1,
+        "type": "tt_ZU-23",
+        "issue": "intact"
+       }
+      ],
+      "target_object_ids": [],
+      "target_unit_types": []
+     }
+    ],
+    "phases": [
+     {
+      "t": 3963.26,
+      "type": "engine startup"
+     },
+     {
+      "t": 4102.999,
+      "type": "takeoff"
+     },
+     {
+      "t": 5099.485,
+      "type": "land"
+     },
+     {
+      "t": 5146.66,
+      "type": "engine shutdown"
+     }
+    ],
+    "alt_max": 5197.22,
+    "crashed": false,
+    "ejected": false,
+    "landings": 1,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 1,
+    "pilot_dead": false,
+    "threat_log": [
+     {
+      "t": 4607.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4607.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4607.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4607.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4607.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4607.961,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306881",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4608.775,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4608.775,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4608.828,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 4608.828,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17306625",
+      "initiator_unit_type": "tt_ZU-23"
+     }
+    ],
+    "cannon_hits": 3,
+    "cannon_bursts": 0,
+    "flight_time_s": 1673.9,
+    "pilot_deposited": false,
+    "shots_by_weapon": {
+     "Bomblets BLU-3B x 22, HE": {
+      "salvos": 1,
+      "releases": 19,
+      "salvos_hit": 1
+     }
+    },
+    "weapon_families": {
+     "Bomblets BLU-3B x 22, HE": 38
+    },
+    "cannon_by_weapon": {},
+    "precision_reliability": "partielle"
+   },
+   "crest": null
+  },
+  {
+   "id": "b8bbbc39-aaf3-5d44-9b9b-870a6b92a242",
+   "session_id": "e29ea43b-2029-47c3-88cb-225596bf1dca",
+   "object_id": "17143301",
+   "acmi_track_id": null,
+   "aircraft_type": "Mi-24P",
+   "coalition": "2",
+   "pilote_profile_id": "800000000000000002",
+   "pilot_callsign": "MistyKestrel42",
+   "pilote_nom": "CHARLIE-33 | MistyKestrel42",
+   "identity_state": "nomme",
+   "identity_source": "under_control",
+   "t_start": 5371.745,
+   "t_end": 5986.507,
+   "slot_mission": "Mendig_Mi-24P_828-1",
+   "mission_id_dcs": "1000829",
+   "stats": {
+    "kills": [],
+    "bursts": [
+     {
+      "t": 5965.439,
+      "hits": 0,
+      "shots": 56,
+      "weapon": "S-5KP HEAT/Frag",
+      "targets": [],
+      "outcomes": [],
+      "target_object_ids": [],
+      "target_unit_types": []
+     },
+     {
+      "t": 5972.305,
+      "hits": 1,
+      "shots": 3,
+      "cannon": true,
+      "rounds": 96,
+      "weapon": "GSh-30-2K",
+      "targets": [
+       {
+        "n": 1,
+        "type": "tt_ZU-23"
+       }
+      ],
+      "outcomes": [
+       {
+        "n": 1,
+        "type": "tt_ZU-23",
+        "issue": "intact"
+       }
+      ],
+      "rounds_hit": 1,
+      "target_object_ids": [
+       "17962753"
+      ],
+      "target_unit_types": [
+       "tt_ZU-23"
+      ]
+     }
+    ],
+    "phases": [
+     {
+      "t": 5480.805,
+      "type": "engine startup"
+     },
+     {
+      "t": 5759.485,
+      "type": "takeoff"
+     },
+     {
+      "t": 5986.507,
+      "type": "pilot dead"
+     },
+     {
+      "t": 5986.507,
+      "type": "crash"
+     }
+    ],
+    "alt_max": null,
+    "crashed": true,
+    "ejected": false,
+    "landings": 0,
+    "takeoffs": 1,
+    "engine_on": 1,
+    "engine_off": 0,
+    "pilot_dead": true,
+    "threat_log": [
+     {
+      "t": 5765.926,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17896449",
+      "initiator_unit_type": "ZSU_57_2"
+     },
+     {
+      "t": 5765.926,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17896449",
+      "initiator_unit_type": "ZSU_57_2"
+     },
+     {
+      "t": 5766.029,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17896449",
+      "initiator_unit_type": "ZSU_57_2"
+     },
+     {
+      "t": 5766.029,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17896449",
+      "initiator_unit_type": "ZSU_57_2"
+     },
+     {
+      "t": 5968.302,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5968.916,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5968.916,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5969.786,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5969.786,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5969.786,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5969.786,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5969.786,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.612,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.612,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.686,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.714,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.714,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.797,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.963,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.963,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5974.963,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962497",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5976.164,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962241",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5976.164,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962241",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5976.215,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962241",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5976.215,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962241",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5976.215,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962241",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5977.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5977.231,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5977.265,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5977.348,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5977.348,
+      "type": "hit",
+      "weapon": null,
+      "gravite": "touché",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     },
+     {
+      "t": 5986.507,
+      "type": "kill",
+      "weapon": null,
+      "gravite": "abattu",
+      "initiator_object_id": "17962753",
+      "initiator_unit_type": "tt_ZU-23"
+     }
+    ],
+    "cannon_hits": 1,
+    "cannon_bursts": 3,
+    "flight_time_s": 614.8,
+    "pilot_deposited": true,
+    "shots_by_weapon": {
+     "S-5KP HEAT/Frag": {
+      "shots": 56,
+      "touched": 0,
+      "precision": 0.0
+     }
+    },
+    "weapon_families": {
+     "S-5KP HEAT/Frag": 33
+    },
+    "cannon_by_weapon": {
+     "GSh-30-2K": {
+      "bursts": 3,
+      "rounds": 96,
+      "bursts_hit": 1,
+      "rounds_hit": 1
+     }
+    },
+    "precision_reliability": "fiable"
+   },
+   "crest": null
+  }
+ ]
+}

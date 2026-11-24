@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ t.noaccess_titre_page|safe }}</title>
+  <link rel="icon" href="/static/assets/marque/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/static/assets/marque/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/assets/marque/apple-touch-icon.png">
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <style>
+    /* Lot « La connexion de secours » : le style de login.html, en ligne. */
+    @font-face{font-family:'Oswald';src:url(/static/assets/fonts/oswald-600.woff2) format('woff2');font-weight:600;font-style:normal;font-display:swap;}
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:2rem 1.2rem;
+      font-family:system-ui,sans-serif;
+      color:#E8E6DC;
+      text-align:center;
+      background-image:linear-gradient(rgba(10,12,8,.72),rgba(10,12,8,.72)),url(/static/assets/img/landing-bg.jpg);
+      background-size:cover;background-position:center;
+    }
+    h1{font-family:'Oswald',sans-serif;font-weight:600;font-size:1.7rem;letter-spacing:.02em;text-transform:uppercase;margin:0 0 .9rem;}
+    p{color:#B9BAA8;font-size:.92rem;max-width:26em;margin:0 auto .8rem;}
+    p strong{color:#E8E6DC;}
+    a.btn{
+      display:inline-flex;align-items:center;gap:.6em;
+      margin-top:.8rem;
+      padding:.8rem 1.6rem;
+      background:#E0A83A;color:#14181d;text-decoration:none;
+      border-radius:6px;font-weight:600;font-family:'Oswald',sans-serif;letter-spacing:.02em;
+    }
+    a.btn:hover{filter:brightness(1.08);}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>{{ t.noaccess_titre|safe }}</h1>
+    <p>{{ t.noaccess_compte|safe }} <strong>{{ nom }}</strong> (@{{ identifiant }}).</p>
+    {% if motif == "non_membre" %}
+    <p>{{ t.noaccess_non_membre|safe }}</p>
+    {% elif motif == "sans_role" %}
+    <p>{{ t.noaccess_sans_role|safe }}</p>
+    {% endif %}
+    <p>{{ t.noaccess_mauvais_compte|safe }}</p>
+    {% if commande %}
+    <p>{{ t.noaccess_commande|safe }}</p>
+    {% endif %}
+    <p>{{ t.noaccess_fin|safe }}</p>
+    <a class="btn" href="/">{{ t.noaccess_bouton|safe }}</a>
+  </div>
+</body>
+</html>

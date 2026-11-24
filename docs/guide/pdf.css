@@ -1,0 +1,99 @@
+/* Lot « rr-public-guide-1 » : la mise en page des PDF du guide (docs/construire_pdf.sh, WeasyPrint).
+   Les polices sont celles de l'application, prises dans app/static/assets/fonts/ et embarquées dans le PDF ;
+   le chemin est relatif à ce fichier (docs/guide/). L'en-tête et le pied de page (version, numéro) viennent
+   d'un feuillet de style que le script écrit à chaque construction. */
+
+@font-face { font-family: "Oswald"; font-weight: 400; src: url("../../app/static/assets/fonts/oswald-400.woff2") format("woff2"); }
+@font-face { font-family: "Oswald"; font-weight: 500; src: url("../../app/static/assets/fonts/oswald-500.woff2") format("woff2"); }
+@font-face { font-family: "Oswald"; font-weight: 600; src: url("../../app/static/assets/fonts/oswald-600.woff2") format("woff2"); }
+@font-face { font-family: "Oswald"; font-weight: 700; src: url("../../app/static/assets/fonts/oswald-700.woff2") format("woff2"); }
+@font-face { font-family: "Zilla Slab"; font-weight: 400; src: url("../../app/static/assets/fonts/zilla-slab-400.woff2") format("woff2"); }
+@font-face { font-family: "Zilla Slab"; font-weight: 400; font-style: italic; src: url("../../app/static/assets/fonts/zilla-slab-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Zilla Slab"; font-weight: 600; src: url("../../app/static/assets/fonts/zilla-slab-600.woff2") format("woff2"); }
+@font-face { font-family: "Zilla Slab"; font-weight: 700; src: url("../../app/static/assets/fonts/zilla-slab-700.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400; src: url("../../app/static/assets/fonts/jetbrains-mono-400.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400; font-style: italic; src: url("../../app/static/assets/fonts/jetbrains-mono-400-italic.woff2") format("woff2"); }
+
+:root {
+  --encre: #1d2b4e;
+  --or: #c9a64a;
+  --texte: #222a3a;
+  --discret: #5b6478;
+  --filet: #cfd4de;
+  --fond-code: #f3f4f7;
+}
+
+@page {
+  size: A4;
+  margin: 24mm 20mm 22mm 20mm;
+  @top-left { font: 400 8.5pt "Oswald", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--discret); }
+  @top-right { content: string(chapitre); font: 400 8.5pt "Oswald", sans-serif; letter-spacing: .04em; color: var(--discret); }
+  @bottom-left { font: 400 8.5pt "Oswald", sans-serif; color: var(--discret); }
+  @bottom-right { font: 400 8.5pt "Oswald", sans-serif; color: var(--discret); }
+}
+
+html { font: 400 10.5pt/1.5 "Zilla Slab", serif; color: var(--texte); }
+body { margin: 0; }
+
+/* --- La couverture : l'insigne vectoriel (jamais un PNG : la transparence s'aplatit) --- */
+#cover { height: 230mm; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; break-after: page; }
+#cover .insigne { width: 70mm; height: 70mm; margin-bottom: 14mm; }
+#cover .marque { font: 600 30pt "Oswald", sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--encre); margin: 0; }
+#cover .titre-guide { font: 400 20pt "Oswald", sans-serif; color: var(--discret); margin: 3mm 0 12mm; }
+#cover .version-guide { font: 500 14pt "Oswald", sans-serif; color: var(--encre); margin: 0; border-top: 1.2pt solid var(--or); padding-top: 4mm; }
+#cover .langue-guide { font: 400 11pt "Oswald", sans-serif; color: var(--discret); margin: 1mm 0 0; }
+
+/* --- Le sommaire, paginé --- */
+#TOC { break-after: page; }
+#TOC .toc-title { font: 600 20pt "Oswald", sans-serif; color: var(--encre); margin: 0 0 6mm; }
+#TOC ul { list-style: none; margin: 0; padding: 0; }
+#TOC ul ul { padding-left: 7mm; }
+#TOC li { margin: 1.2mm 0; }
+#TOC > ul > li { margin-top: 3mm; font-weight: 600; }
+#TOC a { color: inherit; text-decoration: none; border-bottom: none; }
+#TOC a::after { content: leader(".") target-counter(attr(href), page); }
+
+/* --- Les titres : chaque chapitre sur une page neuve --- */
+h1 { font: 600 22pt/1.2 "Oswald", sans-serif; color: var(--encre); margin: 0 0 6mm; padding-bottom: 2mm; border-bottom: 1.4pt solid var(--or); break-before: page; string-set: chapitre content(); }
+h2 { font: 500 14pt/1.25 "Oswald", sans-serif; color: var(--encre); margin: 8mm 0 2.5mm; break-after: avoid; }
+h3 { font: 500 11.5pt/1.25 "Oswald", sans-serif; color: var(--encre); margin: 5mm 0 2mm; break-after: avoid; }
+p { margin: 0 0 3mm; orphans: 3; widows: 3; }
+a { color: var(--encre); text-decoration: none; border-bottom: .5pt solid var(--or); }
+ul, ol { margin: 0 0 3mm; padding-left: 7mm; }
+li { margin: 0 0 1mm; }
+ul.task-list { list-style: none; padding-left: 1mm; }
+
+/* --- Le code : JetBrains Mono, sans ligatures (`--build` ne devient pas `/-build`, `&&` reste `&&`) --- */
+pre, code { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+code { font: 400 9pt "JetBrains Mono", monospace; background: var(--fond-code); padding: 0 1mm; border-radius: 1mm; overflow-wrap: anywhere; }
+/* Une commande ne se coupe qu'aux espaces. Le script enveloppe chaque mot d'un bloc dans <span class="m"> (nowrap) :
+   sans cela, la mise en page couperait aussi après un « / » ou un « - ». Le corps de 8 pt tient le mot le plus long
+   (l'adresse de téléchargement du §4.2, 92 signes à 4,8 pt : 442 pt pour 457 pt de large utile). */
+pre { font: 400 8pt/1.45 "JetBrains Mono", monospace; background: var(--fond-code); border-left: 2pt solid var(--encre); padding: 3mm 4mm; margin: 0 0 4mm; white-space: pre-wrap; overflow-wrap: normal; word-break: normal; break-inside: avoid; }
+pre code { font: inherit; background: none; padding: 0; border-radius: 0; }
+pre code .m { white-space: nowrap; }
+
+/* --- Les tableaux --- */
+table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 9.5pt; break-inside: auto; }
+th { font: 500 9pt "Oswald", sans-serif; text-align: left; background: var(--encre); color: #fff; padding: 1.6mm 2mm; }
+td { padding: 1.6mm 2mm; border-bottom: .5pt solid var(--filet); vertical-align: top; }
+tr { break-inside: avoid; }
+
+/* --- Les images --- */
+figure { margin: 0 0 5mm; text-align: center; break-inside: avoid; }
+figure img, p > img { max-width: 100%; border: .5pt solid var(--filet); }
+figcaption { font: 400 9pt "Zilla Slab", serif; font-style: italic; color: var(--discret); margin-top: 1.5mm; }
+
+/* --- Les repères : un filet de couleur et leur titre --- */
+.admonition { margin: 0 0 4mm; padding: 2mm 4mm 1mm; border-left: 3pt solid var(--discret); background: #f7f8fa; break-inside: avoid; }
+.admonition-title { font: 600 9.5pt "Oswald", sans-serif; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 1.5mm; }
+.admonition-title p { margin: 0; }
+.adm-note { border-left-color: #3b6ea8; } .adm-note .admonition-title { color: #3b6ea8; }
+.adm-warning { border-left-color: #c8861b; background: #fdf7ea; } .adm-warning .admonition-title { color: #a86c0e; }
+.adm-success { border-left-color: #2f8a4f; background: #f0f8f3; } .adm-success .admonition-title { color: #2f8a4f; }
+.adm-failure { border-left-color: #b5372f; background: #fbf1f0; } .adm-failure .admonition-title { color: #b5372f; }
+
+/* --- Les onglets (===) : l'un sous l'autre, chacun précédé de son titre --- */
+.tab { margin: 0 0 4mm; padding-left: 4mm; border-left: 1.5pt solid var(--or); }
+.tab-title { font: 500 10.5pt "Oswald", sans-serif; color: var(--encre); margin: 0 0 1.5mm; }
+.tab-title p { margin: 0; }
