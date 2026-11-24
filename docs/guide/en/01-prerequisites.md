@@ -128,8 +128,9 @@ file to the Ready Room.
 | network | outbound HTTPS to the Ready Room's address ([§1.4](#network)); nothing inbound |
 
 !!! warning "In this release"
-    The Ready Room **stores** the files the agent sends, but does not yet build debriefings from them: that comes in a
-    later release. Chapter 10 says what you can already check.
+    The agent is not published yet: it will come with its own first release, `RRA-V1.0.0`
+    ([chapter 10](10-dcs-agent.md)). The Ready Room already **stores** the files an agent sends, but does not yet build
+    debriefings from them: that comes in a later release.
 
 ## 1.6 · Optional services { #optional-services }
 
@@ -138,11 +139,11 @@ All of them are switched on **after** installation, in **Command Center › Conf
 | feature | what you need | without it |
 |---|---|---|
 | the weekly schedule digest in a Discord channel | a webhook on that channel ([§3.7](03-discord-application.md#webhook)) | nothing is posted |
-| attendance buttons in Discord, the `/readyroom` command, the member roll call | the bot ([§3.4](03-discord-application.md#bot)), the *Server Members Intent* switch and the interactions address | members sign in and reply on the web page only |
+| attendance buttons in Discord, the `/readyroom` command, the member roll call | the *Server Members Intent* switch and the interactions address of the bot ([§3.4](03-discord-application.md#bot)) | members reply on the web page only |
 | mission report narratives | an Anthropic API key with prepaid credit | reports keep their facts; no narrative is written |
 | Mission Plan and Mission Tools served by the Ready Room | the two HTML files, placed in a server folder ([§5.5](05-configure.md#host-folders)) | the tiles open the public versions |
 
-The bot (token) is not an optional service: required to link roles (chapter 8) ([§3.4](03-discord-application.md#bot)).
+The bot itself is not optional: its token is required to link roles (chapter 8, [§7.6](07-first-start.md#discord-settings)).
 
 !!! note "Time zone"
     The Ready Room counts its days and hours in **the wing's time zone** — Europe/Paris by default. You will set it at

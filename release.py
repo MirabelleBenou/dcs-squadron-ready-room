@@ -13,7 +13,7 @@ Trois usages, selon le format de `VERSION` :
                                        une `VERSION` en `1.0xxx` n'a pas de release : tout tag passe)
 `--set` et `--force` refusent (code 1) sur une `VERSION` en `RR-V` ; `--release` ne se combine pas avec eux.
 
-`VERSION` (racine du dépôt) est l'unique source de vérité. Sans argument, comme avec `--set`, ce script ne met à jour
+`VERSION` (racine du dépôt) est l'unique source de vérité. Sans argument comme avec `--set` (R879 : ni l'un ni l'autre ne pose plus de section), ce script ne met à jour
 que `VERSION` : le CHANGELOG garde sa section, que chaque lot complète à la main (plus de section par mise à jour).
 Seul `--release` écrit dans `CHANGELOG.md` : la ligne de la release, sous `## Unreleased`. Sans ligne `## Unreleased`,
 le script s'arrête avant d'écrire quoi que ce soit (code de sortie 1). Aucun autre fichier ne doit contenir de numéro

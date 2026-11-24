@@ -57,8 +57,8 @@ https://<address>/auth/callback
 
 ## 3.4 · The bot { #bot }
 
-The bot is optional, but it enables the `/readyroom` command, the attendance buttons in Discord and the member roll
-call. Create it now, even if you switch it on later.
+The bot is **required**: the Ready Room reads your server's roles and members with it (chapter 8). It also enables the
+`/readyroom` command, the attendance buttons in Discord and the member roll call. Create it now.
 
 **Bot** page:
 

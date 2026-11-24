@@ -40,7 +40,7 @@ La Ready Room suit la langue choisie par chacun (**FR · EN**) : un même écran
 | **Archives** | **Archives** |
 | **Configuration** | **Configuration** |
 
-Dans le menu du Centre, **Archives**, **Configuration** et **Référentiels** s'affichent en abrégé : **Arch**, **Config**, **Ref**.
+Dans le menu du Centre, **Archives**, **Configuration** et **Référentiels** s'affichent en abrégé : **Arch**, **Config**, **Réf**.
 
 ## D.3 · Les blocs et les boutons cités { #labels }
 

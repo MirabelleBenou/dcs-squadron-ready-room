@@ -19,7 +19,7 @@ Some features are **optional** and can be switched on later, without reinstallin
   squadrons ([§4.3](04-get-the-ready-room.md#suites)); without them, the tiles on the home page open their public
   online version, which does not know your wing;
 - the **narrative** of mission reports, written by a language model (a paid Anthropic service);
-- the DCS server **agent**, which sends the recording of each mission by itself (chapter 10).
+- the DCS server **agent**, which sends the recording of each mission by itself (not published yet, chapter 10).
 
 ## 0.2 · The big picture { #overview }
 

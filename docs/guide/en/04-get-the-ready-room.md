@@ -81,4 +81,4 @@ curl -fL -o data/suites/dcs_mission_tools.html https://github.com/MirabelleBenou
 | `tests/`, `tools/`, `manuel/`, `release.py`, `ASSETS.md`, `README.fr.md` | for the maintainers and the credits; nothing to do |
 
 `backups/` (the backups) and `data/` (the host folders,
-[§5.5](05-configure.md#host-folders)) are the folders created at the end of [§4.2](#download). The release archive does not contain this guide (a `git clone` does, under `docs/`). It is online, and attached as a PDF to every release.
+[§5.5](05-configure.md#host-folders)) are the folders created at the end of [§4.2](#download). The release archive does not contain this guide (a `git clone` does, under `docs/`). The guide is online, and attached as a PDF to every release.

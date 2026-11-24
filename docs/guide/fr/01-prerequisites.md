@@ -127,8 +127,9 @@ enregistre chaque mission et envoie le fichier à la Ready Room.
 | réseau | HTTPS sortant vers l'adresse de la Ready Room ([§1.4](#network)) ; rien d'entrant |
 
 !!! warning "Dans cette release"
-    La Ready Room **range** les fichiers que l'agent envoie, mais n'en tire pas encore de débriefing : cela viendra dans
-    une release suivante. Le chapitre 10 dit ce que vous pouvez déjà vérifier.
+    L'agent n'est pas encore publié : il viendra avec sa propre première release, `RRA-V1.0.0`
+    ([chapitre 10](10-dcs-agent.md)). La Ready Room **range** déjà les fichiers qu'un agent envoie, mais n'en tire pas
+    encore de débriefing : cela viendra dans une release suivante.
 
 ## 1.6 · Les services facultatifs { #optional-services }
 
@@ -137,11 +138,11 @@ Tous s'allument **après** l'installation, à l'écran **Centre de Commandement 
 | fonction | il vous faut | sans elle |
 |---|---|---|
 | le digest hebdomadaire du planning dans un salon Discord | un webhook sur ce salon ([§3.7](03-discord-application.md#webhook)) | rien n'est posté |
-| les boutons de présence dans Discord, la commande `/readyroom`, l'appel des membres | le bot ([§3.4](03-discord-application.md#bot)), l'interrupteur *Server Members Intent* et l'adresse des interactions | les membres se connectent et répondent sur la page web seulement |
+| les boutons de présence dans Discord, la commande `/readyroom`, l'appel des membres | l'interrupteur *Server Members Intent* et l'adresse des interactions du bot ([§3.4](03-discord-application.md#bot)) | les membres répondent sur la page web seulement |
 | le récit des rapports de mission | une clé API Anthropic avec du crédit prépayé | les rapports gardent leurs faits ; le récit n'est pas rédigé |
 | Mission Plan et Mission Tools servis par la Ready Room | les deux fichiers HTML, posés dans un dossier du serveur ([§5.5](05-configure.md#host-folders)) | les tuiles ouvrent les versions publiques |
 
-Le bot (son jeton) n'est pas un service facultatif : obligatoire pour relier les rôles (chapitre 8) ([§3.4](03-discord-application.md#bot)).
+Le bot lui-même n'est pas facultatif : son jeton est obligatoire pour relier les rôles (chapitre 8, [§7.6](07-first-start.md#discord-settings)).
 
 !!! note "Le fuseau horaire"
     La Ready Room compte ses jours et ses heures dans **le fuseau de l'escadre** — Europe/Paris par défaut. Vous le

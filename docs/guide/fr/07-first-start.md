@@ -40,7 +40,7 @@ l'application démarre. La sauvegarde d'une base vide est normale : la Ready Roo
 de sa base, la première fois comprise.
 
 !!! failure "Si ça ne marche pas"
-    `app` redémarre en boucle ; le journal dit pourquoi, sur une ligne `[entrypoint] Failure: …` :
+    `app` redémarre en boucle ; le journal dit pourquoi, le plus souvent sur une ligne `[entrypoint] Failure: …` :
 
     - **`SESSION_SECRET refused`** : le secret fait moins de 32 caractères, ou c'est encore la valeur d'exemple
       ([§5.2](05-configure.md#required-variables)) ;

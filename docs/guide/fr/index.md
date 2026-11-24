@@ -21,7 +21,7 @@ Certaines fonctions sont **facultatives** et s'allument plus tard, sans réinsta
   escadrilles ([§4.3](04-get-the-ready-room.md#suites)) ; sans elles, les tuiles de l'accueil ouvrent leur version
   publique en ligne, qui ne connaît pas votre escadre ;
 - le **récit** des rapports de mission, rédigé par un modèle de langage (service payant d'Anthropic) ;
-- l'**agent** du serveur DCS, qui envoie lui-même l'enregistrement de chaque mission (chapitre 10).
+- l'**agent** du serveur DCS, qui envoie lui-même l'enregistrement de chaque mission (pas encore publié, chapitre 10).
 
 ## 0.2 · Le schéma d'ensemble { #overview }
 

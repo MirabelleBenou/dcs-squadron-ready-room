@@ -57,8 +57,8 @@ https://<adresse>/auth/callback
 
 ## 3.4 · Le bot { #bot }
 
-Le bot est facultatif, mais il ouvre la commande `/readyroom`, les boutons de présence dans Discord et l'appel des
-membres. Créez-le maintenant, même si vous l'allumez plus tard.
+Le bot est **obligatoire** : la Ready Room lit avec lui les rôles et les membres de votre serveur (chapitre 8). Il ouvre
+aussi la commande `/readyroom`, les boutons de présence dans Discord et l'appel des membres. Créez-le maintenant.
 
 Page **Bot** :
 

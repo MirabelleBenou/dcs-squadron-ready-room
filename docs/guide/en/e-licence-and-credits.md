@@ -35,7 +35,6 @@ The details, file by file, are in `ASSETS.md`, at the root of every release. In 
   Apache License 2.0.
 - **The data tables**: the DCS unit types read by debriefings, and the aircraft types and their liveries, taken from
   DCS Mission Plan, by the same author.
-- **The DCS map**, if you connect it, uses the DCS Olympus tiles, served by their server or extracted from their
-  archives: they remain their authors' property.
+- **The DCS map** uses the DCS Olympus tiles, fetched from their server: they remain their authors' property.
 
 *DCS World is a trademark of Eagle Dynamics. This project is neither affiliated with nor endorsed by Eagle Dynamics.*

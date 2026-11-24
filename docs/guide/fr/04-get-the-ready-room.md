@@ -83,4 +83,4 @@ curl -fL -o data/suites/dcs_mission_tools.html https://github.com/MirabelleBenou
 
 `backups/` (les sauvegardes) et `data/` (les dossiers de l'hôte, [§5.5](05-configure.md#host-folders)) sont les
 dossiers créés à la fin du [§4.2](#download).
-L'archive de la release ne contient pas ce guide (un `git clone`, si : sous `docs/`). Il est en ligne et joint en PDF à chaque release.
+L'archive de la release ne contient pas ce guide (un `git clone`, si : sous `docs/`). Le guide est en ligne et joint en PDF à chaque release.

@@ -38,7 +38,7 @@ Backing up an empty database is normal: the Ready Room takes a backup before eve
 one included.
 
 !!! failure "If it does not work"
-    `app` keeps restarting; the log says why, on an `[entrypoint] Failure: …` line:
+    `app` keeps restarting; the log says why, most often on an `[entrypoint] Failure: …` line:
 
     - **`SESSION_SECRET refused`**: the secret is shorter than 32 characters, or it is still the example value
       ([§5.2](05-configure.md#required-variables));

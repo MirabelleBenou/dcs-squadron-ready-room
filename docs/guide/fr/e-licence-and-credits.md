@@ -35,7 +35,6 @@ Le détail, fichier par fichier, est dans `ASSETS.md`, à la racine de chaque re
   License 2.0.
 - **Les tables de données** : les types d'unités DCS lus par les débriefings, et les types d'appareils et leurs
   livrées, repris de DCS Mission Plan, du même auteur.
-- **La carte DCS**, si vous la branchez, utilise les tuiles de DCS Olympus, servies par leur serveur ou extraites de
-  leurs archives : elles restent à leurs auteurs.
+- **La carte DCS** utilise les tuiles de DCS Olympus, prises sur leur serveur : elles restent à leurs auteurs.
 
 *DCS World est une marque d'Eagle Dynamics. Ce projet n'est ni affilié à Eagle Dynamics, ni approuvé par elle.*

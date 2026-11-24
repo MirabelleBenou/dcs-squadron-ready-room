@@ -1,7 +1,7 @@
 """Lot « rr-release-auto » (`v1.0118`) -- la grille de version : `release.py` (R2) et l'affichage de la version (R3).
 
 R2 : `release.py` tourne sur des fichiers temporaires (jamais ceux du dépôt) sous les deux régimes : `VERSION` en `1.0xxx`
-(comportement d'avant, à l'octet) et `VERSION` en `RR-V<x.y.z>[+<n>]`, avec `--release`. R3 : `app.js`, `login.html` et
+(comportement d'avant pour `VERSION` ; le CHANGELOG n'est plus écrit, R879) et `VERSION` en `RR-V<x.y.z>[+<n>]`, avec `--release`. R3 : `app.js`, `login.html` et
 `lien.html` portent la même règle d'affichage, vérifiée par sa présence (pas de navigateur).
 """
 from __future__ import annotations
