@@ -24,6 +24,23 @@ ses débriefings, le Centre de Commandement et le Manuel Pilote, derrière une c
 Chaque écran s'utilise sur un ordinateur, une tablette et un téléphone, en français et en anglais, en thème sombre et
 clair.
 
+## Un aperçu
+
+*Écrans tirés des données de démonstration des tests (« Example Air Wing »).*
+
+<p align="center"><img src=".github/captures/home-fr.png" alt="Accueil — les trois stations et les autres outils" width="100%"><br><b>Accueil</b> — les trois stations et les autres outils</p>
+
+<table>
+<tr><td width="50%"><img src=".github/captures/board-fr.png" alt="La Planche — le mois des évènements de l'escadre"></td><td width="50%"><img src=".github/captures/mission-fr.png" alt="Une mission — le roster tiré des journaux du serveur"></td></tr>
+<tr><td align="center"><b>La Planche</b> — le mois des évènements de l'escadre</td><td align="center"><b>Une mission</b> — le roster tiré des journaux du serveur</td></tr>
+<tr><td><img src=".github/captures/wing-chart-fr.png" alt="L'escadre — son organigramme"></td><td><img src=".github/captures/squadron-fr.png" alt="Une escadrille — sa fiche d'unité"></td></tr>
+<tr><td align="center"><b>L'escadre</b> — son organigramme</td><td align="center"><b>Une escadrille</b> — sa fiche d'unité</td></tr>
+<tr><td><img src=".github/captures/pilot-file-fr.png" alt="Le dossier d'un pilote"></td><td><img src=".github/captures/flight-fr.png" alt="Un vol — son journal, tir par tir"></td></tr>
+<tr><td align="center"><b>Le dossier d'un pilote</b></td><td align="center"><b>Un vol</b> — son journal, tir par tir</td></tr>
+<tr><td><img src=".github/captures/members-fr.png" alt="Centre de Commandement — les membres"></td><td align="center"><img src=".github/captures/board-phone-fr.png" alt="La Planche sur un téléphone" width="220"></td></tr>
+<tr><td align="center"><b>Centre de Commandement</b> — les membres</td><td align="center"><b>La Planche</b> sur un téléphone</td></tr>
+</table>
+
 ## Installation
 
 L'application tourne sous Docker Compose (l'application et PostgreSQL) sur un serveur Linux, et connecte les membres

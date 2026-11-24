@@ -22,6 +22,23 @@ the Command Center, and the Pilot's Manual, behind a Discord sign-in.
 
 Every screen works on a desktop, a tablet and a phone, in English and in French, with a dark and a light theme.
 
+## A look inside
+
+*Screens from the demonstration data of the tests (“Example Air Wing”).*
+
+<p align="center"><img src=".github/captures/home-en.png" alt="Home — the three stations and the other tools" width="100%"><br><b>Home</b> — the three stations and the other tools</p>
+
+<table>
+<tr><td width="50%"><img src=".github/captures/board-en.png" alt="The Board — the month of the wing's events"></td><td width="50%"><img src=".github/captures/mission-en.png" alt="A mission — the roster built from the server's logs"></td></tr>
+<tr><td align="center"><b>The Board</b> — the month of the wing's events</td><td align="center"><b>A mission</b> — the roster built from the server's logs</td></tr>
+<tr><td><img src=".github/captures/wing-chart-en.png" alt="The wing — its organisation chart"></td><td><img src=".github/captures/squadron-en.png" alt="A squadron — its unit file"></td></tr>
+<tr><td align="center"><b>The wing</b> — its organisation chart</td><td align="center"><b>A squadron</b> — its unit file</td></tr>
+<tr><td><img src=".github/captures/pilot-file-en.png" alt="A pilot's personal file"></td><td><img src=".github/captures/flight-en.png" alt="A flight — its log, shot by shot"></td></tr>
+<tr><td align="center"><b>A pilot's personal file</b></td><td align="center"><b>A flight</b> — its log, shot by shot</td></tr>
+<tr><td><img src=".github/captures/members-en.png" alt="Command Center — the members"></td><td align="center"><img src=".github/captures/board-phone-en.png" alt="The Board on a phone" width="220"></td></tr>
+<tr><td align="center"><b>Command Center</b> — the members</td><td align="center"><b>The Board</b> on a phone</td></tr>
+</table>
+
 ## Installation
 
 The application runs with Docker Compose (the application and PostgreSQL) on a Linux server, and signs members in
@@ -31,7 +48,7 @@ release, and online at <https://mirabellebenou.github.io/dcs-squadron-ready-room
 
 ## 📦 Publishing a release (maintainers)
 
-Releases are created by the workflow `.github/workflows/release.yml`, not by hand. On `main`, `python3 release.py --release RR-V<x.y.z>` first gives the changes under `## Unreleased` in the CHANGELOG their version heading `## RR-V<x.y.z> — YYYY-MM-DD`. Then a branch `release/RR-V<x.y.z>` is pushed: that `main` commit plus files under `.release/` only — `notes.md` (the release text), optional files to download under `assets/`, and last `manifest.json` (tag, title, `main` commit, and the name, size and SHA-256 of each file). The release itself is the source archive GitHub attaches to the tag.
+Releases are created by the workflow `.github/workflows/release.yml`, not by hand. On `main`, `python3 release.py --release RR-V<x.y.z>` first gives the changes under `## Unreleased` in the CHANGELOG their version heading `## RR-V<x.y.z> — YYYY-MM-DD`. Then a branch `release/RR-V<x.y.z>` is pushed: that `main` commit plus files under `.release/` only — `notes.md` (the release text, ending with a `## Version numbers` paragraph copied word for word from the CHANGELOG header — the workflow checks it), optional files to download under `assets/`, and last `manifest.json` (tag, title, `main` commit, and the name, size and SHA-256 of each file). The release itself is the source archive GitHub attaches to the tag.
 
 The workflow checks all of it, creates the release, publishes it as the latest release (which creates the tag on the `main` commit) and deletes the branch. If anything fails, nothing stays published and the branch gets `.release/FAILED.md` with the reason. A branch `release/essai-<name>` runs the same checks without publishing anything and writes `.release/CHECK.md`. Between releases, each update installed on a server is numbered `RR-V<x.y.z>+<n>`. Tests run on every pull request.
 

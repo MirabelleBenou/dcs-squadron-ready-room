@@ -57,10 +57,6 @@ def dossier(tmp_path, monkeypatch, capsys):
     return Dossier(tmp_path, monkeypatch, capsys)
 
 
-def _stub(label):
-    return f"### {label} — {AUJOURDHUI}\n- <à compléter>\n\n"
-
-
 # ---------------------------------------------------------------- R2 : le format 1.0xxx ne change pas
 
 def test_dev_sans_argument_comme_avant(dossier):
@@ -69,9 +65,8 @@ def test_dev_sans_argument_comme_avant(dossier):
     assert out == "Version : 1.0117 → 1.0118\nZip cible : readyroom_v1_0118.zip\n"
     v, c = dossier.etat()
     assert v == b"1.0118"
-    marque = "## Unreleased\n\n"
-    k = CHANGELOG.index(marque) + len(marque)
-    assert c == (CHANGELOG[:k] + _stub("v1.0118") + CHANGELOG[k:]).encode("utf-8")
+    # lot « rr-release-v1-0-0 » : la mise à jour n'écrit plus le CHANGELOG (aucun stub), inchangé à l'octet
+    assert c == CHANGELOG.encode("utf-8")
 
 
 def test_dev_set_et_force_gardent_leur_sens(dossier):
@@ -160,11 +155,11 @@ def test_suite_des_numeros_de_dev(dossier):
     code, out, _ = dossier.lance()
     assert code == 0 and out == "Version : RR-V1.0.0+1 → RR-V1.0.0+2\n"
     assert dossier.v.read_bytes() == b"RR-V1.0.0+2"
+    # lot « rr-release-v1-0-0 » : les numéros de dev n'écrivent plus rien au CHANGELOG, qui garde la seule ligne de la release
     texte = dossier.c.read_text(encoding="utf-8")
-    haut = texte[texte.index("## Unreleased"):texte.index("\n## RR-V1.0.0 — ") + 1]
-    assert haut == (f"## Unreleased\n\n### RR-V1.0.0+2 — {AUJOURDHUI}\n- <à compléter>\n\n"
-                    f"### RR-V1.0.0+1 — {AUJOURDHUI}\n- <à compléter>\n\n")
-    assert texte.index("\n## RR-V1.0.0 — ") < texte.index("### v1.0117")
+    k = CHANGELOG.index("## Unreleased\n\n") + len("## Unreleased\n\n")
+    assert texte == CHANGELOG[:k] + f"## RR-V1.0.0 — {AUJOURDHUI}\n\n" + CHANGELOG[k:]
+    assert "à compléter" not in texte
 
 
 def test_dev_apres_release_sans_unreleased_refuse(tmp_path, monkeypatch, capsys):

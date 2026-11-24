@@ -22,7 +22,12 @@ _spec.loader.exec_module(release)
 REPO = 'owner/suite'
 TOKEN = 'ghs_TOPSECRETTOKEN0123456789'
 TITRE = 'RR-V2.0.0 — 20 November 2026'
-CHANGELOG = '# Changelog\n\n## [Unreleased]\n\n### Added\n- z\n\n## RR-V2.0.0 — 2026-11-20\n\n### Added\n- y\n\n## [1.4.0] — 2026-11-08\n'
+# Lot « rr-release-v1-0-0 » (controle 7) : le CHANGELOG porte un bloc `### Version numbers` avant `## Unreleased`, et les notes
+# de la release le recopient, mot pour mot, sous une derniere ligne `## Version numbers`.
+VN = 'Each release is tagged `RR-V<major>.<minor>.<patch>`:\n\n- **Major**: a redesign.\n- **Minor**: a new tool.\n- **Patch**: fixes.'
+CHANGELOG = (f'# Changelog\n\n### Version numbers\n\n{VN}\n\n## Unreleased\n\n### Added\n- z\n\n'
+             '## RR-V2.0.0 — 2026-11-20\n\n### Added\n- y\n\n## [1.4.0] — 2026-11-08\n')
+NOTES = f'Release text\n\n## Version numbers\n\n{VN}\n'
 RELEASE_YML_SHA256 = 'ec56d2d0a2e5485c134639bd58ed6ced3a2c1df8e0c3af571bb76dae4fdf95f6'
 HTML = b'<!DOCTYPE html><html>not really a page but bytes</html>'
 
@@ -100,7 +105,7 @@ class FakeApi:
         raise AssertionError(f'unexpected call {methode} {chemin}')
 
 
-def monte(tmp_path, *, branche='release/RR-V2.0.0', tag='RR-V2.0.0', changelog=CHANGELOG, notes='Release text\n',
+def monte(tmp_path, *, branche='release/RR-V2.0.0', tag='RR-V2.0.0', changelog=CHANGELOG, notes=NOTES,
           assets=None, manifeste=True, manifest_edit=None, main_avance=False, hors_release=False, extra_asset=None,
           essai=False):
     """Depot origin nu, un commit C sur main, la branche release, puis un clone `action` sur la tete de la branche."""
@@ -178,7 +183,7 @@ def test_publication_reussie(tmp_path):
         ('GET', f'{base}/git/ref/tags/RR-V2.0.0'),
     ]
     b = api.bodies[0]
-    assert b == {'tag_name': 'RR-V2.0.0', 'target_commitish': c, 'name': TITRE, 'body': 'Release text\n',
+    assert b == {'tag_name': 'RR-V2.0.0', 'target_commitish': c, 'name': TITRE, 'body': NOTES,
                  'draft': True, 'prerelease': False}
     r = api.releases[101]
     assert r['draft'] is False and api.tags['RR-V2.0.0'] == c
@@ -304,7 +309,7 @@ def test_essai_reussi(tmp_path):
     assert api.writes == []
     check = sur_origin(origin, br, '.release/CHECK.md')
     lignes = check.strip().splitlines()
-    assert len(lignes) == 6 and all(' OK ' in l for l in lignes)
+    assert len(lignes) == 7 and all(' OK ' in l for l in lignes)
     assert 'head of main: no' in lignes[1]
     assert br in branches(origin)
     assert sur_origin(origin, br, '.release/FAILED.md') is None
@@ -526,7 +531,7 @@ def test_essai_avec_morceaux(tmp_path, monkeypatch):
     assert release.run(deps, br) == 0
     assert api.writes == []
     lignes = (deps.root / '.release' / 'CHECK.md').read_text(encoding='utf-8').strip().splitlines()
-    assert len(lignes) == 6 and all(' OK ' in l for l in lignes)
+    assert len(lignes) == 7 and all(' OK ' in l for l in lignes)
     assert '5. OK' in lignes[4] and 'joined from parts' in lignes[4]
     assert list(rt.iterdir()) == []
 
@@ -586,7 +591,7 @@ def test_a1_manifeste_mt_v_sur_branche_essai(tmp_path):
 # Controle 3 : le CHANGELOG du commit C
 
 def _cl(titre):
-    return f'# Changelog\n\n## [Unreleased]\n\n{titre}\n\n### Added\n- x\n'
+    return f'# Changelog\n\n### Version numbers\n\n{VN}\n\n## Unreleased\n\n{titre}\n\n### Added\n- x\n'
 
 
 def test_c3_titre_date_passe(tmp_path):
@@ -654,6 +659,8 @@ def test_c3_vrai_changelog_de_la_base(tmp_path):
     assert 'Control or step: 3' in f and 'has no line "## RR-V1.0.0 — YYYY-MM-DD"' in f
     avec = _insere_release(CHANGELOG_BASE, 'RR-V1.0.0', '2026-12-01')
     assert '## RR-V1.0.0 — 2026-12-01' in avec
+    # controle 7 : la copie gelee n'a pas de bloc « Version numbers » ; on l'ajoute au-dessus de `## Unreleased`
+    avec = avec.replace('## Unreleased', f'### Version numbers\n\n{VN}\n\n## Unreleased', 1)
     deps, api, origin, c, br = monte(tmp_path / 'b', branche='release/RR-V1.0.0', tag='RR-V1.0.0', changelog=avec)
     assert release.run(deps, br) == 0
     assert api.releases[101]['tag_name'] == 'RR-V1.0.0'
@@ -763,3 +770,41 @@ def test_a3_type_par_defaut(monkeypatch, tmp_path):
         assert statut == 201
     assert envoyes == ['application/octet-stream', 'application/octet-stream',
                        'application/octet-stream', 'text/html']
+
+
+# Controle 7 : le paragraphe « Version numbers » des notes egale celui de l'en-tete du CHANGELOG (lot « rr-release-v1-0-0 »)
+
+def test_c7_paragraphe_juste_passe(tmp_path):
+    deps, api, origin, c, br = monte(tmp_path, branche='release/essai-un')
+    assert release.run(deps, br) == 0
+    lignes = sur_origin(origin, br, '.release/CHECK.md').strip().splitlines()
+    assert lignes[6] == '7. OK - "Version numbers" paragraph matches the CHANGELOG header'
+    assert api.writes == []
+
+
+def test_c7_paragraphe_absent(tmp_path):
+    deps, api, origin, c, br = monte(tmp_path, notes='Release text\n')
+    assert release.run(deps, br) == 1
+    assert api.writes == []
+    f = sur_origin(origin, br, '.release/FAILED.md')
+    assert 'Control or step: 7' in f and 'notes.md has no "## Version numbers" paragraph' in f
+    assert br in branches(origin)
+
+
+def test_c7_un_mot_change(tmp_path):
+    deps, api, origin, c, br = monte(tmp_path, notes=NOTES.replace('a redesign', 'a redraw'))
+    assert release.run(deps, br) == 1
+    assert api.writes == []
+    f = sur_origin(origin, br, '.release/FAILED.md')
+    assert 'Control or step: 7' in f
+    assert 'the "Version numbers" paragraph of notes.md differs from the CHANGELOG header' in f
+
+
+def test_c7_changelog_sans_bloc(tmp_path):
+    sans = '# Changelog\n\n## Unreleased\n\n## RR-V2.0.0 — 2026-11-20\n\n### Added\n- y\n'
+    deps, api, origin, c, br = monte(tmp_path, changelog=sans)
+    assert release.run(deps, br) == 1
+    assert api.writes == []
+    f = sur_origin(origin, br, '.release/FAILED.md')
+    assert 'Control or step: 7' in f
+    assert 'CHANGELOG.md at the commit has no "### Version numbers" block before "## Unreleased"' in f

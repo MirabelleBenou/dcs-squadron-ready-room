@@ -4,7 +4,7 @@
 Trois usages, selon le format de `VERSION` :
     python release.py                → `VERSION` en `1.0xxx` : new = current + STEP (Decimal("0.0001")) ;
                                        `VERSION` en `RR-V<x.y.z>` ou `RR-V<x.y.z>+<n>` : `RR-V<x.y.z>+<n+1>`
-                                       (`+1` juste après une release)
+                                       (`+1` juste après une release) ; `CHANGELOG.md` n'est pas écrit
     python release.py --set X.YY     → fixe explicitement la version (format `1.0xxx` seulement)
     python release.py --set X.YY --force  → autorise un downgrade (format `1.0xxx` seulement)
     python release.py --release RR-V<x.y.z>  → la release : `VERSION` vaut `RR-V<x.y.z>`, et la ligne
@@ -13,13 +13,11 @@ Trois usages, selon le format de `VERSION` :
                                        une `VERSION` en `1.0xxx` n'a pas de release : tout tag passe)
 `--set` et `--force` refusent (code 1) sur une `VERSION` en `RR-V` ; `--release` ne se combine pas avec eux.
 
-`VERSION` (racine du dépôt) est l'unique source de vérité. Ce script met
-à jour, dans le même run : `VERSION`, et insère une entrée stub en tête de `CHANGELOG.md` :
-le stub `### v{new} — {date}` (ou `### RR-V<x.y.z>+<n> — {date}`) puis `- <à compléter>` se pose
-juste sous la ligne `## Unreleased` (et la ligne vide qui la suit), au-dessus
-de la section la plus récente. Sans ligne `## Unreleased`, le script s'arrête
-avant d'écrire quoi que ce soit (code de sortie 1). Aucun autre fichier ne
-doit contenir de numéro de version codé en dur.
+`VERSION` (racine du dépôt) est l'unique source de vérité. Sans argument, comme avec `--set`, ce script ne met à jour
+que `VERSION` : le CHANGELOG garde sa section, que chaque lot complète à la main (plus de section par mise à jour).
+Seul `--release` écrit dans `CHANGELOG.md` : la ligne de la release, sous `## Unreleased`. Sans ligne `## Unreleased`,
+le script s'arrête avant d'écrire quoi que ce soit (code de sortie 1). Aucun autre fichier ne doit contenir de numéro
+de version codé en dur.
 """
 import argparse
 import datetime
@@ -74,18 +72,6 @@ def read_changelog_lines() -> list[str] | None:
         return None
     lines = CHANGELOG_FILE.read_text(encoding="utf-8").splitlines(keepends=True)
     return lines if find_unreleased_index(lines) is not None else None
-
-
-def insert_changelog_stub(new: Decimal) -> None:
-    insert_changelog_stub_label(f"v{fmt(new)}")
-
-
-def insert_changelog_stub_label(label: str) -> None:
-    # Lot « rr-changelog-unreleased » : le stub se pose sous `## Unreleased`,
-    # pas en tête de fichier. Le titre et le texte d'introduction ne bougent pas.
-    today = datetime.date.today().isoformat()
-    stub = f"### {label} — {today}\n- <à compléter>\n\n"
-    insert_under_unreleased(stub)
 
 
 def insert_release_heading(tag: str) -> None:
@@ -176,7 +162,6 @@ def main() -> int:
                 "Rétablir la section « ## Unreleased » avant de relancer."
             )
         VERSION_FILE.write_text(label, encoding="utf-8")
-        insert_changelog_stub_label(label)
         print(f"Version : {raw} → {label}")
         return 0
 
@@ -208,7 +193,7 @@ def main() -> int:
         )
         return 1
 
-    # Rien ne s'écrit sans la ligne « ## Unreleased » : ni `VERSION`, ni `CHANGELOG.md`.
+    # Rien ne s'écrit sans la ligne « ## Unreleased » : le refus tient, même si le CHANGELOG n'est plus écrit ici.
     if read_changelog_lines() is None:
         print(
             "Refus : CHANGELOG.md n'a pas de ligne « ## Unreleased » "
@@ -219,7 +204,6 @@ def main() -> int:
         return 1
 
     write_version(new)
-    insert_changelog_stub(new)
 
     print(f"Version : {fmt(current)} → {fmt(new)}")
     print(f"Zip cible : readyroom_v{fmt(new).replace('.', '_')}.zip")

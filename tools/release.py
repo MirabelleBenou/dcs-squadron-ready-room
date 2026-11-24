@@ -332,8 +332,35 @@ def _controle_notes(deps):
     return 'notes.md is not empty'
 
 
+# Lot « rr-release-v1-0-0 » : le controle 7. Le paragraphe « Version numbers » du CHANGELOG (au commit du manifeste) est
+# recopie mot pour mot au pied de notes.md, sous une derniere ligne `## Version numbers`.
+VN_SOURCE = '### Version numbers'
+VN_FIN = '## Unreleased'
+VN_CIBLE = '## Version numbers'
+
+
+def _controle_version_numbers(deps, m):
+    p = deps.git.run('show', f'{m["commit"]}:CHANGELOG.md', check=False)
+    sans_bloc = 'CHANGELOG.md at the commit has no "### Version numbers" block before "## Unreleased"'
+    lignes = p.stdout.splitlines(keepends=True) if p.returncode == 0 else []
+    fin = next((i for i, l in enumerate(lignes) if l.rstrip() == VN_FIN), None)
+    debut = next((i for i, l in enumerate(lignes) if l.rstrip() == VN_SOURCE), None)
+    if fin is None or debut is None or debut > fin:
+        raise Echec('7', sans_bloc)
+    source = ''.join(lignes[debut + 1:fin]).strip()
+    if not source:
+        raise Echec('7', sans_bloc)
+    notes = (deps.root / RELEASE_DIR / 'notes.md').read_text(encoding='utf-8').splitlines(keepends=True)
+    dernier = next((i for i in range(len(notes) - 1, -1, -1) if notes[i].rstrip() == VN_CIBLE), None)
+    if dernier is None:
+        raise Echec('7', 'notes.md has no "## Version numbers" paragraph')
+    if ''.join(notes[dernier + 1:]).strip() != source:
+        raise Echec('7', 'the "Version numbers" paragraph of notes.md differs from the CHANGELOG header')
+    return '"Version numbers" paragraph matches the CHANGELOG header'
+
+
 def controles(deps, branche, brut, lignes):
-    """Les six controles dans l'ordre ; ajoute une ligne par controle execute a `lignes` ; leve Echec au premier defaut.
+    """Les sept controles dans l'ordre ; ajoute une ligne par controle execute a `lignes` ; leve Echec au premier defaut.
     Renvoie (manifeste, essai)."""
     def ligne(n, etat, msg):
         lignes.append(f'{n}. {etat} - {msg}')
@@ -347,6 +374,7 @@ def controles(deps, branche, brut, lignes):
         ligne(4, 'OK', _controle_tag(deps, m))
         ligne(5, 'OK', _controle_assets(deps, m))
         ligne(6, 'OK', _controle_notes(deps))
+        ligne(7, 'OK', _controle_version_numbers(deps, m))
     except Echec as e:
         ligne(e.quoi, 'FAILED', deps.scrub(e.message))
         raise
