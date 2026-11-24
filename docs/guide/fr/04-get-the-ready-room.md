@@ -8,10 +8,7 @@ La Ready Room vit dans un dossier à elle, qui gardera aussi ses sauvegardes. Ce
 sudo mkdir -p /opt/readyroom
 sudo chown "$USER": /opt/readyroom
 cd /opt/readyroom
-mkdir -p backups data/suites data/tiles data/tiles-cache
 ```
-
-Créez dès maintenant les dossiers que la Ready Room branche, pour qu'ils vous appartiennent et non à `root`.
 
 !!! warning "Attention"
     **Ne déplacez pas ce dossier une fois la Ready Room démarrée.** Les sauvegardes (`backups/`) et les dossiers de
@@ -38,6 +35,12 @@ rm readyroom.tar.gz
 !!! success "Vérifier"
     `cat VERSION; echo` affiche le numéro de la release ; `ls` montre `docker-compose.yml`, `.env.example` (avec `ls -a`)
     et `init-env.sh`.
+
+Créez ensuite les dossiers que la Ready Room branche, pour qu'ils vous appartiennent et non à `root` :
+
+```sh
+mkdir -p backups data/suites data/tiles data/tiles-cache
+```
 
 ## 4.3 · Facultatif : Mission Plan et Mission Tools { #suites }
 
@@ -78,6 +81,6 @@ curl -fL -o data/suites/dcs_mission_tools.html https://github.com/MirabelleBenou
 | `LICENSE`, `README.md` | la licence et la présentation |
 | `tests/`, `tools/`, `manuel/`, `release.py`, `ASSETS.md`, `README.fr.md` | pour les mainteneurs et les crédits ; rien à faire |
 
-Le démarrage créera à côté `backups/` (les sauvegardes) ; `data/` (les dossiers de l'hôte, [§5.5](05-configure.md#host-folders))
-existe déjà si vous avez fait le [§4.3](#suites).
+`backups/` (les sauvegardes) et `data/` (les dossiers de l'hôte, [§5.5](05-configure.md#host-folders)) sont les
+dossiers créés à la fin du [§4.2](#download).
 L'archive de la release ne contient pas ce guide (un `git clone`, si : sous `docs/`). Il est en ligne et joint en PDF à chaque release.

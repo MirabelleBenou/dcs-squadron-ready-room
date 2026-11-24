@@ -8,10 +8,7 @@ The Ready Room lives in a folder of its own, which will also hold its backups. T
 sudo mkdir -p /opt/readyroom
 sudo chown "$USER": /opt/readyroom
 cd /opt/readyroom
-mkdir -p backups data/suites data/tiles data/tiles-cache
 ```
-
-Create the folders the Ready Room plugs in now, so that they belong to you and not to `root`.
 
 !!! warning "Warning"
     **Do not move this folder once the Ready Room has started.** Backups (`backups/`) and host folders (`data/`) are
@@ -38,6 +35,12 @@ rm readyroom.tar.gz
 !!! success "Check"
     `cat VERSION; echo` prints the release number; `ls` shows `docker-compose.yml` and `init-env.sh`, and `ls -a` also shows
     `.env.example`.
+
+Then create the folders the Ready Room plugs in, so that they belong to you and not to `root`:
+
+```sh
+mkdir -p backups data/suites data/tiles data/tiles-cache
+```
 
 ## 4.3 · Optional: Mission Plan and Mission Tools { #suites }
 
@@ -77,5 +80,5 @@ curl -fL -o data/suites/dcs_mission_tools.html https://github.com/MirabelleBenou
 | `LICENSE`, `README.md` | the licence and the overview |
 | `tests/`, `tools/`, `manuel/`, `release.py`, `ASSETS.md`, `README.fr.md` | for the maintainers and the credits; nothing to do |
 
-Starting will create `backups/` (the backups) next to them; `data/` (the host folders,
-[§5.5](05-configure.md#host-folders)) already exists if you did [§4.3](#suites). The release archive does not contain this guide (a `git clone` does, under `docs/`). It is online, and attached as a PDF to every release.
+`backups/` (the backups) and `data/` (the host folders,
+[§5.5](05-configure.md#host-folders)) are the folders created at the end of [§4.2](#download). The release archive does not contain this guide (a `git clone` does, under `docs/`). It is online, and attached as a PDF to every release.
