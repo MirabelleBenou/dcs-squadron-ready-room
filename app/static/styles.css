@@ -3828,3 +3828,9 @@ html[data-layout="compact"] #fiche-soiree .soiree-meta{flex:1;}
 #app-version-footer::before{content:"";width:16px;height:16px;flex-shrink:0;
   background:url(/static/assets/marque/pictogramme-16.svg) center/contain no-repeat;}
 #app-version-footer:empty::before{content:none;}
+
+/* Le fuseau de l'escadre (rr-planif-fuseau-paris) : l'heure locale en détail */
+.chez-vous{margin-left:.6em;font-size:.85em;color:var(--text-mute);font-style:italic}
+#f-chez-vous{min-height:1.2em;margin-top:.2em}
+#f-chez-vous .chez-vous{margin-left:0}
+.fuseau-nom{font-weight:400;opacity:.7}

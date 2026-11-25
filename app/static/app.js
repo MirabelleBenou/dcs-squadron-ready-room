@@ -210,6 +210,8 @@ const I18N = {
     type_jeulibre:"Jeu libre",
     today:"Aujourd'hui",
     today_abbr:"Auj.",
+    fuseau_chez_vous:"soit {h} chez vous",
+    fuseau_chez_vous_jour:"soit {h} le {d} chez vous",
     to_answer:"À répondre",
     my_answer:"Ma réponse",
     my_choices:"Mes choix — facultatif",
@@ -1422,6 +1424,8 @@ const I18N = {
     type_jeulibre:"Free play",
     today:"Today",
     today_abbr:"Today",
+    fuseau_chez_vous:"{h} your time",
+    fuseau_chez_vous_jour:"{h} on {d} your time",
     to_answer:"To answer",
     my_answer:"My answer",
     my_choices:"My choices — optional",
@@ -2861,17 +2865,6 @@ function avatarHtml(id, hash, name){
   return escapeHtml(init);
 }
 
-/* Construit un ISO 8601 avec l'offset LOCAL du navigateur pour cette date
-   précise (gère le DST correctement, comme zoneinfo côté backend) — cf.
-   brief §"Créer / éditer" : date + heure -> ISO avec fuseau. */
-function toISOStringWithOffset(d){
-  const offsetMin = -d.getTimezoneOffset();
-  const sign = offsetMin >= 0 ? "+" : "-";
-  const abs = Math.abs(offsetMin);
-  const oh = pad2(Math.floor(abs/60)), om = pad2(abs%60);
-  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}${sign}${oh}:${om}`;
-}
-
 function fmtLocalTime(isoUtc){
   return new Date(isoUtc).toLocaleTimeString(currentLang==="fr"?"fr-FR":"en-GB", {hour:"2-digit", minute:"2-digit"});
 }
@@ -2893,6 +2886,66 @@ function fuseauEscadre(){
     fuseauEssai = {nom, ok};
   }
   return fuseauEssai.ok;
+}
+
+// Lot « La Planification à l'heure de l'escadre » : toute heure et toute date de la Planification se lisent et se
+// composent dans le fuseau de l'escadre (`fuseauEscadre()`), jamais dans celui du navigateur.
+// Les parties (année, mois, jour, heure, minute, seconde) d'un instant (ms) dans un fuseau ; `zone` absent = le navigateur.
+function partiesDansFuseau(ms, zone){
+  const o = {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23"};
+  if(zone) o.timeZone = zone;
+  const r = {};
+  for(const p of new Intl.DateTimeFormat("en-CA", o).formatToParts(new Date(ms))) r[p.type] = p.value;
+  return r;
+}
+function msDesParties(p){ return Date.UTC(+p.year, +p.month-1, +p.day, +p.hour, +p.minute, +p.second); }
+// L'instant (ms) d'une date `AAAA-MM-JJ` et d'une heure `HH:MM` « de l'escadre » : on part de ces chiffres lus en UTC,
+// puis deux passes corrigent de l'écart que montre le fuseau de l'escadre (juste aux changements d'heure). Une heure
+// qui n'existe pas (le saut de printemps) rend l'instant que donnent les deux passes ; une heure qui existe deux fois,
+// l'une des deux.
+function instantDeLEscadre(dateVal, timeVal){
+  const [y,m,d] = dateVal.split("-").map(Number), [h,mi] = timeVal.split(":").map(Number);
+  const voulu = Date.UTC(y, m-1, d, h, mi);
+  let ms = voulu;
+  for(let i=0;i<2;i++) ms += voulu - msDesParties({...partiesDansFuseau(ms, fuseauEscadre()), second:0});
+  return ms;
+}
+// L'ISO 8601 d'un instant, avec les chiffres de l'escadre et son décalage à cet instant : `AAAA-MM-JJTHH:MM:SS±HH:MM`.
+function isoDeLEscadre(ms){
+  const p = partiesDansFuseau(ms, fuseauEscadre());
+  const decalageMin = Math.round((msDesParties(p) - Math.floor(ms/1000)*1000) / 60000);
+  const signe = decalageMin >= 0 ? "+" : "-", abs = Math.abs(decalageMin);
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}${signe}${pad2(Math.floor(abs/60))}:${pad2(abs%60)}`;
+}
+// Le « jour de l'escadre » d'aujourd'hui, `AAAA-MM-JJ`.
+function jourDeLEscadre(){
+  const p = partiesDansFuseau(Date.now(), fuseauEscadre());
+  return `${p.year}-${p.month}-${p.day}`;
+}
+// Un jour `AAAA-MM-JJ` en date de calendrier (minuit local) : pour les calculs de grille, qui ne manient que des jours.
+function dateDuJour(jour){
+  const [y,m,d] = jour.split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+// L'heure locale en détail : `""` quand l'heure et le jour sont les mêmes chez l'escadre et chez soi, sinon
+// `<span class="chez-vous">…</span>` (avec le jour local `JJ/MM` quand il diffère de celui de l'escadre).
+function chezVous(ms){
+  const z = partiesDansFuseau(ms, fuseauEscadre()), l = partiesDansFuseau(ms, null);
+  const jourZ = `${z.year}-${z.month}-${z.day}`, jourL = `${l.year}-${l.month}-${l.day}`;
+  if(z.hour === l.hour && z.minute === l.minute && jourZ === jourL) return "";
+  const h = `${l.hour}:${l.minute}`;
+  const texte = jourZ === jourL
+    ? t("fuseau_chez_vous").replace("{h}", h)
+    : t("fuseau_chez_vous_jour").replace("{h}", h).replace("{d}", `${l.day}/${l.month}`);
+  return `<span class="chez-vous">${escapeHtml(texte)}</span>`;
+}
+// La ligne sous la date et l'heure du formulaire : posée à l'ouverture et à chaque saisie de `#f-date` ou `#f-time`
+// (`#f-time` vide vaut 21:00, comme à l'enregistrement ; `#f-date` vide : rien).
+function majChezVous(){
+  const el = document.getElementById("f-chez-vous");
+  if(!el) return;
+  const dateVal = $("#f-date").value, timeVal = $("#f-time").value || "21:00";
+  el.innerHTML = dateVal ? chezVous(instantDeLEscadre(dateVal, timeVal)) : "";
 }
 
 function fmtParisTime(isoUtc){
@@ -3403,7 +3456,8 @@ function afficherCompteur(){
 async function majCompteur(){
   if(!$("#mr-compteur")) return;
   const jeton = ++compteurJeton;
-  const du = new Date(), au = new Date();
+  // Lot « La Planification à l'heure de l'escadre » : la fenêtre de 14 jours se compte en jours de l'escadre.
+  const du = dateDuJour(jourDeLEscadre()), au = dateDuJour(jourDeLEscadre());
   au.setDate(au.getDate()+13);
   let liste;
   try {
@@ -3432,6 +3486,7 @@ function renderAVenir(){
   const loc = currentLang==="fr" ? "fr-FR" : "en-GB";
   const fmtJour = {weekday:"short", day:"numeric", month:"short"};
   const maintenant = new Date();
+  const jourEscadre = jourDeLEscadre();   // Lot « La Planification à l'heure de l'escadre » : « aujourd'hui » et la fin de la fenêtre
   // Les occurrences terminées (début + durée, 120 min par défaut) ne sont plus « à venir ».
   const restantes = aVenirListe.filter(o=>{
     const fin = new Date(o.start_at_utc).getTime() + (o.duration_min || 120)*60000;
@@ -3442,9 +3497,9 @@ function renderAVenir(){
   document.documentElement.toggleAttribute("data-pl-seul", plSeul);
   const montrees = plSeul ? restantes.filter(o=> monEtat(o)==="todo") : restantes;
 
-  const fin = new Date(); fin.setDate(fin.getDate()+13);
+  const fin = dateDuJour(jourEscadre); fin.setDate(fin.getDate()+13);
   const sous = t("upcoming_until").replace("{date}", fin.toLocaleDateString(loc, fmtJour));
-  const aujourdhui = toISODate(maintenant);
+  const aujourdhui = jourEscadre;
 
   let tete = `<div class="pl-aside-titre"><h3 id="pl-aside-titre">${t("agenda_upcoming")}</h3><span class="pl-aside-sous">${escapeHtml(sous)}</span></div>`;
   if(nbRepondre > 0 && !estInviteEcran()){
@@ -3489,7 +3544,7 @@ function carteAVenir(o){
     rsvp = `<div class="pl-rsvp" role="group" aria-label="${escapeAttr(t("my_answer"))}">${boutons}</div>`;
   }
   return `<div class="pl-ev${o.type==="jeulibre" ? " jeulibre" : ""}${etat==="todo" ? " pl-todo" : ""}" data-k="${escapeAttr(occKey(o.event_id, o.occ_date))}" style="--chip-color:var(${TYPE_VAR[o.type]})" tabindex="0">`
-    + `<div class="pl-ev-l1">${estInviteEcran() ? "" : maPastille(o)}<span class="pl-ev-heure">${fmtLocalTime(o.start_at_utc)}</span><span class="pl-ev-type">${TYPE_ICON[o.type]}${escapeHtml(texte)}</span>${newDot(o)}</div>`
+    + `<div class="pl-ev-l1">${estInviteEcran() ? "" : maPastille(o)}<span class="pl-ev-heure">${fmtParisTime(o.start_at_utc)}</span><span class="pl-ev-type">${TYPE_ICON[o.type]}${escapeHtml(texte)}</span>${newDot(o)}</div>`
     + `<div class="pl-ev-titre" title="${escapeAttr(o.title)}">${escapeHtml(o.title)}${o.recurring ? ` <span class="pl-rec">↻</span>` : ""}</div>`
     + `<div class="pl-ev-escadre"><span class="p">${pc.present||0} ✓</span> · <span class="m">${pc.maybe||0} ~</span> · <span class="a">${pc.absent||0} ✗</span></div>`
     + rsvp
@@ -3593,7 +3648,7 @@ function renderDayBlock(dateStr){
       ev.innerHTML = `<div class="agenda-ev-title">${maPastille(occ)}<span class="ico">${TYPE_ICON[occ.type]}</span>`
         + `<span>${escapeHtml(occ.title)}</span>${occ.recurring?' <span style="opacity:.7">↻</span>':''}`
         + `${typeof newTag==="function"?newTag(occ):""}</div>`
-        + `<div class="agenda-ev-meta"><span class="ev-time">${fmtLocalTime(occ.start_at_utc)}</span> · <b>${occ.presence_counts.present} ✓</b> · <i>${occ.presence_counts.maybe} ~</i></div>`;
+        + `<div class="agenda-ev-meta"><span class="ev-time">${fmtParisTime(occ.start_at_utc)}</span> · <b>${occ.presence_counts.present} ✓</b> · <i>${occ.presence_counts.maybe} ~</i></div>`;
       ev.addEventListener("click",(e)=>{ e.stopPropagation(); openEventModal(occ.event_id, occ.occ_date); });
       evs.appendChild(ev);
     });
@@ -3648,7 +3703,7 @@ function renderMonthGrid(){
         chip.dataset.k = occKey(occ.event_id, occ.occ_date);   // Lot « La Planification en grand écran » (v1.0077) : repère de l'évènement ouvert (marquerOuverte)
         chip.style.setProperty("--chip-color", `var(${TYPE_VAR[occ.type]})`);
         // Lot « Ma réponse sur la Planche » : ma pastille, l'heure locale, le titre, le point NOUVEAU ; plus d'icône de type au mois.
-        chip.innerHTML = `${maPastille(occ)}<span class="mr-time">${fmtLocalTime(occ.start_at_utc)}</span><span class="mr-titre">${escapeHtml(occ.title)}</span>${newDot(occ)}` + (occ.recurring? `<span class="rec" title="${t('recurring')}">↻</span>`:"");
+        chip.innerHTML = `${maPastille(occ)}<span class="mr-time">${fmtParisTime(occ.start_at_utc)}</span><span class="mr-titre">${escapeHtml(occ.title)}</span>${newDot(occ)}` + (occ.recurring? `<span class="rec" title="${t('recurring')}">↻</span>`:"");
         // stopPropagation : un clic sur un chip ouvre le DÉTAIL de l'occurrence,
         // pas la création (Lot 4 §3 — ne jamais déclencher les deux à la fois).
         chip.addEventListener("click", (e)=>{ e.stopPropagation(); openEventModal(occ.event_id, occ.occ_date); });
@@ -3872,7 +3927,7 @@ function renderHebdoSection(container, titleKey, week){
         <span class="ico">${TYPE_ICON[occ.type]}</span>
         <span class="hebdo-col-name" title="${escapeAttr(occ.title)}">${escapeHtml(occ.title)}${occ.recurring?" ↻":""}${newTag(occ)}</span>
         ${sub ? `<span class="hebdo-col-sub" title="${escapeAttr(sub)}">${escapeHtml(sub)}</span>` : ""}
-        <span class="d">${d}/${m} · ${fmtLocalTime(occ.start_at_utc)}</span>
+        <span class="d">${d}/${m} · ${fmtParisTime(occ.start_at_utc)}</span>
         ${presenceGaugeHtml(c)}
       </div>`;
     theadRow.appendChild(th);
@@ -3962,7 +4017,7 @@ function renderHebdoSection(container, titleKey, week){
     });
     const [y,m,d]=occ.occ_date.split("-");
     const sub = [occ.game_label, occ.map_name].filter(Boolean).join(" · ");
-    const metaStr = `${d}/${m} · ${fmtLocalTime(occ.start_at_utc)}` + (sub? ` · ${escapeHtml(sub)}` : "");
+    const metaStr = `${d}/${m} · ${fmtParisTime(occ.start_at_utc)}` + (sub? ` · ${escapeHtml(sub)}` : "");
 
     const stateBlocks = ["present","maybe","absent"].map(st=>{
       const list = buckets[st];
@@ -4123,7 +4178,7 @@ function renderModalView(occ){
 
   const [y,m,d] = occ.occ_date.split("-");
   $("#modal-datetime").innerHTML = `
-    <span>${d}/${m}/${y} · ${fmtLocalTime(occ.start_at_utc)}</span>
+    <span>${d}/${m}/${y} · ${fmtParisTime(occ.start_at_utc)}</span>${chezVous(Date.parse(occ.start_at_utc))}
     ${occ.recurring? `<span class="badge-rec">↻ ${t('recurring')}</span>`:""}
   `;
   $("#modal-desc").textContent = occ.description || "";
@@ -4607,7 +4662,7 @@ function dayEventCardFull(occ){
       <div class="day-event-head">
         <span class="ico">${TYPE_ICON[occ.type]}</span>
         <span>${escapeHtml(occ.title)}${newTag(occ)}</span>
-        <span style="margin-left:auto;font-family:var(--font-mono);font-size:.76rem;color:var(--text-mute);">${fmtLocalTime(occ.start_at_utc)}</span>
+        <span style="margin-left:auto;font-family:var(--font-mono);font-size:.76rem;color:var(--text-mute);">${fmtParisTime(occ.start_at_utc)}</span>
       </div>
       ${sub? `<div class="day-event-sub">${escapeHtml(sub)}</div>` : ""}
       ${dayRosterHtml(occ.roster)}
@@ -4625,7 +4680,7 @@ function dayEventCardFallback(occ){
       <div class="day-event-head">
         <span class="ico">${TYPE_ICON[occ.type]}</span>
         <span>${escapeHtml(occ.title)}${newTag(occ)}</span>
-        <span style="margin-left:auto;font-family:var(--font-mono);font-size:.76rem;color:var(--text-mute);">${fmtLocalTime(occ.start_at_utc)}</span>
+        <span style="margin-left:auto;font-family:var(--font-mono);font-size:.76rem;color:var(--text-mute);">${fmtParisTime(occ.start_at_utc)}</span>
       </div>
       ${sub? `<div class="day-event-sub">${escapeHtml(sub)}</div>` : ""}
       <div class="day-event-sub"><b style="color:var(--rsvp-present)">${counts.present} ✓</b> · <i style="color:var(--rsvp-maybe)">${counts.maybe} ~</i></div>
@@ -4782,8 +4837,9 @@ function buildEventFormHTML(prefill, withDateRecurrence){
       <div class="form-group-title">${t('form_group_quand')}</div>
       <div class="form-row form-row-inline">
         <div class="form-field"><label>${t('field_date')}</label><input type="date" id="f-date" value="${escapeAttr(p.date||"")}"></div>
-        <div class="form-field"><label>${t('field_time')}</label><input type="time" id="f-time" value="${escapeAttr(p.time||"21:00")}"></div>
+        <div class="form-field"><label>${t('field_time')} <span class="fuseau-nom">(${escapeHtml(fuseauEscadre())})</span></label><input type="time" id="f-time" value="${escapeAttr(p.time||"21:00")}"></div>
       </div>
+      <div class="form-hint" id="f-chez-vous"></div>
     </div>
     <div class="form-group">
       <div class="form-group-title">${t('form_group_recurrence')}</div>
@@ -4881,6 +4937,10 @@ function wireEventFormConditionals(){
     $("#f-end-until-row").classList.toggle("hidden", endSel.value !== "until");
     $("#f-end-count-row").classList.toggle("hidden", endSel.value !== "count");
   });
+  // Lot « La Planification à l'heure de l'escadre » : l'heure locale en détail, posée à l'ouverture (création et
+  // modification) puis à chaque saisie de la date ou de l'heure.
+  ["#f-date", "#f-time"].forEach(sel=>{ const el = $(sel); if(el) el.addEventListener("input", majChezVous); });
+  majChezVous();
 }
 
 function openCreateModal(prefillDate){
@@ -4957,9 +5017,10 @@ async function openEditModal(scope){
       closeModal();
       return;
     }
-    const localDt = new Date(seriesEvent.start_at);
-    prefill.date = toISODate(localDt);
-    prefill.time = `${pad2(localDt.getHours())}:${pad2(localDt.getMinutes())}`;
+    // Lot « La Planification à l'heure de l'escadre » : la date et l'heure se lisent dans le fuseau de l'escadre.
+    const pe = partiesDansFuseau(Date.parse(seriesEvent.start_at), fuseauEscadre());
+    prefill.date = `${pe.year}-${pe.month}-${pe.day}`;
+    prefill.time = `${pe.hour}:${pe.minute}`;
     const rec = seriesEvent.recurrence;
     if(rec){
       prefill.recurring = true;
@@ -5018,8 +5079,8 @@ async function submitEventForm(){
     const dateVal = $("#f-date").value;
     const timeVal = $("#f-time").value || "21:00";
     if(!dateVal){ showToast(t("error_generic"), "erreur"); return; }
-    const localDt = new Date(`${dateVal}T${timeVal}:00`);
-    body.start_at = toISOStringWithOffset(localDt);
+    // Lot « La Planification à l'heure de l'escadre » : la date et l'heure saisies sont celles de l'escadre.
+    body.start_at = isoDeLEscadre(instantDeLEscadre(dateVal, timeVal));
 
     if($("#f-recurring").checked){
       const weekdays = $$(".weekday-toggle button.on").map(b=> parseInt(b.dataset.day,10));
@@ -6021,7 +6082,7 @@ function soireePlanifieeHtml(s){
   const occs = soireePlanifieeDe(s);
   if(!occs.length) return "";
   const liens = occs.map(o=>
-    `<a href="${escapeAttr(rrAdresseEcran("planif", "fiche", {ev: o.event_id, date: o.occ_date}))}">${escapeHtml(o.title)}, ${escapeHtml(fmtLocalTime(o.start_at_utc))}</a>`
+    `<a href="${escapeAttr(rrAdresseEcran("planif", "fiche", {ev: o.event_id, date: o.occ_date}))}">${escapeHtml(o.title)}, ${escapeHtml(fmtParisTime(o.start_at_utc))}</a>`
   ).join(" · ");
   return `<div class="note soiree-note"><b>${escapeHtml(t("soiree_planifiee"))}</b> ${liens}</div>`;
 }
@@ -15499,8 +15560,9 @@ function initLanding(){
 }
 
 function computeToday(){
-  const now = new Date();
-  TODAY = {y: now.getFullYear(), m: now.getMonth(), d: now.getDate()};
+  // Lot « La Planification à l'heure de l'escadre » : « aujourd'hui » est le jour de l'escadre.
+  const [y,m,d] = jourDeLEscadre().split("-").map(Number);
+  TODAY = {y, m: m-1, d};
 }
 
 /* ---------- Câblage statique (indépendant des données) ---------- */
