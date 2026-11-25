@@ -23,6 +23,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
+import time as _time
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Optional
 from uuid import UUID
@@ -241,32 +243,93 @@ def verify_signature(
 # --- 7b. Client REST bot -----------------------------------------------------
 
 
+# Lot « Discord 429 » : les appels suivent les limites que Discord annonce
+# (`X-RateLimit-Remaining` / `X-RateLimit-Reset-After`, 429 `Retry-After`),
+# par route (méthode + chemin, identifiants de message remplacés par `{m}` ; le
+# salon reste dans la clé, Discord limite par salon) et globalement.
+_ATTENTE_MAX_S = 10.0  # aucune attente, ni durée acceptée, au-delà
+_ESSAIS_429_MAX = 2  # nouveaux essais après un 429 (trois appels au plus)
+_MESSAGE_ID_RE = re.compile(r"(?<=/messages/)[^/?#]+")
+
+# Horloge monotone : instant avant lequel la route (ou tout appel) ne part pas.
+_attente_route: dict[str, float] = {}
+_attente_globale: float = 0.0
+
+
+def _cle_route(method: str, path: str) -> str:
+    """Clé de limite d'une route : méthode + chemin, identifiants de message
+    remplacés par `{m}` (`PATCH /channels/1/messages/2` ->
+    `PATCH /channels/1/messages/{m}`)."""
+    return f"{method.upper()} {_MESSAGE_ID_RE.sub('{m}', path)}"
+
+
+def _flottant(valeur) -> Optional[float]:
+    try:
+        return float(valeur)
+    except (TypeError, ValueError):
+        return None
+
+
+async def _attendre_limites(cle: str) -> None:
+    """Attend l'instant de la route ou l'instant global, le plus tardif,
+    borné à `_ATTENTE_MAX_S`."""
+    reste = max(_attente_route.get(cle, 0.0), _attente_globale) - _time.monotonic()
+    if reste > 0:
+        await asyncio.sleep(min(reste, _ATTENTE_MAX_S))
+
+
+def _noter_reponse(cle: str, response: httpx.Response) -> Optional[float]:
+    """Retient les limites annoncées par `response`. Rend la durée annoncée
+    d'un 429 (`None` si la réponse n'est pas un 429)."""
+    global _attente_globale
+    maintenant = _time.monotonic()
+    if response.status_code == 429:
+        try:
+            corps = response.json()
+        except (ValueError, TypeError):
+            corps = None
+        if not isinstance(corps, dict):
+            corps = {}
+        duree = _flottant(response.headers.get("Retry-After"))
+        if duree is None:
+            duree = _flottant(corps.get("retry_after"))
+        if duree is None:
+            duree = 1.0
+        duree = max(duree, 0.0)
+        if corps.get("global") is True or "X-RateLimit-Global" in response.headers:
+            _attente_globale = max(_attente_globale, maintenant + duree)
+        else:
+            _attente_route[cle] = max(_attente_route.get(cle, 0.0), maintenant + duree)
+        return duree
+    restant = _flottant(response.headers.get("X-RateLimit-Remaining"))
+    apres = _flottant(response.headers.get("X-RateLimit-Reset-After"))
+    if restant is not None and restant <= 0 and apres is not None:
+        _attente_route[cle] = max(_attente_route.get(cle, 0.0), maintenant + max(apres, 0.0))
+    return None
+
+
 async def _bot_request(
     method: str, path: str, *, json_body: Optional[dict] = None
 ) -> Optional[httpx.Response]:
-    """Requête REST bot générique, un seul retry sur 429 (Retry-After lu
-    puis attendu), jamais d'exception propagée (cf. brief §7b)."""
+    """Requête REST bot générique : attend les limites annoncées par Discord
+    (par route et globale), réessaie un 429 jusqu'à deux fois (durée annoncée
+    au-delà de 10 s : réponse rendue telle quelle), jamais d'exception
+    propagée (cf. brief §7b)."""
     headers = {"Authorization": f"Bot {settings.DISCORD_BOT_TOKEN}"}
+    cle = _cle_route(method, path)
     try:
         async with httpx.AsyncClient(base_url=_API_BASE, timeout=10.0) as client:
-            response = await client.request(method, path, json=json_body, headers=headers)
-            if response.status_code == 429:
-                retry_after_raw = response.headers.get("Retry-After")
-                if retry_after_raw is None:
-                    try:
-                        retry_after_raw = response.json().get("retry_after")
-                    except (ValueError, AttributeError):
-                        retry_after_raw = None
-                try:
-                    wait_s = float(retry_after_raw) if retry_after_raw is not None else 1.0
-                except (TypeError, ValueError):
-                    wait_s = 1.0
-                logger.info(
-                    "Bot Discord : 429 sur %s %s, retry après %.1fs", method, path, wait_s
-                )
-                await asyncio.sleep(wait_s)
+            essai = 0
+            while True:
+                await _attendre_limites(cle)
                 response = await client.request(method, path, json=json_body, headers=headers)
-            return response
+                duree = _noter_reponse(cle, response)
+                if duree is None or essai >= _ESSAIS_429_MAX or duree > _ATTENTE_MAX_S:
+                    return response
+                essai += 1
+                logger.info(
+                    "Bot Discord : 429 sur %s %s, retry après %.1fs", method, path, duree
+                )
     except httpx.HTTPError as exc:
         logger.warning("Bot Discord : erreur réseau sur %s %s (%s)", method, path, exc)
         return None

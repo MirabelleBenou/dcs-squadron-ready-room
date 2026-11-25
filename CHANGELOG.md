@@ -14,6 +14,9 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**Discord messages after a restart**
+- Fixed: when the server restarted, an event's Discord message could keep its old answers until the next change; the Ready Room now follows Discord's sending limits.
+
 **Times in the wing's time zone**
 - The Board, the Weekly Table and the event sheet show every time in the wing's time zone, whatever the time zone of your device; when it differs, the event sheet and the event form also give your local time.
 - Fixed: an event created or edited from a device in another time zone was saved at the wrong time.
