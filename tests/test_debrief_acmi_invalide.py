@@ -123,8 +123,8 @@ def test_zip_sans_acmi_lisible_rend_422(banc):
     coupe = entier[: len(entier) // 2]
     with pytest.raises(Exception) as lue:
         acmi_mod.parse_acmi(io.BytesIO(coupe))
-    # La branche qui joue : celle de `zipfile.BadZipFile` (ou de ses sœurs, `zlib.error`, `EOFError`).
-    assert isinstance(lue.value, (zipfile.BadZipFile, EOFError)) or type(lue.value).__name__ == "error"
+    # La branche qui joue : `zipfile.BadZipFile` (l'annuaire de l'archive manque), la première de celles que la route rattrape.
+    assert isinstance(lue.value, zipfile.BadZipFile)
     r = _deposer(banc, coupe)
     assert r.status_code == 422
     assert r.json() == {"detail": DETAIL}
