@@ -254,6 +254,8 @@ _MESSAGE_ID_RE = re.compile(r"(?<=/messages/)[^/?#]+")
 # Horloge monotone : instant avant lequel la route (ou tout appel) ne part pas.
 _attente_route: dict[str, float] = {}
 _attente_globale: float = 0.0
+# Limite connue : l'attente n'est pas une file ; des appels concurrents sur la
+# même route se réveillent ensemble, et un 429 éventuel les ralentit à leur tour.
 
 
 def _cle_route(method: str, path: str) -> str:
