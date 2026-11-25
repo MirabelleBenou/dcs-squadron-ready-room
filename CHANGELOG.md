@@ -14,6 +14,9 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**Access rights checked by a test**
+- Nothing visible changes: an automated test now checks, for every address of the application and every kind of member, who gets in and who is refused.
+
 ## RR-V1.0.0 — 2026-11-25
 
 The first public release: the web portal of a DCS World virtual squadron, behind a Discord sign-in, on a desktop, a tablet or a phone, in English and in French.

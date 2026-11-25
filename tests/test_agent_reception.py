@@ -535,10 +535,13 @@ def test_conflit_simultane_200(banc):
     # gagnant le porte ; aucun temporaire.
     autre = rrlog(ENTETE_H + "J\tautre\n")
     banc.db.conflit = "commit"
-    r = envoyer(banc, gzip.compress(autre), sha(autre), jeton)
+    # La charge compressée se calcule une fois : `gzip` écrit l'heure à la seconde dans son en-tête, deux
+    # compressions à des secondes différentes diffèrent.
+    compresse = gzip.compress(autre)
+    r = envoyer(banc, compresse, sha(autre), jeton)
     assert r.status_code == 200 and r.json() == {"statut": "deja_recu"}
     assert sorted(p.name for p in banc.dossier.iterdir()) == sorted([rangé.name, f"{sha(autre)}.rrlog.gz"])
-    assert (banc.dossier / f"{sha(autre)}.rrlog.gz").read_bytes() == gzip.compress(autre)
+    assert (banc.dossier / f"{sha(autre)}.rrlog.gz").read_bytes() == compresse
 
     # Une autre panne de la base, elle, retire le fichier rangé par cette requête (aucune ligne ne le porte) et ne
     # rend pas 200 ; le fichier de l'autre reste.

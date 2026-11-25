@@ -1,0 +1,164 @@
+{
+ "PATCH /api/events/{event_id}": {
+  "json": {},
+  "query": "scope=series"
+ },
+ "POST /api/events": {
+  "json": {
+   "type": "entrainement",
+   "title": "x",
+   "start_at": "2026-12-01T20:00:00+01:00",
+   "game_label": "DCS"
+  }
+ },
+ "PUT /api/presences": {
+  "json": {
+   "event_id": "{event_id}",
+   "occ_date": "{occ_date}",
+   "state": "present"
+  }
+ },
+ "POST /api/debrief/upload": {
+  "files": {
+   "file": [
+    "essai.png",
+    "x"
+   ]
+  },
+  "data": {
+   "kind": "acmi"
+  }
+ },
+ "PATCH /api/debrief/sessions/{session_id}": {
+  "json": {}
+ },
+ "PATCH /api/debrief/sessions/{session_id}/flights/{flight_id}/periode": {
+  "json": {
+   "periode": "jour"
+  }
+ },
+ "PUT /api/debrief/dossier/cartes": {
+  "json": {
+   "cartes": []
+  }
+ },
+ "POST /api/debrief/sessions/{session_id}/flights/{flight_id}/identify": {
+  "json": {}
+ },
+ "POST /api/debrief/uploads/{upload_id}/deplacer": {
+  "json": {
+   "session_id": "{session_id}"
+  }
+ },
+ "POST /api/debrief/sessions/{session_id}/fusionner": {
+  "json": {
+   "source_id": "{session_id}"
+  }
+ },
+ "POST /api/command/squadrons": {
+  "json": {}
+ },
+ "PATCH /api/command/squadrons/{squadron_id}": {
+  "json": {}
+ },
+ "PUT /api/command/squadrons/{squadron_id}/crest": {
+  "files": {
+   "file": [
+    "essai.png",
+    "x"
+   ]
+  },
+  "data": {}
+ },
+ "PUT /api/command/squadrons/{squadron_id}/wake": {
+  "json": {}
+ },
+ "POST /api/command/campaigns": {
+  "json": {}
+ },
+ "PUT /api/command/rights/chef-role": {
+  "json": {}
+ },
+ "PUT /api/command/squadrons/{squadron_id}/leader": {
+  "json": {}
+ },
+ "PUT /api/command/squadrons/{squadron_id}/deputy": {
+  "json": {}
+ },
+ "PUT /api/command/rights/event-editors": {
+  "json": {}
+ },
+ "PUT /api/command/rights/app-access": {
+  "json": {}
+ },
+ "PUT /api/command/rights/debrief-access": {
+  "json": {}
+ },
+ "PUT /api/command/rights/relances": {
+  "json": {}
+ },
+ "PUT /api/command/rights/content": {
+  "json": {}
+ },
+ "PATCH /api/command/wing": {
+  "json": {}
+ },
+ "PUT /api/command/wing/emblem": {
+  "files": {
+   "file": [
+    "essai.png",
+    "x"
+   ]
+  },
+  "data": {}
+ },
+ "PATCH /api/command/referentiels/types": {
+  "json": {
+   "cle": "x"
+  }
+ },
+ "PATCH /api/command/referentiels/armes": {
+  "json": {
+   "cle": "x"
+  }
+ },
+ "POST /api/command/referentiels/import": {
+  "json": {}
+ },
+ "PUT /api/command/archives/automatique": {
+  "json": {
+   "intervalle_h": 1,
+   "garder": 1
+  }
+ },
+ "POST /api/command/invites": {
+  "json": {
+   "discord_id": "x"
+  }
+ },
+ "PUT /api/command/reglages/{cle}": {
+  "json": {
+   "valeur": "x"
+  }
+ },
+ "GET /api/events": {
+  "query": "from=2026-09-01&to=2026-09-30"
+ },
+ "DELETE /api/events/{event_id}": {
+  "query": "scope=series"
+ },
+ "GET /api/hebdo": {
+  "query": "anchor=2026-09-15"
+ },
+ "GET /api/debrief/soiree": {
+  "query": "jour=2026-09-15"
+ },
+ "POST /discord/rsvp/reproject": {
+  "query": "event_id={event_id}&occ_date={occ_date}"
+ },
+ "POST /auth/lien": {
+  "json": {
+   "token": "jeton-faux"
+  }
+ }
+}
