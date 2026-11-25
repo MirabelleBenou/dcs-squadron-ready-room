@@ -2899,21 +2899,26 @@ function partiesDansFuseau(ms, zone){
   return r;
 }
 function msDesParties(p){ return Date.UTC(+p.year, +p.month-1, +p.day, +p.hour, +p.minute, +p.second); }
-// L'instant (ms) d'une date `AAAA-MM-JJ` et d'une heure `HH:MM` « de l'escadre » : on part de ces chiffres lus en UTC,
-// puis deux passes corrigent de l'écart que montre le fuseau de l'escadre (juste aux changements d'heure). Une heure
-// qui n'existe pas (le saut de printemps) rend l'instant que donnent les deux passes ; une heure qui existe deux fois,
-// l'une des deux.
+// Le décalage (ms) du fuseau de l'escadre à un instant : ses chiffres lus en UTC, moins l'instant.
+function decalageEscadre(ms){
+  return msDesParties(partiesDansFuseau(ms, fuseauEscadre())) - Math.floor(ms/1000)*1000;
+}
+// L'instant (ms) d'une date `AAAA-MM-JJ` et d'une heure `HH:MM` « de l'escadre » : la règle du serveur (`zoneinfo`,
+// `fold=0`). `w` : les chiffres saisis lus en UTC ; deux candidats, `w` moins le décalage de la veille (`c1`) et `w`
+// moins celui du lendemain (`c2`) ; un candidat est juste si le fuseau de l'escadre lui redonne les chiffres saisis.
+// Le plus tôt des justes l'emporte (une heure qui existe deux fois prend la première) ; sans juste (une heure qui
+// n'existe pas, au saut de printemps), `c1` : l'heure avance.
 function instantDeLEscadre(dateVal, timeVal){
   const [y,m,d] = dateVal.split("-").map(Number), [h,mi] = timeVal.split(":").map(Number);
-  const voulu = Date.UTC(y, m-1, d, h, mi);
-  let ms = voulu;
-  for(let i=0;i<2;i++) ms += voulu - msDesParties({...partiesDansFuseau(ms, fuseauEscadre()), second:0});
-  return ms;
+  const w = Date.UTC(y, m-1, d, h, mi), JOUR = 24*3600*1000;
+  const c1 = w - decalageEscadre(w - JOUR), c2 = w - decalageEscadre(w + JOUR);
+  const justes = [c1, c2].filter(c=> msDesParties(partiesDansFuseau(c, fuseauEscadre())) === w);
+  return justes.length ? Math.min(...justes) : c1;
 }
 // L'ISO 8601 d'un instant, avec les chiffres de l'escadre et son décalage à cet instant : `AAAA-MM-JJTHH:MM:SS±HH:MM`.
 function isoDeLEscadre(ms){
   const p = partiesDansFuseau(ms, fuseauEscadre());
-  const decalageMin = Math.round((msDesParties(p) - Math.floor(ms/1000)*1000) / 60000);
+  const decalageMin = Math.round(decalageEscadre(ms) / 60000);
   const signe = decalageMin >= 0 ? "+" : "-", abs = Math.abs(decalageMin);
   return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}${signe}${pad2(Math.floor(abs/60))}:${pad2(abs%60)}`;
 }
@@ -2940,12 +2945,14 @@ function chezVous(ms){
   return `<span class="chez-vous">${escapeHtml(texte)}</span>`;
 }
 // La ligne sous la date et l'heure du formulaire : posée à l'ouverture et à chaque saisie de `#f-date` ou `#f-time`
-// (`#f-time` vide vaut 21:00, comme à l'enregistrement ; `#f-date` vide : rien).
+// (`#f-time` vide vaut 21:00, comme à l'enregistrement ; `#f-date` vide ou incomplète : rien).
 function majChezVous(){
   const el = document.getElementById("f-chez-vous");
   if(!el) return;
   const dateVal = $("#f-date").value, timeVal = $("#f-time").value || "21:00";
-  el.innerHTML = dateVal ? chezVous(instantDeLEscadre(dateVal, timeVal)) : "";
+  // Une date incomplète (l'année se tape chiffre à chiffre : `0002-…`) ne rend rien.
+  const complete = /^\d{4}-\d{2}-\d{2}$/.test(dateVal) && +dateVal.slice(0, 4) >= 1970;
+  el.innerHTML = complete ? chezVous(instantDeLEscadre(dateVal, timeVal)) : "";
 }
 
 function fmtParisTime(isoUtc){
