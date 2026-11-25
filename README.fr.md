@@ -37,8 +37,14 @@ clair.
 <tr><td align="center"><b>L'escadre</b> — son organigramme</td><td align="center"><b>Une escadrille</b> — sa fiche d'unité</td></tr>
 <tr><td><img src=".github/captures/pilot-file-fr.png" alt="Le dossier d'un pilote"></td><td><img src=".github/captures/flight-fr.png" alt="Un vol — son journal, tir par tir"></td></tr>
 <tr><td align="center"><b>Le dossier d'un pilote</b></td><td align="center"><b>Un vol</b> — son journal, tir par tir</td></tr>
-<tr><td><img src=".github/captures/members-fr.png" alt="Centre de Commandement — les membres"></td><td align="center"><img src=".github/captures/board-phone-fr.png" alt="La Planche sur un téléphone" width="220"></td></tr>
-<tr><td align="center"><b>Centre de Commandement</b> — les membres</td><td align="center"><b>La Planche</b> sur un téléphone</td></tr>
+<tr><td><img src=".github/captures/members-fr.png" alt="Centre de Commandement — les membres"></td><td><img src=".github/captures/pilot-maps-fr.png" alt="Un pilote, vu par l'escadre — les cartes DCS qu'il possède"></td></tr>
+<tr><td align="center"><b>Centre de Commandement</b> — les membres</td><td align="center"><b>Un pilote, vu par l'escadre</b> — les cartes DCS qu'il possède</td></tr>
+<tr><td colspan="2" align="center">
+<table>
+<tr><td align="center"><img src=".github/captures/board-phone-fr.png" alt="La Planche sur un téléphone" width="220"></td><td align="center"><img src=".github/captures/pilot-file-phone-fr.png" alt="Le dossier d'un pilote sur un téléphone" width="220"></td></tr>
+<tr><td align="center"><b>La Planche</b> sur un téléphone</td><td align="center"><b>Le dossier d'un pilote</b> sur un téléphone</td></tr>
+</table>
+</td></tr>
 </table>
 
 ## Installation

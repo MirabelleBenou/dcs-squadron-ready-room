@@ -35,8 +35,14 @@ Every screen works on a desktop, a tablet and a phone, in English and in French,
 <tr><td align="center"><b>The wing</b> — its organisation chart</td><td align="center"><b>A squadron</b> — its unit file</td></tr>
 <tr><td><img src=".github/captures/pilot-file-en.png" alt="A pilot's personal file"></td><td><img src=".github/captures/flight-en.png" alt="A flight — its log, shot by shot"></td></tr>
 <tr><td align="center"><b>A pilot's personal file</b></td><td align="center"><b>A flight</b> — its log, shot by shot</td></tr>
-<tr><td><img src=".github/captures/members-en.png" alt="Command Center — the members"></td><td align="center"><img src=".github/captures/board-phone-en.png" alt="The Board on a phone" width="220"></td></tr>
-<tr><td align="center"><b>Command Center</b> — the members</td><td align="center"><b>The Board</b> on a phone</td></tr>
+<tr><td><img src=".github/captures/members-en.png" alt="Command Center — the members"></td><td><img src=".github/captures/pilot-maps-en.png" alt="A pilot, as the wing sees him — the DCS maps he owns"></td></tr>
+<tr><td align="center"><b>Command Center</b> — the members</td><td align="center"><b>A pilot, as the wing sees him</b> — the DCS maps he owns</td></tr>
+<tr><td colspan="2" align="center">
+<table>
+<tr><td align="center"><img src=".github/captures/board-phone-en.png" alt="The Board on a phone" width="220"></td><td align="center"><img src=".github/captures/pilot-file-phone-en.png" alt="A pilot's personal file on a phone" width="220"></td></tr>
+<tr><td align="center"><b>The Board</b> on a phone</td><td align="center"><b>A pilot's personal file</b> on a phone</td></tr>
+</table>
+</td></tr>
 </table>
 
 ## Installation
