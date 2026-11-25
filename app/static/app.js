@@ -2873,6 +2873,11 @@ function fmtLocalTime(isoUtc){
 function fmtLocalDate(isoUtc){
   return new Date(isoUtc).toLocaleDateString(currentLang==="fr"?"fr-FR":"en-GB", {day:"2-digit", month:"short", year:"numeric"});
 }
+// Lot « Les petites corrections de l'Escadre » : `fmtLocalDate` dans le fuseau de l'escadre (un instant se date au jour de l'escadre,
+// quel que soit le fuseau de l'appareil) ; `fmtLocalDate` reste celui du navigateur, pour le Centre.
+function fmtEscadreDate(isoUtc){
+  return new Date(isoUtc).toLocaleDateString(currentLang==="fr"?"fr-FR":"en-GB", {day:"2-digit", month:"short", year:"numeric", timeZone: fuseauEscadre()});
+}
 // Lot « rr-fuseau-reglage » (v1.0120) : le fuseau réglé de l'escadre (`GET /api/me`, clé `fuseau`) ; Europe/Paris sans lui.
 // Le navigateur doit accepter le nom (`Intl.DateTimeFormat` lève `RangeError` sinon) : sinon Europe/Paris. L'essai ne se refait
 // pas pour une même valeur.
@@ -9023,11 +9028,12 @@ function decorPhotoHautHtml(graine){
 // coin. Tirage stable sur la date du jour : la photo change chaque jour, pas à
 // chaque affichage. Rien dans le chemin de lecture.
 function accueilDecorHtml(){
-  const jour = new Date().toISOString().slice(0, 10);
+  // Lot « Les petites corrections de l'Escadre » : le jour de l'escadre (et non le jour UTC), pour la graine comme pour le visa.
+  const jour = jourDeParis(new Date().toISOString());
   const h = decorumSeed(`${jour}|accueil`);
   const visaRot = -8 - ((h >>> 13) % 7);
   const lang = currentLang === "fr" ? "fr-FR" : "en-GB";
-  const date = new Date().toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric"}).toUpperCase().replace(".", "");
+  const date = new Date(jour + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"}).toUpperCase().replace(".", "");
   return `${decorPhotoBasHtml(`${jour}|accueil`)}<span class="acc-visa" style="--rot:${visaRot}deg"><svg viewBox="0 0 120 120">
       <defs><path id="acc-visa-arc" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/>
       <filter id="acc-visa-usure"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${h % 97}"/><feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1 1"/></feComponentTransfer><feComposite in="SourceGraphic" operator="in"/></filter></defs>
@@ -9077,7 +9083,7 @@ function accueilHtml(a, d){
   const pilotesN = n => t(n === 1 ? "escadre_pilotes_un" : "escadre_pilotes_n").replace("{n}", n);
   const missions = `<div class="framed">
     <div class="sec ink">${escapeHtml(t("acc_missions_title"))}</div>
-    <div class="acc-missions">${(a.missions || []).map(x => `<a class="acc-mis" href="#" data-ouvre-session="${escapeAttr(String(x.session_id))}"><span class="acc-mis-l1"><span class="d">${escapeHtml((x.date ? new Date(x.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short"}) : "—") + " · " + fmtDuree(x.duree_s))}</span><span class="a">${escapeHtml(pilotesN(x.pilotes || 0))}</span></span><span class="acc-mis-titre">${escapeHtml(x.titre || "—")}</span></a>`).join("")}</div>
+    <div class="acc-missions">${(a.missions || []).map(x => `<a class="acc-mis" href="#" data-ouvre-session="${escapeAttr(String(x.session_id))}"><span class="acc-mis-l1"><span class="d">${escapeHtml((x.date ? new Date(x.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", timeZone: "UTC"}) : "—") + " · " + fmtDuree(x.duree_s))}</span><span class="a">${escapeHtml(pilotesN(x.pilotes || 0))}</span></span><span class="acc-mis-titre">${escapeHtml(x.titre || "—")}</span></a>`).join("")}</div>
   </div>`;
   const escadrilles = `<div class="framed">
     <div class="sec ink">${escapeHtml(t("acc_escadrilles_title"))}</div>
@@ -9237,7 +9243,7 @@ function rubanHtml(rang){
 function membreTeteHtml(m, nom, apres = ""){
   const sq = m.squadron;
   const unite = sq ? sq.designation : (m.archived_at ? t("mbr_ancien") : t("escadre_free"));
-  const statut = m.archived_at ? t("mbr_archive").replace("{d}", fmtLocalDate(m.archived_at)) : t("mbr_actif");
+  const statut = m.archived_at ? t("mbr_archive").replace("{d}", fmtEscadreDate(m.archived_at)) : t("mbr_actif");
   return `<div class="idbar"><div class="mbr-tete">
     <span class="mbr-portrait"><span class="avatar mbr-av">${avatarHtml(m.id, m.avatar_hash, nom)}</span>${sq ? escadreCrestHtml(sq, "mbr-badge") : ""}</span>
     <div><div class="kick">${escapeHtml(t("mbr_kick").replace("{sq}", unite))}</div><div class="callsign ink worn">${escapeHtml(nom)}</div></div>${apres ? `
@@ -9246,7 +9252,7 @@ function membreTeteHtml(m, nom, apres = ""){
 }
 // Les quatre chiffres de la participation (missions, temps, appareils, depuis).
 function membreStatsHtml(p, lang){
-  const depuis = p.depuis ? new Date(p.depuis + "T12:00:00Z").toLocaleDateString(lang, {month: "short", year: "numeric"}) : "—";
+  const depuis = p.depuis ? new Date(p.depuis + "T12:00:00Z").toLocaleDateString(lang, {month: "short", year: "numeric", timeZone: "UTC"}) : "—";
   const stat = (v, l) => `<div class="stat"><div class="v">${escapeHtml(String(v))}</div><div class="l">${escapeHtml(l)}</div></div>`;
   return `<div class="stats jn-large">${stat(p.missions ?? 0, t("mbr_missions"))}${heuresJourNuitStatHtml(p.heures_jour, p.heures_nuit, t("mbr_temps"))}${stat(p.appareils ?? 0, t("mbr_appareils"))}${stat(depuis, t("mbr_depuis"))}</div>`;
 }
@@ -9296,7 +9302,7 @@ function membreHtml(m){
     <div class="sec ink mbr-sec2">${escapeHtml(t("mbr_barrettes_title"))}</div>
     ${rubans ? `<div class="ribs">${rubans}</div>` : `<p class="muted">${escapeHtml(t("mbr_aucune_barrette"))}</p>`}
   </div>`;
-  const missions = (m.missions || []).map(x => `<a class="li mbr-mis" href="#" data-ouvre-session="${escapeAttr(String(x.session_id))}"><span class="d">${escapeHtml(x.date ? new Date(x.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short"}) : "—")}</span><span class="mbr-mis-t"><span class="mbr-mis-titre">${escapeHtml(x.titre || "—")}</span>${x.campagne ? `<span class="camp ink">${escapeHtml(x.campagne)}</span>` : ""}</span></a>`).join("");
+  const missions = (m.missions || []).map(x => `<a class="li mbr-mis" href="#" data-ouvre-session="${escapeAttr(String(x.session_id))}"><span class="d">${escapeHtml(x.date ? new Date(x.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", timeZone: "UTC"}) : "—")}</span><span class="mbr-mis-t"><span class="mbr-mis-titre">${escapeHtml(x.titre || "—")}</span>${x.campagne ? `<span class="camp ink">${escapeHtml(x.campagne)}</span>` : ""}</span></a>`).join("");
   const droite = `<div class="framed">
     <div class="sec ink">${escapeHtml(t("mbr_missions_title"))}</div>
     ${missions ? `<div class="list">${missions}</div>` : `<p class="muted">${escapeHtml(t("mbr_aucune_mission"))}</p>`}
@@ -9588,7 +9594,7 @@ function pilotesCarnetHtml(ds){
   const carnet = ds.carnet || [];
   const lignes = carnet.map((l, i) => {
     const issue = flightIssue(l.stats);
-    const date = l.date ? new Date(l.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric"}) : "—";
+    const date = l.date ? new Date(l.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"}) : "—";
     const detail = [l.appareil ? libType(l.appareil) : l.appareil, fmtDuree(l.duree_s), l.victoires ? pilotesNombreMot(l.victoires, "pil_vic_un", "pil_vic_n") : null].filter(Boolean).join(" · ");
     return `<div class="li pil-vol" role="link" tabindex="0" data-ouvre-vol="${escapeAttr(String(l.flight_id))}" data-vol-session="${escapeAttr(String(l.session_id))}"${i >= 10 ? " hidden" : ""}><span class="d">${escapeHtml(date)}</span><span class="mbr-mis-t"><span class="mbr-mis-titre">${escapeHtml(l.titre || "—")}</span>${l.campagne ? `<a class="camp ink" href="#" data-ouvre-campagne="${escapeAttr(String(l.campagne_id))}">${escapeHtml(l.campagne)}</a>` : ""}</span><span class="a">${escapeHtml(detail)}</span><span class="etat ${issue.key}">${escapeHtml(issue.label)}</span></div>`;
   }).join("");
@@ -9624,7 +9630,7 @@ function pilotesHtml(d){
   const declare = d.cartes_dcs != null;
   const etat = declare
     ? t("cd_declarees")
-        .replace("{date}", d.cartes_dcs_le ? new Date(d.cartes_dcs_le).toLocaleDateString(lang, {day: "numeric", month: "long", year: "numeric"}) : "—")
+        .replace("{date}", d.cartes_dcs_le ? new Date(d.cartes_dcs_le).toLocaleDateString(lang, {day: "numeric", month: "long", year: "numeric", timeZone: fuseauEscadre()}) : "—")
         .replace("{n}", d.cartes_dcs.length).replace("{s}", d.cartes_dcs.length > 1 ? "s" : "")
     : t("cd_non_declarees");
   const choix = c => {
@@ -9664,7 +9670,7 @@ function pilotesHtml(d){
   const parAppareil = ds.par_appareil || {};
   const servis = (d.appareils || []).map(a => {
     const x = parAppareil[a.type] || {};
-    const dernier = x.dernier ? new Date(x.dernier + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric"}) : "—";
+    const dernier = x.dernier ? new Date(x.dernier + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"}) : "—";
     const bilanAppareil = [pilotesNombreMot(x.victoires || 0, "pil_vic_un", "pil_vic_n"), pilotesNombreMot(x.pertes || 0, "pil_perte_un", "pil_perte_n"), t("pil_dernier").replace("{d}", dernier)].join(" · ");
     return `<div class="li">${aircraftSilhouetteHtml(a.type)}<span class="t2">${libTypeHtml(a.type)}<span class="pil-app-s">${escapeHtml(bilanAppareil)}</span></span><span class="a">${escapeHtml(t("mbr_msn").replace("{n}", a.missions).replace("{h}", fmtHeures(a.heures)))}</span></div>`;
   }).join("");
@@ -9787,7 +9793,7 @@ function renderCampagne(){
 // année, en majuscules, sans point (« 17 AOÛT 2026 »).
 function campagneDate(iso){
   const lang = currentLang === "fr" ? "fr-FR" : "en-GB";
-  return new Date(iso + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric"}).toUpperCase().replace(".", "");
+  return new Date(iso + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"}).toUpperCase().replace(".", "");
 }
 
 // La période, partout dans C : début → fin (close), début → en cours (en cours),
@@ -9839,7 +9845,7 @@ function campagneHtml(c){
 
   // Cadre 2 · les missions : une ligne ouvre sa Session ; au-delà de dix, « Tout afficher » déplie la suite sur place.
   const ms = c.missions || [];
-  const lignesMis = ms.map((x, i) => `<a class="li cmp-mis" href="#" data-ouvre-session="${escapeAttr(String(x.session_id))}"${i >= 10 ? " hidden" : ""}><span class="d">${escapeHtml(x.date ? new Date(x.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short"}) : "—")}</span><span class="t2">${escapeHtml(x.titre || "—")}</span><span class="a">${escapeHtml(t("acc_vols").replace("{n}", x.vols || 0))}</span></a>`).join("");
+  const lignesMis = ms.map((x, i) => `<a class="li cmp-mis" href="#" data-ouvre-session="${escapeAttr(String(x.session_id))}"${i >= 10 ? " hidden" : ""}><span class="d">${escapeHtml(x.date ? new Date(x.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", timeZone: "UTC"}) : "—")}</span><span class="t2">${escapeHtml(x.titre || "—")}</span><span class="a">${escapeHtml(t("acc_vols").replace("{n}", x.vols || 0))}</span></a>`).join("");
   const tout = ms.length > 10 ? `<button type="button" class="btn cmp-tout" data-cmp-tout>${escapeHtml(t("pil_tout").replace("{n}", ms.length))}</button>` : "";
   const missions = `<div class="framed">
     <div class="sec ink">${escapeHtml(t("cmp_missions_title"))}</div>
@@ -15228,7 +15234,28 @@ function rrConsommer(k){
       return;
     }
     if(e > 0) rrHParcours(-e, false);
-    rrRemplacer(et.mod ? Object.assign({}, et, {lien:true}) : et);
+    // Lot « Les petites corrections de l'Escadre » : l'entrée du lien, atteinte, ne se remplace plus sur place quand une
+    // entrée de l'App est au-dessous d'elle : on recule d'une entrée de plus (l'origine, sans dessiner) et on POUSSE l'état
+    // visé, ce qui coupe l'avance du navigateur (le vol quitté n'y revient plus, ‹ ramène à l'origine). Le drapeau `seul`
+    // de l'entrée du lien ne se lit qu'une fois le recul joué : le geste est donc un seul élément de la file, lu sur
+    // `history.state` au moment de jouer.
+    const vise = et.mod ? Object.assign({}, et, {lien:true}) : et;
+    RR.etat = vise;
+    rrHEnfiler(()=> new Promise(fin=>{
+      const cur = history.state;
+      if(!(cur && cur.rr === 1 && !cur.seul)){   // aucune entrée au-dessous (ou état illisible) : sur place, comme avant
+        try { history.replaceState(cur && cur.rr === 1 && cur.seul && vise.mod ? Object.assign({}, vise, {seul:true}) : vise, "", rrUrl(vise)); } catch(x){ /* idem */ }
+        fin();
+        return;
+      }
+      const a = {dessine:false, minuteur:null, fin: ()=>{
+        try { history.pushState(vise, "", rrUrl(vise)); } catch(x){ /* historique indisponible : on se tait */ }
+        fin();
+      }};
+      a.minuteur = setTimeout(()=>{ if(RRH.attente === a){ RRH.attente = null; a.fin(); } }, 800);
+      RRH.attente = a;
+      try { history.go(-1); } catch(x){ clearTimeout(a.minuteur); RRH.attente = null; fin(); }
+    }));
     return;
   }
   RR.etat = et;

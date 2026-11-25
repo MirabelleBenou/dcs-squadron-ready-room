@@ -19,6 +19,8 @@ import asyncio
 import logging
 import shutil
 import uuid
+import zipfile
+import zlib
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -458,6 +460,13 @@ async def upload_file(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except (AcmiParseError, DebrieferParseError) as exc:
         raise HTTPException(status_code=422, detail=f"Parsing impossible : {exc}") from exc
+    except (zipfile.BadZipFile, zlib.error, EOFError) as exc:
+        # Lot « corrections de l'Escadre » : un fichier qui n'est pas une
+        # archive lisible rend 422, jamais 500.
+        raise HTTPException(
+            status_code=422,
+            detail="Parsing impossible : le fichier n'est pas une archive ACMI de Tacview (zip attendu).",
+        ) from exc
 
     # Lot 2.1, addendum A2 : troisième point de sérialisation exposant un
     # titre (le moteur ne renvoie que du brut, cf. engine.ingest_file). La
@@ -2935,7 +2944,7 @@ async def _mission_neuve_pour(db: AsyncSession, upload: DebriefUpload) -> Debrie
                 lu = await asyncio.to_thread(parse_debrief_log, chemin)
                 titre = engine._display_mission_name(lu.header.mission_file_path)
                 ancre = engine._real_start_debrief(lu.header)
-        except (AcmiParseError, DebrieferParseError):
+        except (AcmiParseError, DebrieferParseError, zipfile.BadZipFile, zlib.error, EOFError):
             logger.warning("Débrief : en-tête illisible pour le fichier %s", upload.id)
     session = DebriefSession(
         title=titre or "Session sans titre",

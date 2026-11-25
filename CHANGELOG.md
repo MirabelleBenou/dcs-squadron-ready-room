@@ -14,6 +14,15 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**Wing dates in the wing's time zone**
+- The Wing home page, member files, the pilots' logbook and campaigns show their dates in the wing's time zone, whatever the time zone of your device.
+
+**Forward after a link from an event**
+- Fixed: after opening a debrief from an event sheet and changing tab, the browser's Forward button no longer brings back a screen you had left, and ‹ returns to the event sheet.
+
+**An ACMI file that cannot be read**
+- Fixed: uploading as ACMI a file that is not a Tacview archive is now refused with a clear message instead of a server error.
+
 **Discord messages after a restart**
 - Fixed: when the server restarted, an event's Discord message could keep its old answers until the next change; the Ready Room now follows Discord's sending limits.
 
