@@ -97,7 +97,9 @@ def _lire_table() -> dict[tuple[str, str], dict[str, str]]:
 def _routes_de_l_application() -> set[tuple[str, str]]:
     from app.main import app
 
-    return {(m, r.path) for r in app.routes if isinstance(r, APIRoute) for m in r.methods if m != "HEAD"}
+    # `HEAD` ne s'exclut que s'il accompagne `GET` dans la même route (implicite) : un `HEAD` seul a sa ligne.
+    return {(m, r.path) for r in app.routes if isinstance(r, APIRoute) for m in r.methods
+            if not (m == "HEAD" and "GET" in r.methods)}
 
 
 def test_chaque_route_a_sa_ligne():
@@ -142,6 +144,21 @@ def _cookie(role: str, secret: str) -> str | None:
     return TimestampSigner(secret).sign(donnees).decode()
 
 
+async def _exiger_base_vide(url: str) -> None:
+    """La base se vérifie vide AVANT la migration : une base qui porte déjà une table du schéma `public`
+    échoue le test sans rien migrer (une base sans aucune table est la seule acceptée)."""
+    import asyncpg
+
+    c = await asyncpg.connect(_dsn_asyncpg(url))
+    try:
+        n = await c.fetchval("SELECT count(*) FROM pg_tables WHERE schemaname='public'")
+    finally:
+        await c.close()
+    if n:
+        pytest.fail(f"RR_TEST_PG_URL : la base doit être vide, elle porte {n} table(s) du schéma public ; "
+                    "rien n'a été migré")
+
+
 async def _semer(url: str) -> dict[str, str]:
     """Le minimum dont chaque case a besoin pour atteindre sa garde, sur une base migrée et vide :
     dix rôles (profils, rôles Discord, capacités, l'adjoint d'une escadrille, une invitation active,
@@ -150,8 +167,6 @@ async def _semer(url: str) -> dict[str, str]:
 
     c = await asyncpg.connect(_dsn_asyncpg(url))
     try:
-        if await c.fetchval("SELECT count(*) FROM profiles"):
-            pytest.fail("RR_TEST_PG_URL : la base doit être neuve (migrée, sans profil)")
         # Les profils : l'administrateur, l'adjoint, un profil neutre (créateur de l'évènement, cible
         # des chemins `{profile_id}`), puis un par rôle. Un profil ne porte que le rôle Pilote et ses rôles.
         profils = [(ADM, "carte-adm", [PILOTE]), (HUNTER, "carte-adj", [PILOTE]), (AUTRE, "carte-autre", [PILOTE])]
@@ -247,19 +262,23 @@ def test_droits_sur_postgresql(monkeypatch, tmp_path):
     table = _lire_table()
     entrees = json.loads(ENTREES.read_text(encoding="utf-8"))
 
-    # 1. La base : migrée à la tête, puis semée. `alembic` lit `DATABASE_URL` : un sous-processus.
-    env = {**os.environ, "DATABASE_URL": url, "PYTHONDONTWRITEBYTECODE": "1"}
-    migration = subprocess.run([sys.executable, "-B", "-m", "alembic", "upgrade", "head"], cwd=RACINE, env=env,
-                               capture_output=True, text=True, timeout=110)
-    assert migration.returncode == 0, "alembic upgrade head : " + migration.stderr[-1500:]
     boucle = asyncio.new_event_loop()
+    moteur = None
+    ancien_lien = appdb.AsyncSessionLocal.kw["bind"]
     try:
+        # 1. La base : vide d'abord (rien n'est migré sinon), migrée à la tête, puis semée. `alembic` lit
+        # `DATABASE_URL` : un sous-processus.
+        boucle.run_until_complete(_exiger_base_vide(url))
+        env = {**os.environ, "DATABASE_URL": url, "PYTHONDONTWRITEBYTECODE": "1"}
+        migration = subprocess.run([sys.executable, "-B", "-m", "alembic", "upgrade", "head"], cwd=RACINE, env=env,
+                                   capture_output=True, text=True, timeout=110)
+        assert migration.returncode == 0, "alembic upgrade head : " + migration.stderr[-1500:]
         ids = boucle.run_until_complete(_semer(url))
 
         # 2. L'application sur cette base : une connexion par requête (le `TestClient` ouvre une boucle par
         # requête), l'administrateur de la carte, aucun dossier hors du dossier temporaire, aucun réseau.
+        # Tout ce qui suit se défait dans le `finally` extérieur, même si le volet échoue en route.
         moteur = create_async_engine(url, poolclass=NullPool)
-        ancien_lien = appdb.AsyncSessionLocal.kw["bind"]
         monkeypatch.setattr(appdb, "engine", moteur)
         appdb.AsyncSessionLocal.configure(bind=moteur)
         monkeypatch.setattr(settings, "ADMIN_IDS", str(ADM))
@@ -333,10 +352,11 @@ def test_droits_sur_postgresql(monkeypatch, tmp_path):
                             ecarts.append(f"{methode} {chemin} {role} : L (ni 401 ni 403) → {recu}")
         finally:
             boucle.run_until_complete(compteur.close())
+    finally:
+        if moteur is not None:
             boucle.run_until_complete(moteur.dispose())
             appdb.AsyncSessionLocal.configure(bind=ancien_lien)
-            auth.invalidate_app_access_cache()
-    finally:
+        auth.invalidate_app_access_cache()
         boucle.close()
 
     # Visible avec `pytest -s` : le compte des cases jouées, par valeur de la table.

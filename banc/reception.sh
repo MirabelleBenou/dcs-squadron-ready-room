@@ -36,7 +36,9 @@
 #       readyroom_droits (supprimée puis recréée, propriétaire readyroom, supprimée de nouveau à la fin), la copie de la livraison
 #       (« $D/essai », refaite depuis « $D/mesure » : « statique » a supprimé la sienne), les variables de .env.example,
 #       RR_TEST_PG_URL, puis « pytest tests/test_droits_routes.py » ; la dernière ligne doit commencer par le contenu de
-#       droits.txt suivi d'une espace ou d'une virgule, sinon l'écart « droits ». Sans droits.txt dans les attendus, elle se saute.
+#       droits.txt suivi d'une espace ou d'une virgule, sinon l'écart « droits », qui montre les lignes « E » de pytest (60 au plus,
+#       --tb=short, sans journaux capturés) puis sa ligne de résumé ; toute la sortie reste dans « $ST/droits_sortie.txt ».
+#       Sans droits.txt dans les attendus, elle se saute.
 # rendu_cc.txt ou immobiles_cc.txt présent : les phases centre-base et centre se jouent ; sinon elles se sautent.
 # de_immobile présent : les phases de-base et de se jouent ; sinon elles se sautent.
 # rendus_cc/base et rendus/base se rendent UNE fois et se gardent : les supprimer quand la base change.
@@ -154,10 +156,11 @@ droits)
   rm -rf "$D/essai" && cp -r "$D/mesure" "$D/essai"
   (cd "$D/essai" && set -a && . ./.env.example && set +a \
     && RR_TEST_PG_URL=postgresql+asyncpg://readyroom:readyroom@127.0.0.1:5432/readyroom_droits \
-       "$PY" -m pytest -q -p no:cacheprovider tests/test_droits_routes.py 2>&1 | tail -25) >"$ST/droits.txt"
+       "$PY" -m pytest -q -p no:cacheprovider -p no:logging --tb=short tests/test_droits_routes.py 2>&1) >"$ST/droits_sortie.txt"
+  { grep '^E ' "$ST/droits_sortie.txt" | head -60; tail -1 "$ST/droits_sortie.txt"; } >"$ST/droits.txt"
   rm -rf "$D/essai"; su postgres -c "dropdb --if-exists readyroom_droits" >/dev/null 2>&1
-  tail -1 "$ST/droits.txt" | grep -Eq "^$(tr -d '\r\n' <"$AT/droits.txt")[ ,]" \
-    || { ecart "droits : attendu « $(cat "$AT/droits.txt") »"; montre "$ST/droits.txt"; }
+  tail -1 "$ST/droits_sortie.txt" | grep -Eq "^$(tr -d '\r\n' <"$AT/droits.txt")[ ,]" \
+    || { ecart "droits : attendu « $(cat "$AT/droits.txt") »"; sed 's/^/    /' "$ST/droits.txt" | emit; }
   fin ;;
 verdict)
   besoin statique; Q=1

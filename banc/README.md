@@ -130,7 +130,9 @@ chaque MP s'ajoute à `<journal>.mp.jsonl` : `{n, destinataire, statut, corps}` 
   réelle (`pg_up.sh`), une base **neuve** `readyroom_droits` (supprimée puis recréée, supprimée de nouveau à la fin), la copie de la livraison (`$D/essai`, refaite depuis `$D/mesure` : `statique` a supprimé la
   sienne), les variables de `.env.example`, `RR_TEST_PG_URL=postgresql+asyncpg://readyroom:readyroom@127.0.0.1:5432/readyroom_droits`, puis
   `pytest -q tests/test_droits_routes.py`. La dernière ligne doit commencer par le contenu de `droits.txt` suivi d'une espace ou d'une virgule, sinon l'écart « droits » (la sortie est gardée pour `verdict`).
-  `verdict` exige la phase `droits` quand `droits.txt` est présent, comme il exige `centre` et `de`. Mesurée : une trentaine de secondes.
+  `verdict` exige la phase `droits` quand `droits.txt` est présent, comme il exige `centre` et `de`. Mesurée : une trentaine de secondes. En cas d'écart, la sortie complète de `pytest`
+  (`--tb=short`, sans journaux capturés) reste dans `/tmp/reception_etat/droits_sortie.txt` et l'écart montre ses lignes `E` (60 au plus), c'est-à-dire la liste `méthode chemin rôle : attendu → reçu`, puis la ligne de résumé.
+  **Un `rendus_cc/base` rendu avec un banc antérieur au v8 se supprime** : le semis v8 change l'écran Droits du Centre, que lit `rendu_cc.py`.
 
 ## Déposer un vrai journal — la recette
 
@@ -344,8 +346,7 @@ Avec un zip de maquette et sans `empreinte.txt`, `reception.sh` se comporte comm
 - **Le simulacre du contrat ne va jamais dans le banc** : c'est un outil d'épreuve du CdP (`contre_epreuve/`), pas de valeur de modèle ; `servir_cc.sh` le joue par `LANCEUR=`.
 - **PostgreSQL reste sous l'horloge du scénario** après un rendu du Centre : `pg_up.sh` le trouve « en ligne » et ne le relance pas. Avant tout rendu de D et E, le relancer à l'heure
   réelle (`reception.sh`, phases `de-base` et `de`, le fait ; sinon : arrêter le cluster puis `pg_up.sh`).
-- **`pyflakes` signale une ligne dans le banc, héritée du v3** : `semis.py:8:1: 'sqlalchemy.text' imported but unused`. `semis.py` est volontairement inchangé (reproductibilité de la recette de D et E) :
-  la règle du banc est « rien sur les `.py` neufs ou modifiés ».
+- **`pyflakes` ne signale rien dans le banc, `semis.py` compris** : l'import inutile `sqlalchemy.text`, hérité du v3, est retiré au v8 (le fichier change : la règle du banc est « rien sur les `.py` neufs ou modifiés »).
 - **Un passage du scénario dure plus de 3 minutes, la limite d'une commande est de 300 s** : un passage par commande ; deux rendus dans une seule dépassent la limite.
 - **`compare_px.py` du v3 émet un avertissement de dépréciation de Pillow** : lancer en `python3.12 -B -W ignore` quand la sortie sert à autre chose qu'au regard.
 - **Le semis du Débrief veut `stats_engine_rev` à jour** : une session semée sans l'`ENGINE_REVISION` de l'appli servie perd ses vols au premier démarrage d'uvicorn (le recalcul les efface).
