@@ -19,6 +19,7 @@ import subprocess
 import sys
 import warnings
 from pathlib import Path
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -360,7 +361,7 @@ def test_compression_et_cache():
         assert defense.a_compresser(accepte) is True, accepte
     client = TestClient(app, follow_redirects=False)
     gzip = {"accept-encoding": "gzip"}
-    version = api._APP_VERSION
+    version = quote(api._APP_VERSION, safe="")
     r = client.get(f"/static/app.js?v={version}", headers=gzip)
     assert r.headers["content-encoding"] == "gzip"
     assert r.headers["cache-control"] == "public, max-age=31536000, immutable"

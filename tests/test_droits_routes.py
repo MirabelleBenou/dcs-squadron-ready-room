@@ -23,7 +23,12 @@ Deux fonctions de test :
   `droits`.
 
 Le volet PostgreSQL sème lui-même le minimum dont chaque case a besoin. Les rôles,
-leurs identifiants et le cookie signé sont ceux de l'instrument du pré-cadrage."""
+leurs identifiants et le cookie signé sont ceux de l'instrument du pré-cadrage.
+
+Aucun réseau : les routes qui appellent Discord (`discord-roles`, `invites/verifier`…)
+passent leur porte, puis leur appel part vers `discord.com` même sans jeton de bot
+(`_bot_request`). Le volet ferme donc `httpx.AsyncClient.send` : l'appel échoue comme sans
+réseau, l'application attrape `httpx.HTTPError`, et rien ne sort de la machine."""
 from __future__ import annotations
 
 import asyncio

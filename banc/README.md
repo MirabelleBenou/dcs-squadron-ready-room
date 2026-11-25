@@ -116,7 +116,7 @@ chaque MP s'ajoute à `<journal>.mp.jsonl` : `{n, destinataire, statut, corps}` 
 
 - **`semis.py` · l'accès non administrateur** (`rr-banc-acces-non-admin`). Il pose la capacité `app.access` au rôle Pilote (`111111111111111111`) dans `role_capabilities`,
   sans doublon (`ON CONFLICT DO NOTHING`). Depuis le `v1.0111`, la base fait autorité seule sur l'accès à l'application : sans cette ligne, seul l'administrateur entrait au banc
-  (`role_capabilities` vide après `prepare_base.sh`). **Cela remplace la phrase du semis du Débrief plus haut** (« le semis n'écrit aucune ligne `app.access` ») : après `prepare_debrief.sh`,
+  (`role_capabilities` vide après `prepare_base.sh`). Après `prepare_debrief.sh`,
   le rôle Pilote porte `app.access` **et** `debrief.access` (`semis_debrief.py` garde le sien tel quel : au banc, un membre et un débriefeur se confondent). Les instruments qui posaient
   `app.access` eux-mêmes n'en ont plus besoin. L'import inutile de `text`, que `pyflakes` signalait depuis le v3, est retiré : le fichier est modifié, la règle du banc s'applique.
 - **`sonde_effectif_relances.sh` · `_app_access_role_ids`** (`rr-sonde-adresse-g`, résolu par le point précédent). Depuis le `v1.0111`, `_app_access_role_ids` rend **un ensemble** :
@@ -202,8 +202,9 @@ en cible. Chaque vol reçoit donc des évènements tirés de ses `stats`, jamais
 
 **Les deux pièges du Débrief, réglés par le semis.** Chaque session porte `stats_engine_rev` = l'`ENGINE_REVISION` de l'appli servie (sans cela, le
 recalcul au démarrage d'uvicorn efface ses vols) ; le rôle Pilote (`111111111111111111`) reçoit `debrief.access` dans `role_capabilities` (sans cela,
-un non-admin reçoit un 403 sur tout le Débrief). **Le semis n'écrit aucune ligne `app.access`** : la porte de l'application se replie sur
-`ALLOWED_ROLE_IDS` du `test.env`, où figure Pilote, tant que la base n'en porte aucune — une seule ligne ferait de la base l'autorité.
+un non-admin reçoit un 403 sur tout le Débrief). **Le semis du Débrief n'écrit aucune ligne `app.access`** : depuis le v8, c'est `semis.py` (lancé avant lui par
+`prepare_base.sh`) qui la pose au rôle Pilote ; la base fait autorité seule sur l'accès à l'application depuis le `v1.0111` (plus de repli sur `ALLOWED_ROLE_IDS`),
+et sans cette ligne seul l'administrateur entrerait. Après `prepare_debrief.sh`, le rôle Pilote porte donc `app.access` et `debrief.access`.
 
 ## Rendre A — la recette (le dossier du pilote)
 
