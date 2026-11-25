@@ -115,7 +115,7 @@ async def partie_a(db):
     else:
         print(f"  Profils connus non archivés : {len(connus)} -- tous dans la liste ✓")
 
-    porte, _depuis_env = await _app_access_role_ids(db)
+    porte = await _app_access_role_ids(db)
     escadrilles = (await db.execute(select(Squadron.id, Squadron.designation).order_by(Squadron.id))).all()
     arrivants, ecartes = defaultdict(list), 0
     for m in humains:

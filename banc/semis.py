@@ -5,10 +5,9 @@ from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, ".")
-from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from app.db import AsyncSessionLocal
-from app.models import Event, OccurrenceOverride, Presence, Profile, Squadron, SquadronMembership
+from app.models import Event, OccurrenceOverride, Presence, Profile, RoleCapability, Squadron, SquadronMembership
 
 PARIS = ZoneInfo("Europe/Paris")
 R_CHARLIE, R_BRAVO, R_ALPHA = "700000000000000101", "700000000000000103", "700000000000000102"
@@ -90,6 +89,10 @@ async def main():
         rep(200000000000000010, E2, date(2026, 9, 20), "absent", t(date(2026, 9, 18), 10))
         rep(chef, E3, date(2026, 9, 18), "present", t(date(2026, 9, 17), 10))
         await db.execute(pg_insert(Presence).values(lignes))
+        # Banc v8 (lot « Le banc et les droits ») : depuis le `v1.0111` la base fait autorité seule sur l'accès à
+        # l'application (`app.access`) ; sans cette ligne, seul l'administrateur entre au banc.
+        await db.execute(pg_insert(RoleCapability).values(role_id=PILOTE, capability="app.access")
+                         .on_conflict_do_nothing())
         await db.commit()
         print("semis :", len(P) + 1, "profils ·", len(lignes), "réponses")
 

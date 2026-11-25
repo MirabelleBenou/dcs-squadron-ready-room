@@ -7,6 +7,7 @@
 #   centre        rend le Centre de la livraison (mesure)
 #   de-base       rend D et E de la base, si rendus/base manque
 #   de            rend D et E de la livraison
+#   droits        joue la carte des droits (tests/test_droits_routes.py) sur une base PostgreSQL neuve
 #   verdict       réimprime les écarts, fait les comparaisons, rend le verdict
 # Une phase n'affiche que ses écarts, puis UNE ligne « PHASE <nom> · aucun écart · <n> s » (ou « <k> écart(s) »).
 # Elle garde ses écarts pour « verdict », qui les réimprime puis rend « RÉCEPTION · … · aucun écart » (ou
@@ -20,6 +21,7 @@
 #   rendu_cc.txt     (facultatif) les lignes « === Scénario… » à « === Erreurs JS » de rendu_cc.py
 #   immobiles_cc.txt (facultatif) un motif par ligne : les rendus du Centre identiques à la base
 #   de_immobile      (facultatif, vide) : présent, D et E se comparent à la base, tout entiers
+#   droits.txt       (facultatif) le compte attendu du test des droits, ex. « 2 passed » : présent, la phase « droits » se joue
 #   empreinte.txt    (facultatif) l'empreinte du code de la livraison (app, alembic, tests), calculée par la commande de
 #                    l'étape 6 du prompt du dev ; présent, « statique » la compare et compte un écart si elle diffère (porte P13)
 # v5 -- la maquette est FACULTATIVE : « - » prend sa place ; « verdict » ne la cherche pas et ne compte aucun écart pour elle.
@@ -30,6 +32,11 @@
 # v6 -- Python : la variable PY (par défaut python3.12), jamais python3.
 # v7 — phase « statique » : pip-audit (2.10.1) sur le requirements.txt de la livraison, juste après le compte pytest ;
 #       une vulnérabilité (ou un service injoignable : code non nul) est l'écart « pip-audit ». Sortie dans « $ST/audit.txt ».
+# v8 — phase « droits », après « statique » et avant « verdict » : PostgreSQL 16 (à l'heure réelle, pg_up.sh), une base NEUVE
+#       readyroom_droits (supprimée puis recréée, propriétaire readyroom, supprimée de nouveau à la fin), la copie de la livraison
+#       (« $D/essai », refaite depuis « $D/mesure » : « statique » a supprimé la sienne), les variables de .env.example,
+#       RR_TEST_PG_URL, puis « pytest tests/test_droits_routes.py » ; la dernière ligne doit commencer par le contenu de
+#       droits.txt suivi d'une espace ou d'une virgule, sinon l'écart « droits ». Sans droits.txt dans les attendus, elle se saute.
 # rendu_cc.txt ou immobiles_cc.txt présent : les phases centre-base et centre se jouent ; sinon elles se sautent.
 # de_immobile présent : les phases de-base et de se jouent ; sinon elles se sautent.
 # rendus_cc/base et rendus/base se rendent UNE fois et se gardent : les supprimer quand la base change.
@@ -39,7 +46,7 @@ LIB=/usr/lib/x86_64-linux-gnu/faketime/libfaketimeMT.so.1
 arret() { echo "ARRÊT · $1"; exit 2; }
 [ $# -eq 4 ] || arret "usage : sh reception.sh <phase> <livraison.zip> <maquette_validee.zip|-> <attendu/>"
 PH="$1"
-case "$PH" in statique|centre-base|centre|de-base|de|verdict) ;; *) arret "phase inconnue « $PH »" ;; esac
+case "$PH" in statique|centre-base|centre|de-base|de|droits|verdict) ;; *) arret "phase inconnue « $PH »" ;; esac
 [ -f "$2" ] || arret "livraison absente : $2"
 [ "$3" = "-" ] || [ -f "$3" ] || arret "maquette validée absente : $3 (« - » : aucune maquette)"
 [ -d "$4" ] || arret "dossier d'attendus absent : $4"
@@ -61,6 +68,7 @@ mkdir -p "$ST"; touch "$ST/ecarts.txt"
 T0=$(date +%s); N=0
 BESOIN_CC=0; { [ -f "$AT/rendu_cc.txt" ] || [ -f "$AT/immobiles_cc.txt" ]; } && BESOIN_CC=1
 BESOIN_DE=0; [ -f "$AT/de_immobile" ] && BESOIN_DE=1
+BESOIN_DROITS=0; [ -f "$AT/droits.txt" ] && BESOIN_DROITS=1
 
 Q=0
 emit() { if [ "$Q" = 1 ]; then cat >>"$ST/ecarts.txt"; else tee -a "$ST/ecarts.txt"; fi; }
@@ -136,8 +144,24 @@ de)
   exige_rendu
   pg_reel; rendre_de mesure
   fin ;;
+droits)
+  besoin statique; [ "$BESOIN_DROITS" = 1 ] || saute
+  exige_rendu; pg_reel
+  su postgres -c "psql -qtc \"SELECT 1 FROM pg_roles WHERE rolname='readyroom'\"" | grep -q 1 \
+    || su postgres -c "psql -qc \"CREATE ROLE readyroom LOGIN PASSWORD 'readyroom' SUPERUSER\"" >/dev/null
+  su postgres -c "dropdb --if-exists readyroom_droits" >/dev/null 2>&1
+  su postgres -c "createdb -O readyroom readyroom_droits" || arret "base readyroom_droits impossible à créer"
+  rm -rf "$D/essai" && cp -r "$D/mesure" "$D/essai"
+  (cd "$D/essai" && set -a && . ./.env.example && set +a \
+    && RR_TEST_PG_URL=postgresql+asyncpg://readyroom:readyroom@127.0.0.1:5432/readyroom_droits \
+       "$PY" -m pytest -q -p no:cacheprovider tests/test_droits_routes.py 2>&1 | tail -25) >"$ST/droits.txt"
+  rm -rf "$D/essai"; su postgres -c "dropdb --if-exists readyroom_droits" >/dev/null 2>&1
+  tail -1 "$ST/droits.txt" | grep -Eq "^$(tr -d '\r\n' <"$AT/droits.txt")[ ,]" \
+    || { ecart "droits : attendu « $(cat "$AT/droits.txt") »"; montre "$ST/droits.txt"; }
+  fin ;;
 verdict)
   besoin statique; Q=1
+  if [ "$BESOIN_DROITS" = 1 ]; then besoin droits; fi
   if [ "$BESOIN_CC" = 1 ]; then
     besoin centre; [ -f "$D/rendus_cc/base/mesures.json" ] || arret "le Centre de la base n'est pas rendu (phase centre-base)"
   fi

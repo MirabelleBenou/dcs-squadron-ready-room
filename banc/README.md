@@ -1,4 +1,4 @@
-# Banc d'essai — Ready Room · v6 · 15 octobre 2026
+# Banc d'essai — Ready Room · v8 · 25 novembre 2026
 
 Outils du dev et du CdP. **Lecture seule pour la production ; rien de ce banc n'entre dans une archive.**
 *v1 : éprouvé au lot « L'effectif complet » (`v1.0016`). v2 : le rendu des écrans D et E, au pixel. v3 : tout
@@ -15,6 +15,8 @@ Le v4 est resté intact : les 24 fichiers autres que ce `README` et `reception.s
 mesurée ; **libfaketime seulement pour les phases du Centre** ; **le pied de version masqué** dans les trois instruments de rendu ;
 **Hunter, adjoint non administrateur**, consigné au semis ; **des sessions semées avec une durée** ; **un vrai `debrief.log` à déposer** par l'API.
 Voir « Ce qui a changé au v6 » plus bas. Le v5 est resté intact hors de ce `README`, des 13 fichiers modifiés et des 2 fichiers ajoutés qui y sont listés.*
+*v8 (lot « Le banc et les droits », `RR-V1.0.0+1`) : **la phase `droits` de la réception**, **le semis qui pose `app.access` au rôle Pilote**, **la sonde des relances qui lit un ensemble**
+et **la mesure commune qui lit le `CHANGELOG` au format `RR-V`**. Voir « Ce qui a changé au v8 » plus bas.*
 
 ## Disposition attendue (chemins écrits en dur)
 
@@ -107,6 +109,28 @@ chaque MP s'ajoute à `<journal>.mp.jsonl` : `{n, destinataire, statut, corps}` 
   `v1.0041`). La fixture ne change pas.
 - **B7 · Un vrai `debrief.log` à déposer.** `deposer_journal.py` et `debrief_francfort_reduit.log` : voir ci-dessous.
 - **B8 · Ce `README`.**
+
+## Ce qui a changé au v8
+
+*Lot « Le banc et les droits » (`RR-V1.0.0+1`) — 4 fichiers modifiés (`semis.py`, `sonde_effectif_relances.sh`, `mesure_commune.py`, `reception.sh`), plus ce `README`.*
+
+- **`semis.py` · l'accès non administrateur** (`rr-banc-acces-non-admin`). Il pose la capacité `app.access` au rôle Pilote (`111111111111111111`) dans `role_capabilities`,
+  sans doublon (`ON CONFLICT DO NOTHING`). Depuis le `v1.0111`, la base fait autorité seule sur l'accès à l'application : sans cette ligne, seul l'administrateur entrait au banc
+  (`role_capabilities` vide après `prepare_base.sh`). **Cela remplace la phrase du semis du Débrief plus haut** (« le semis n'écrit aucune ligne `app.access` ») : après `prepare_debrief.sh`,
+  le rôle Pilote porte `app.access` **et** `debrief.access` (`semis_debrief.py` garde le sien tel quel : au banc, un membre et un débriefeur se confondent). Les instruments qui posaient
+  `app.access` eux-mêmes n'en ont plus besoin. L'import inutile de `text`, que `pyflakes` signalait depuis le v3, est retiré : le fichier est modifié, la règle du banc s'applique.
+- **`sonde_effectif_relances.sh` · `_app_access_role_ids`** (`rr-sonde-adresse-g`, résolu par le point précédent). Depuis le `v1.0111`, `_app_access_role_ids` rend **un ensemble** :
+  `porte = await _app_access_role_ids(db)`. Aucune autre ligne ne lisait `_depuis_env`.
+- **`mesure_commune.py` · le `CHANGELOG`** (porte P11, `rr-banc-p11-unreleased`). La ligne `changelog :` de chaque racine devient
+  `changelog : <n> versions publiées (dernière <TAG>|—) · doublons <liste|aucun> · <u> lignes sous « ## Unreleased »` (les versions publiées sont les en-têtes `## RR-V<x.y.z>` suivis d'un
+  blanc ou de la fin de ligne, la dernière est la première du fichier ; `u` compte les lignes non vides de la section `## Unreleased`, `—` sans elle). Juste après `== écart base → mesure`,
+  une ligne neuve : `changelog : +<a> lignes ajoutées, <h> hors de « ## Unreleased » · −<r> lignes retirées · <e> en-têtes neufs`, tirée du diff ligne à ligne des deux `CHANGELOG.md`
+  (`difflib.SequenceMatcher`, `autojunk=False`). Les formes sont fixes, même au singulier. Le reste de la sortie ne change pas.
+- **`reception.sh` · la phase `droits`**, après `statique`, avant `verdict`. Elle se joue si `droits.txt` est dans les attendus (le compte du test, `2 passed`), sinon elle se saute : PostgreSQL 16 à l'heure
+  réelle (`pg_up.sh`), une base **neuve** `readyroom_droits` (supprimée puis recréée, supprimée de nouveau à la fin), la copie de la livraison (`$D/essai`, refaite depuis `$D/mesure` : `statique` a supprimé la
+  sienne), les variables de `.env.example`, `RR_TEST_PG_URL=postgresql+asyncpg://readyroom:readyroom@127.0.0.1:5432/readyroom_droits`, puis
+  `pytest -q tests/test_droits_routes.py`. La dernière ligne doit commencer par le contenu de `droits.txt` suivi d'une espace ou d'une virgule, sinon l'écart « droits » (la sortie est gardée pour `verdict`).
+  `verdict` exige la phase `droits` quand `droits.txt` est présent, comme il exige `centre` et `de`. Mesurée : une trentaine de secondes.
 
 ## Déposer un vrai journal — la recette
 
@@ -287,6 +311,7 @@ $R centre-base $A   # rend le Centre de la base si rendus_cc/base manque (sinon 
 $R centre $A        # rend le Centre de la livraison
 $R de-base $A       # rend D et E de la base si rendus/base manque (PostgreSQL relancé à l'heure réelle)
 $R de $A            # rend D et E de la livraison
+$R droits $A        # v8 : joue la carte des droits sur une base PostgreSQL neuve, si droits.txt est dans les attendus
 $R verdict $A       # réimprime les écarts, compare, rend le verdict ; code 0 sans écart, 1 avec
 ```
 
@@ -304,7 +329,7 @@ Avec un zip de maquette et sans `empreinte.txt`, `reception.sh` se comporte comm
   entrée absente, phase jouée avant celle dont elle dépend).
 - `<attendu/>` : `rituel.txt`, `commune.txt`, `pytest.txt` ; facultatif `empreinte.txt` — l'empreinte du code de `mesure` (`app`, `alembic`, `tests`), la commande de
   l'étape 6 du prompt du dev : `statique` la compare et compte un écart si elle diffère (la porte P13) ; facultatifs `rendu_cc.txt` (lignes « === Scénario » à « === Erreurs JS »), `immobiles_cc.txt` (un motif par ligne)
-  — leur présence joue `centre-base` et `centre` — et `de_immobile` (fichier vide) — il joue `de-base` et `de`. L'en-tête de `reception.sh` les décrit.
+  — leur présence joue `centre-base` et `centre` — et `de_immobile` (fichier vide) — il joue `de-base` et `de` ; v8 : `droits.txt` (le compte attendu du test des droits, ex. `2 passed`) — il joue `droits`. L'en-tête de `reception.sh` les décrit.
 - **`rendus_cc/base` et `rendus/base` se gardent** : à supprimer quand la base change. Les chemins reçus peuvent être relatifs.
 
 ## Pièges mesurés
