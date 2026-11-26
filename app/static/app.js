@@ -2865,18 +2865,19 @@ function avatarHtml(id, hash, name){
   return escapeHtml(init);
 }
 
+// Lot « Les heures du Centre de Commandement à l'heure de l'escadre » : l'heure d'un instant dans le fuseau de l'escadre,
+// quel que soit le fuseau de l'appareil.
 function fmtLocalTime(isoUtc){
-  return new Date(isoUtc).toLocaleTimeString(currentLang==="fr"?"fr-FR":"en-GB", {hour:"2-digit", minute:"2-digit"});
+  return new Date(isoUtc).toLocaleTimeString(currentLang==="fr"?"fr-FR":"en-GB", {hour:"2-digit", minute:"2-digit", timeZone: fuseauEscadre()});
 }
-// Lot 3.2c §6.5 : miroir exact de fmtLocalTime, servira toutes les
-// colonnes de date à venir du module Commandement.
+// Lot 3.2c §6.5 : miroir exact de fmtLocalTime, sert toutes les colonnes de date du module Commandement ; depuis le lot
+// « Les heures du Centre de Commandement à l'heure de l'escadre », le jour se lit dans le fuseau de l'escadre.
 function fmtLocalDate(isoUtc){
-  return new Date(isoUtc).toLocaleDateString(currentLang==="fr"?"fr-FR":"en-GB", {day:"2-digit", month:"short", year:"numeric"});
-}
-// Lot « Les petites corrections de l'Escadre » : `fmtLocalDate` dans le fuseau de l'escadre (un instant se date au jour de l'escadre,
-// quel que soit le fuseau de l'appareil) ; `fmtLocalDate` reste celui du navigateur, pour le Centre.
-function fmtEscadreDate(isoUtc){
   return new Date(isoUtc).toLocaleDateString(currentLang==="fr"?"fr-FR":"en-GB", {day:"2-digit", month:"short", year:"numeric", timeZone: fuseauEscadre()});
+}
+// Lot « Les petites corrections de l'Escadre » : le jour de l'escadre d'un instant ; une seule implémentation, celle de `fmtLocalDate`.
+function fmtEscadreDate(isoUtc){
+  return fmtLocalDate(isoUtc);
 }
 // Lot « rr-fuseau-reglage » (v1.0120) : le fuseau réglé de l'escadre (`GET /api/me`, clé `fuseau`) ; Europe/Paris sans lui.
 // Le navigateur doit accepter le nom (`Intl.DateTimeFormat` lève `RangeError` sinon) : sinon Europe/Paris. L'essai ne se refait
@@ -2937,17 +2938,27 @@ function dateDuJour(jour){
   const [y,m,d] = jour.split("-").map(Number);
   return new Date(y, m-1, d);
 }
-// L'heure locale en détail : `""` quand l'heure et le jour sont les mêmes chez l'escadre et chez soi, sinon
-// `<span class="chez-vous">…</span>` (avec le jour local `JJ/MM` quand il diffère de celui de l'escadre).
-function chezVous(ms){
+// Lot « Les heures du Centre de Commandement à l'heure de l'escadre » : le texte de l'heure locale, sans balise : `""` quand
+// l'heure, la minute et le jour sont les mêmes chez l'escadre et chez soi, sinon « soit HH:MM chez vous » (avec le jour
+// local `JJ/MM` quand il diffère de celui de l'escadre).
+function chezVousTexte(ms){
   const z = partiesDansFuseau(ms, fuseauEscadre()), l = partiesDansFuseau(ms, null);
   const jourZ = `${z.year}-${z.month}-${z.day}`, jourL = `${l.year}-${l.month}-${l.day}`;
   if(z.hour === l.hour && z.minute === l.minute && jourZ === jourL) return "";
   const h = `${l.hour}:${l.minute}`;
-  const texte = jourZ === jourL
+  return jourZ === jourL
     ? t("fuseau_chez_vous").replace("{h}", h)
     : t("fuseau_chez_vous_jour").replace("{h}", h).replace("{d}", `${l.day}/${l.month}`);
-  return `<span class="chez-vous">${escapeHtml(texte)}</span>`;
+}
+// L'heure locale en détail : `""` quand elle est la même chez l'escadre et chez soi, sinon `<span class="chez-vous">…</span>`.
+function chezVous(ms){
+  const texte = chezVousTexte(ms);
+  return texte ? `<span class="chez-vous">${escapeHtml(texte)}</span>` : "";
+}
+// L'attribut `title` (précédé d'une espace) qui porte l'heure locale d'un instant ISO, au Centre ; `""` sans texte : aucun attribut.
+function chezVousTitre(isoUtc){
+  const texte = isoUtc ? chezVousTexte(Date.parse(isoUtc)) : "";
+  return texte ? ` title="${escapeAttr(texte)}"` : "";
 }
 // La ligne sous la date et l'heure du formulaire : posée à l'ouverture et à chaque saisie de `#f-date` ou `#f-time`
 // (`#f-time` vide vaut 21:00, comme à l'enregistrement ; `#f-date` vide ou incomplète : rien).
@@ -3065,7 +3076,7 @@ function renderGuestStrip(){
     el.classList.toggle("hidden", !inv);
     if(inv){
       const date = new Date(inv.jusqua).toLocaleDateString(
-        currentLang==="fr" ? "fr-FR" : "en-US", {day:"numeric", month:"long", year:"numeric"});
+        currentLang==="fr" ? "fr-FR" : "en-US", {day:"numeric", month:"long", year:"numeric", timeZone: fuseauEscadre()});
       el.textContent = t("invite_bandeau").split("{date}").join(date);
     }
   });
@@ -11167,7 +11178,7 @@ function renderCommandAppel(){
   const quand = a ? `${escapeHtml(t("cc_appel_last"))} · ${escapeHtml(fmtLocalDate(a.at))} · ${escapeHtml(fmtParisTime(a.at))}` : "";
   const bouton = `<button type="button" class="btn btn-sm cc-act" id="cc-appel-btn"${commandAppelRunning ? " disabled" : ""}>${escapeHtml(t(commandAppelRunning ? "cc_appel_running" : "cc_appel_btn"))}</button>`;
   const bilan = a ? `<span class="cc-appel-bilan">${escapeHtml(appelBilan(a))}</span>` : "";
-  zone.innerHTML = `<div class="cc-note cc-appel${a && a.erreur ? " deny" : ""}"><span class="cc-appel-quand">${quand}</span>${bouton}${bilan}</div>`;
+  zone.innerHTML = `<div class="cc-note cc-appel${a && a.erreur ? " deny" : ""}"><span class="cc-appel-quand"${a ? chezVousTitre(a.at) : ""}>${quand}</span>${bouton}${bilan}</div>`;
 }
 
 // Lot « Les relances » (R8) : la liste des pilotes en retard de planning
@@ -11422,7 +11433,7 @@ function commandLienHtml(){
   let suite = "";
   if(l && l.etat === "ready"){
     suite = `<div class="cc-row"><input class="cc-set" type="text" readonly size="48" data-act="lien-url" value="${escapeAttr(l.url)}" aria-label="${escapeAttr(t("cc_lien_title"))}"><button type="button" class="btn btn-sm cc-act" data-act="lien-copy">${escapeHtml(t("cc_lien_copy"))}</button></div>
-      <p class="cc-hint">${escFill(escapeHtml(t("cc_lien_until")), {date: escapeHtml(l.date), heure: escapeHtml(l.heure)})}</p>`;
+      <p class="cc-hint"${l.titre || ""}>${escFill(escapeHtml(t("cc_lien_until")), {date: escapeHtml(l.date), heure: escapeHtml(l.heure)})}</p>`;
   } else if(l && l.etat === "refus"){
     suite = `<div class="cc-note deny">${escapeHtml(t("cc_lien_refus"))}</div>`;
   } else if(l && l.etat === "error"){
@@ -11502,7 +11513,7 @@ async function emettreLienSecours(){
   let res;
   try {
     const d = await apiFetch(`/api/command/members/${encodeURIComponent(pid)}/lien-secours`, {method:"POST"});
-    res = {etat:"ready", url:d.url, date:fmtLocalDate(d.expires_at), heure:fmtLocalTime(d.expires_at)};
+    res = {etat:"ready", url:d.url, date:fmtLocalDate(d.expires_at), heure:fmtLocalTime(d.expires_at), titre:chezVousTitre(d.expires_at)};
   } catch(e){
     res = {etat: e && e.status === 409 ? "refus" : "error"};
   }
@@ -12045,16 +12056,17 @@ function renderInvitesChamp(){
 
 function invFmtJusqua(iso){
   return new Date(iso).toLocaleDateString(
-    currentLang==="fr" ? "fr-FR" : "en-GB", {day:"numeric", month:"short", year:"numeric"});
+    currentLang==="fr" ? "fr-FR" : "en-GB", {day:"numeric", month:"short", year:"numeric", timeZone: fuseauEscadre()});
 }
+// Lot « Les heures du Centre de Commandement à l'heure de l'escadre » : le jour et l'heure se lisent dans le fuseau de l'escadre.
 function invFmtEntree(iso){
   if(!iso) return t("cc_inv_jamais");
   const d = new Date(iso);
-  const jour = d.toLocaleDateString(currentLang==="fr" ? "fr-FR" : "en-GB", {day:"numeric", month:"short"});
-  const mm = String(d.getMinutes()).padStart(2, "0");
+  const jour = d.toLocaleDateString(currentLang==="fr" ? "fr-FR" : "en-GB", {day:"numeric", month:"short", timeZone: fuseauEscadre()});
+  const p = partiesDansFuseau(d.getTime(), fuseauEscadre());
   return currentLang==="fr"
-    ? `${jour}, ${d.getHours()} h ${mm}`
-    : `${jour}, ${String(d.getHours()).padStart(2, "0")}:${mm}`;
+    ? `${jour}, ${+p.hour} h ${p.minute}`
+    : `${jour}, ${p.hour}:${p.minute}`;
 }
 
 function renderInvitesList(){
@@ -12071,7 +12083,7 @@ function renderInvitesList(){
         <td class="sqn-full">${escapeHtml(inv.discord_id)}</td>
         <td>${escapeHtml(inv.invite_par)}</td>
         <td class="sqn-full">${escapeHtml(invFmtJusqua(inv.jusqua))}</td>
-        <td class="sqn-full">${escapeHtml(invFmtEntree(inv.derniere_entree))}</td>
+        <td class="sqn-full"${chezVousTitre(inv.derniere_entree)}>${escapeHtml(invFmtEntree(inv.derniere_entree))}</td>
         <td style="white-space:nowrap"><button type="button" class="btn btn-sm cc-act" data-inv-act="prolonger" data-id="${escapeAttr(inv.discord_id)}">${escapeHtml(t("cc_inv_prolonger"))}</button> <button type="button" class="btn btn-sm cc-act" data-inv-act="revoquer" data-id="${escapeAttr(inv.discord_id)}">${escapeHtml(t("cc_inv_revoquer"))}</button></td>
       </tr>`).join("")
     : `<tr class="inv-vide"><td colspan="6"><span class="vide">${escapeHtml(t("cc_inv_vide"))}</span></td></tr>`;
@@ -13747,7 +13759,7 @@ function commandArchSauvRowHtml(s){
   const dl = (fichier, cle) => `<a class="btn btn-sm cc-act" href="/api/command/archives/sauvegardes/${escapeAttr(fichier)}" download>${escapeHtml(t(cle))}</a>`;
   const total = s.base_octets + (s.ecussons_octets || 0);
   return `<tr>
-    <td class="mbr-seen">${escapeHtml(fmtLocalDate(s.date))} · ${escapeHtml(fmtLocalTime(s.date))}</td>
+    <td class="mbr-seen"${chezVousTitre(s.date)}>${escapeHtml(fmtLocalDate(s.date))} · ${escapeHtml(fmtLocalTime(s.date))}</td>
     <td><span class="cc-office${s.origine === "manuelle" ? " porte" : ""}">${escapeHtml(t(s.origine === "manuelle" ? "cc_arch_origine_manuelle" : s.origine === "automatique" ? "cc_arch_origine_automatique" : s.origine === "migration" ? "cc_arch_origine_migration" : "cc_arch_origine_deploiement"))}</span></td>
     <td class="mbr-seen">${escapeHtml(s.revision)}</td>
     <td class="mbr-seen">${escapeHtml(fmtOctets(total))}</td>
@@ -13768,20 +13780,22 @@ function commandArchAutoHtml(d){
     h === 0 ? t("cc_arch_auto_freq_0") : h === 168 ? t("cc_arch_auto_freq_168") : escFill(t("cc_arch_auto_freq_h"), {n: h}),
     a.intervalle_h)).join("");
   const garder = [3, 7, 14, 30].map(n => option(n, escFill(t("cc_arch_auto_garder"), {n}), a.garder)).join("");
-  let etat;
+  let etat, titre = "";
   if(a.echec){
     etat = escFill(t("cc_arch_auto_echec"), {date: fmtLocalDate(a.echec.date), heure: fmtLocalTime(a.echec.date), raison: a.echec.raison});
+    titre = chezVousTitre(a.echec.date);
   } else {
     const derniere = (d.sauvegardes || []).find(s => s.origine === "automatique");
     etat = derniere
       ? escFill(t("cc_arch_auto_derniere"), {date: fmtLocalDate(derniere.date), heure: fmtLocalTime(derniere.date)})
       : t("cc_arch_auto_aucune");
+    if(derniere) titre = chezVousTitre(derniere.date);
   }
   return `<div class="cc-note${a.echec ? " deny" : ""}">
       <span>${escapeHtml(t("cc_arch_auto_title"))}</span>
       <select class="cc-set" data-act="arch-auto" data-f="intervalle_h" aria-label="${escapeAttr(t("cc_arch_auto_aria_freq"))}">${freq}</select>
       <select class="cc-set" data-act="arch-auto" data-f="garder" aria-label="${escapeAttr(t("cc_arch_auto_aria_garder"))}">${garder}</select>
-      <span>${escapeHtml(etat)}</span>
+      <span${titre}>${escapeHtml(etat)}</span>
     </div>`;
 }
 
@@ -13803,7 +13817,7 @@ function commandAgentChampHtml(cle, libelle, valeur){
 }
 
 function commandAgentRecuHtml(x){
-  return `<tr><td class="mbr-seen">${escapeHtml(fmtLocalDate(x.recu_le))} · ${escapeHtml(fmtLocalTime(x.recu_le))}</td>
+  return `<tr><td class="mbr-seen"${chezVousTitre(x.recu_le)}>${escapeHtml(fmtLocalDate(x.recu_le))} · ${escapeHtml(fmtLocalTime(x.recu_le))}</td>
     <td class="sqn-full">${escapeHtml(x.mission || "—")}</td><td class="mbr-rank">${escapeHtml(x.theatre || "—")}</td>
     <td class="mbr-seen">${escapeHtml(x.date_mission || "—")}</td><td class="mbr-seen">${escapeHtml(fmtOctets(x.taille))}</td>
     <td><span class="cc-office">${escapeHtml(x.etat === "en_attente" ? t("cc_agent_etat_attente") : x.etat)}</span></td></tr>`;
@@ -13825,7 +13839,7 @@ function commandAgentHtml(){
       ? escFill(t("cc_agent_envoi_le"), {date: fmtLocalDate(j.dernier_envoi_le), heure: fmtLocalTime(j.dernier_envoi_le)})
       : t("cc_agent_envoi_aucun");
     const etat = j
-      ? `<div class="cc-note"><span>${escapeHtml(escFill(t("cc_agent_actif"), {date: fmtLocalDate(j.emis_le), nom: callsign(j.emis_par.nom), envoi}))}</span></div>`
+      ? `<div class="cc-note"><span${j.dernier_envoi_le ? chezVousTitre(j.dernier_envoi_le) : ""}>${escapeHtml(escFill(t("cc_agent_actif"), {date: fmtLocalDate(j.emis_le), nom: callsign(j.emis_par.nom), envoi}))}</span></div>`
       : `<div class="cc-note deny"><span>${escapeHtml(t("cc_agent_aucun"))}</span></div>`;
     const refus = commandAgentErr ? `<div class="cc-note deny"><span>${escapeHtml(commandAgentErr)}</span></div>` : "";
     const c = commandAgentConf;
@@ -14041,7 +14055,7 @@ function commandJrObjet(e){
 
 function commandJrRowHtml(e){
   return `<tr>
-    <td class="mbr-seen">${escapeHtml(fmtLocalDate(e.fait_le))} · ${escapeHtml(fmtLocalTime(e.fait_le))}</td>
+    <td class="mbr-seen"${chezVousTitre(e.fait_le)}>${escapeHtml(fmtLocalDate(e.fait_le))} · ${escapeHtml(fmtLocalTime(e.fait_le))}</td>
     <td>${escapeHtml(callsign(e.par.nom))}</td>
     <td><span class="cc-office porte">${escapeHtml(t("cc_jr_a_" + e.action.replace(/\./g, "_")))}</span></td>
     <td class="sqn-full">${escapeHtml(commandJrObjet(e))}</td>
@@ -14360,7 +14374,8 @@ function commandCfgSecretValeurHtml(e, occupe){
       ? escFill(t("cc_cfg_s_repris"), {date: fmtLocalDate(e.maj_le)})
       : escFill(t("cc_cfg_s_modifie"), {date: fmtLocalDate(e.maj_le) + " · " + fmtLocalTime(e.maj_le), nom: commandCfgNom(e.maj_par)});
   }
-  return etat + (qui ? `<div class="cc-hint">${escapeHtml(qui)}</div>` : "");
+  const titre = e.rempli && e.maj_le && e.maj_par != null ? chezVousTitre(e.maj_le) : "";
+  return etat + (qui ? `<div class="cc-hint"${titre}>${escapeHtml(qui)}</div>` : "");
 }
 
 function commandCfgSecretActionHtml(e, occupe){

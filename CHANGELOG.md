@@ -14,6 +14,10 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**Command Centre times in the wing's time zone**
+- The Command Centre (members, archives and backups, journal, server agent, settings) and invitations show their dates and times in the wing's time zone, whatever the time zone of your device.
+- Where your own time differs, hovering over a time shows it.
+
 **Wing dates in the wing's time zone**
 - The Wing home page, member files, the pilots' logbook and campaigns show their dates in the wing's time zone, whatever the time zone of your device.
 
