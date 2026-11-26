@@ -14,6 +14,10 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+## RR-V1.1.0 — 2026-11-26
+
+Every time now reads in the wing's time zone, the Pilot Manual gains a Help annex, and four fixes.
+
 **A Help annex in the Pilot Manual**
 - The Pilot Manual has a new Help annex: a glossary of the Ready Room's words, each pointing to the page that explains it, and answers to the most common difficulties, from a refused sign-in to a missing flight.
 
