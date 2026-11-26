@@ -32,12 +32,12 @@ REVISIONS = RACINE / "manuel" / "revisions.json"
 APP_JS = RACINE / "app" / "static" / "app.js"
 INDEX_HTML = RACINE / "app" / "static" / "index.html"
 
-# Les vingt-trois pièces du contenu, dans l'ordre des pages ; hors `vues.json` (la table des écrans, qui n'est pas une
+# Les vingt-quatre pièces du contenu, dans l'ordre des pages ; hors `vues.json` (la table des écrans, qui n'est pas une
 # page : `controler_vues`), aucun autre fichier de `manuel/contenu/` n'est lu.
 VUES = "vues.json"
 COUVERTURE = "00_couverture.html"
 SECTIONS = ("10_section_0.html", "20_section_I.html", "30_section_II.html", "40_section_III.html",
-            "50_annexe_A.html")
+            "50_annexe_A.html", "60_annexe_B.html")
 FIGURES = ("fig_0-1.svg", "fig_1-1.svg", "fig_1-2.svg", "fig_1-3.svg", "fig_1-4.svg",
            "fig_2-1.svg", "fig_2-2.svg", "fig_2-3.svg", "fig_2-4.svg", "fig_2-5.svg", "fig_2-6.svg", "fig_2-7.svg",
            "fig_3-1.svg", "fig_3-2.svg", "fig_3-3.svg", "fig_3-4.svg", "fig_A-1.svg")
@@ -599,8 +599,8 @@ def construire() -> tuple[bytes, bytes]:
     couv = traiter(COUVERTURE)
     sections = [decouper_section(n, traiter(n)) for n in SECTIONS]
     ids = [s["attrs"]["id"] for s in sections]
-    if ids != ["s-0", "s-I", "s-II", "s-III", "s-A"]:
-        raise ErreurBuild("les sections doivent être s-0, s-I, s-II, s-III, s-A, dans cet ordre : " + ", ".join(ids))
+    if ids != ["s-0", "s-I", "s-II", "s-III", "s-A", "s-B"]:
+        raise ErreurBuild("les sections doivent être s-0, s-I, s-II, s-III, s-A, s-B, dans cet ordre : " + ", ".join(ids))
     manquent = [f for f in FIGURES if f not in figures]
     if manquent:
         raise ErreurBuild("planches jamais appelées par le contenu : " + ", ".join(manquent))

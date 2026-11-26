@@ -14,6 +14,9 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**A Help annex in the Pilot Manual**
+- The Pilot Manual has a new Help annex: a glossary of the Ready Room's words, each pointing to the page that explains it, and answers to the most common difficulties, from a refused sign-in to a missing flight.
+
 **Pilot Manual brought up to date**
 - The Pilot Manual now explains that times are read in the wing's time zone, with your own time added in the event sheet and form, and shown on hover in the Command Centre.
 - Its Configuration chapter describes the read-only Server folders block, and its Rights chapter notes that the list of access roles is managed on that screen.

@@ -2,13 +2,13 @@
 buildé (`manuel/build_manuel.py`) servi par l'application à `/manuel/`, derrière
 la règle d'accès de `/`.
 
-Sept tests : cinq du socle, sur le patron de `test_suites_servies.py` : le client est le
+Huit tests : cinq du socle, sur le patron de `test_suites_servies.py` : le client est le
 `TestClient` de FastAPI sur `app.main.app`, la garde se remplace par
 `dependency_overrides[get_current_user_optional]` (vidé après chaque test). Ni
 base, ni réseau : le lifespan ne tourne pas. Le quatrième fait échouer `pytest`
 dès que le manuel commité n'est plus à jour (un libellé renommé, un écran
-ajouté) : le manuel ne peut plus vieillir sans bruit. Les deux derniers (`v1.0123`, `test_version_rr_v` et
-`test_credit_couverture`) construisent sur une copie.
+ajouté) : le manuel ne peut plus vieillir sans bruit. Les trois derniers (`v1.0123`, `test_version_rr_v` et
+`test_credit_couverture` ; puis `test_annexe_b`, lot « annexe B · Aide ») construisent sur une copie.
 """
 from __future__ import annotations
 
@@ -157,3 +157,25 @@ def test_credit_couverture(tmp_path):
 
     code, out, err, html = _construire_sur_copie(tmp_path / "sans", "1.0123", sans_credit)
     assert code == 1 and ".cv-credit absent" in err, out + err
+
+
+# Lot « annexe B · Aide » : la sixième section du Manuel, ses 29 termes de glossaire et ses 11 cas de dépannage.
+def test_annexe_b(tmp_path):
+    code, out, err, html = _construire_sur_copie(tmp_path / "ok", "1.0123")
+    assert code == 0, out + err
+    ids = re.findall(r'<section class="m-section[^"]*" id="(s-[^"]+)"', html)
+    assert ids[-2:] == ["s-A", "s-B"], ids
+    debut = html.index('id="s-B"')
+    section_b = html[debut:html.index("</section>", debut)]
+    assert [f"p-B-1-{n:02d}" for n in range(1, 30)] == re.findall(r'id="(p-B-1-\d\d)"', section_b)
+    assert [f"p-B-2-{c}" for c in "abcdefghijk"] == re.findall(r'id="(p-B-2-[a-z])"', section_b)
+
+    # L'ordre des sections est contrôlé : une pièce B qui porte `s-C` fait refuser le build.
+    def piece_c(copie):
+        piece = copie / "manuel" / "contenu" / "60_annexe_B.html"
+        texte = piece.read_text(encoding="utf-8")
+        assert texte.count('id="s-B"') == 1
+        piece.write_text(texte.replace('id="s-B"', 'id="s-C"'), encoding="utf-8")
+
+    code, out, err, html = _construire_sur_copie(tmp_path / "c", "1.0123", piece_c)
+    assert code == 1 and "s-A, s-B, dans cet ordre" in err, out + err
