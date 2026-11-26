@@ -14,6 +14,10 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**Pilot Manual brought up to date**
+- The Pilot Manual now explains that times are read in the wing's time zone, with your own time added in the event sheet and form, and shown on hover in the Command Centre.
+- Its Configuration chapter describes the read-only Server folders block, and its Rights chapter notes that the list of access roles is managed on that screen.
+
 **Command Centre times in the wing's time zone**
 - The Command Centre (members, archives and backups, journal, server agent, settings) and invitations show their dates and times in the wing's time zone, whatever the time zone of your device.
 - Where your own time differs, hovering over a time shows it.
