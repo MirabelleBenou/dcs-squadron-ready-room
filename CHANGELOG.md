@@ -14,6 +14,10 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**A map of each session's destructions**
+- From a session, "Map" shows where each wreck fell, by side and by type, on the map of the theatre (Syria, Germany (Cold War), Caucasus).
+- Pick a pilot to show their kills: a wreck is credited by name only when it is the only one of its type. Ejections, pilots killed, take-offs and landings are listed beside the map.
+
 **The mission list opens on the current year**
 - Missions loads one year at a time: the most recent year opens first; pick another year, or "All years", in the filters.
 - The squadron, year and month filters are now drop-down lists, lighter on a phone.
