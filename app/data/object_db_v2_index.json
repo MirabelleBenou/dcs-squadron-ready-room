@@ -3334,7 +3334,7 @@
     "source": "F-14B AI by Heatblur Simulations"
   },
   "F-14A-135-GR-Early": {
-    "displayName": "F-14B",
+    "displayName": "F-14A-135-GR-Early",
     "attributes": [
       "Air",
       "All",
@@ -10391,5 +10391,48 @@
       "low_reflection_vessel"
     ],
     "source": "ScriptsDatabase"
+  },
+  "F-100D": {
+    "displayName": "F-100D",
+    "attributes": [
+      "Air",
+      "All",
+      "Battle airplanes",
+      "Battleplanes",
+      "NonAndLightArmoredUnits",
+      "NonArmoredUnits",
+      "Planes"
+    ],
+    "source": "added by hand (DCS 2.9 flyable): attributes of F-86F Sabre"
+  },
+  "F-14A-95-GR": {
+    "displayName": "F-14A-95-GR",
+    "attributes": [
+      "Air",
+      "All",
+      "Battle airplanes",
+      "Datalink",
+      "Fighters",
+      "NonAndLightArmoredUnits",
+      "NonArmoredUnits",
+      "Planes",
+      "Refuelable"
+    ],
+    "source": "added by hand (DCS 2.9 flyable): attributes of F-14A-135-GR"
+  },
+  "F-14BU": {
+    "displayName": "F-14BU",
+    "attributes": [
+      "Air",
+      "All",
+      "Battle airplanes",
+      "Datalink",
+      "Fighters",
+      "NonAndLightArmoredUnits",
+      "NonArmoredUnits",
+      "Planes",
+      "Refuelable"
+    ],
+    "source": "added by hand (DCS 2.9 flyable): attributes of F-14B"
   }
 }

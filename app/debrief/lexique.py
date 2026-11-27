@@ -29,11 +29,11 @@ jointe aux fichiers requis à l'upload. Le dimensionnement mesuré du brief
 les 24 clés non mesurées ici. C'est un signalement, pas une impasse : les
 trois niveaux sont fonctionnels indépendamment de la taille de `_LEXIQUE`.
 
-`_CATEGORIE_PAR_CLE` classe les 625 clés de la base par un premier attribut
+`_CATEGORIE_PAR_CLE` classe les 628 clés de la base par un premier attribut
 trouvé, dans cet ordre de priorité (celui du brief §4, tel que listé) :
 Infantry, Air Defence, Artillery, Tanks, Armed vehicles, Planes,
 Helicopters. Une clé sans aucun de ces attributs (troupe de transport,
-statique, etc.) n'apparaît pas dans la table -- 166 clés sur 625, mesuré.
+statique, etc.) n'apparaît pas dans la table -- 166 clés sur 628, mesuré.
 Cet ordre résout un recouvrement réel et vérifié : un char (`M-1 Abrams`)
 porte À LA FOIS `Tanks` et `Armed vehicles` dans la base -- `Tanks` doit
 être vérifié avant `Armed vehicles` pour ne pas classer un char en
@@ -103,7 +103,7 @@ _CATEGORIES_GENERIQUES: dict[str, str] = {
 }
 
 
-# --- Niveau 2, données : classification par attributs (625 clés, calculée
+# --- Niveau 2, données : classification par attributs (628 clés, calculée
 #     hors ligne depuis object_db_v2_index.json -- jamais embarqué au lot,
 #     brief §4 : "ne jamais livrer dans le zip") ------------------------------
 #
@@ -205,11 +205,14 @@ _CATEGORIE_PAR_CLE: dict[str, str] = {
     'EWR 1L13': 'Air Defence',
     'EWR 55G6': 'Air Defence',
     'Elefant_SdKfz_184': 'Tanks',
+    'F-100D': 'Planes',
     'F-117A': 'Planes',
     'F-14A': 'Planes',
     'F-14A-135-GR': 'Planes',
     'F-14A-135-GR-Early': 'Planes',
+    'F-14A-95-GR': 'Planes',
     'F-14B': 'Planes',
+    'F-14BU': 'Planes',
     'F-15C': 'Planes',
     'F-15E': 'Planes',
     'F-15ESE': 'Planes',

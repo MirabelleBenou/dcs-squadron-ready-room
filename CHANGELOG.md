@@ -35,6 +35,10 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 **A side outline for every aircraft**
 - The squadron header, the flight screens and the member lists now show a side outline for every aircraft type the wing can fly, not only seven.
 
+**Three recent aircraft recognised in debriefs**
+- Wrecks and tallies now count the F-100D, F-14A-95-GR and F-14BU as aircraft instead of an unknown type, in past sessions too; new debrief reports name them as aircraft.
+- Fixed: the F-14A-135-GR-Early is no longer shown as an F-14B.
+
 ## RR-V1.1.0 — 2026-11-26
 
 Every time now reads in the wing's time zone, the Pilot Manual gains a Help annex, and four fixes.

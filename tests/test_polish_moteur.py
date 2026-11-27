@@ -13,15 +13,19 @@ dans l'archive, ni base, ni clé API.
    canonique, vu par les deux (règle 2).
 4. `test_lexique_dans_empreinte` -- `revision._MODULES` se termine par
    `lexique.py` (règle 3).
+5. `test_categorie_par_cle_suit_la_base` -- `lexique._CATEGORIE_PAR_CLE` est
+   exactement la projection de `object_db_v2_index.json` sur le premier
+   attribut trouvé dans l'ordre de priorité (classification par attributs).
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.debrief import engine, revision
+from app.debrief import engine, lexique, revision
 from app.debrief.debriefer import DebriefEvent, DebriefHeader, DebriefLogData
 from app.debrief_models import DebriefUpload
 
@@ -87,3 +91,18 @@ def test_alias_armes_fusionnent() -> None:
 def test_lexique_dans_empreinte() -> None:
     assert revision._MODULES[-1] == "lexique.py"
     assert revision._MODULES == ("engine.py", "debriefer.py", "acmi.py", "categorize.py", "lexique.py")
+
+
+def test_categorie_par_cle_suit_la_base() -> None:
+    # Lot « Appareils du débrief » : la table du lexique est calculée par attributs
+    # depuis la base des types ; ajouter une clé à la base sans la table échoue ici.
+    chemin = Path(__file__).resolve().parent.parent / "app" / "data" / "object_db_v2_index.json"
+    base = json.loads(chemin.read_text(encoding="utf-8"))
+    ordre = ("Air Defence", "Infantry", "Artillery", "Tanks", "Armed vehicles", "Planes", "Helicopters")
+    attendu = {}
+    for cle, entree in base.items():
+        for attribut in ordre:
+            if attribut in entree["attributes"]:
+                attendu[cle] = attribut
+                break
+    assert attendu == lexique._CATEGORIE_PAR_CLE
