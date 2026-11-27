@@ -1100,6 +1100,7 @@ def _kills_probables(
             target_unit_type=mort.initiator_unit_type,
             weapon=ref.weapon,
             target_coalition=obj.coalition,
+            initiator_coalition=ref.initiator_coalition,   # Lot « La carte des destructions » : le camp du tireur, lu sur l'évènement de référence
             weapon_family=ref.weapon_family,
             ammo=None,
             seen_in=[],

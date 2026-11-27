@@ -9094,6 +9094,9 @@ function renderDebrief(screen){
   });
   syncTopbarNavScroll();
   window.scrollTo(0,0);
+  // Lot « La carte des destructions » : la carte se retire quand on quitte l'écran ; un chargement en cours ne crée
+  // plus de carte dans un conteneur caché.
+  if(screen !== "carte" && carteMap){ carteMap.remove(); carteMap = null; carteJeton++; }
   // Lot D2③ : peuplement réel de l'écran Missions (fetch au 1er affichage,
   // re-rendu depuis cache ensuite). Lot D2④ : peuplement réel de Session
   // (fetch/cache par id) ; Vol (⑤) reste un placeholder mécanique.
@@ -9155,33 +9158,50 @@ let carteEtat = {camps:{blue:true, red:true, neutral:true}, cats:{}, pertes:true
 let carteT0 = 0;                  // le plus petit `t` des tirs, des chutes, des décollages et atterrissages
 let carteMap = null;              // la carte MapLibre en cours
 let carteJeton = 0;               // le dessin le plus récent de la carte l'emporte
-let carteScripts = null;          // la promesse du chargement des scripts : une fois par page
 let carteObservateur = null;      // le changement de thème redessine la carte
+let carteSombreDessine = false;   // le thème effectif du dernier dessin : l'observateur ne redessine que s'il a changé
 const CARTE_AERONEFS = new Set(["Avion", "Hélicoptère"]);
 const CARTE_CAMPS = ["blue", "red", "neutral"];
 const CARTE_CLE_CAMP = {blue:"bleu", red:"rouge", neutral:"neutre"};   // `carte_camp_<…>`, `carte_pertes_<…>`
 // Si la session n'a ni épave ni aérodrome, la vue de repli de chaque théâtre : [[ouest, sud], [est, nord]].
 const CARTE_EMPRISES = {syria:[[35, 32], [42.5, 37.5]], germanycw:[[5.5, 47], [14, 55]], caucasus:[[36, 40], [48, 46]]};
 
+let carteLecture = 0;             // la lecture de la route la plus récente l'emporte
+// La route se relit à chaque ouverture de l'écran (un rattachement, un détachement, un recalcul ou une fusion ont pu
+// changer la carte) ; tant que la réponse n'est pas là, la carte affichée de la même session reste à l'écran.
 async function ensureCarteLoaded(id){
   if(!id) return;
-  if(CARTE && CARTE_ID === id && carteLoadState === "ready"){ renderCarte(); return; }
-  if(CARTE_ID === id && carteLoadState === "loading") return;
-  CARTE_ID = id;
-  CARTE = null;
-  carteEtat = {camps:{blue:true, red:true, neutral:true}, cats:{}, pertes:true, aeros:true, pilote:""};
-  carteLoadState = "loading";
-  carteError = null;
+  const memeSession = CARTE_ID === id;
+  const affichee = memeSession && !!CARTE && carteLoadState === "ready";
+  if(!memeSession){
+    CARTE_ID = id;
+    CARTE = null;
+    carteEtat = {camps:{blue:true, red:true, neutral:true}, cats:{}, pertes:true, aeros:true, pilote:""};
+  }
+  if(!affichee){
+    carteLoadState = "loading";
+    carteError = null;
+  }
   renderCarte();
+  const lecture = ++carteLecture;
   try {
     const donnees = await apiFetch(`/api/debrief/sessions/${id}/carte`);
-    if(CARTE_ID !== id) return;
+    if(CARTE_ID !== id || lecture !== carteLecture) return;
+    if(affichee && JSON.stringify(donnees) === JSON.stringify(CARTE)){ rrChargeFaite("carte", id); return; }   // rien n'a changé : la carte reste telle quelle
+    const avant = carteEtat;
     CARTE = donnees;
     carteInitEtat();
+    if(affichee){
+      // Les choix du pilote survivent à la relecture, pour ce que les nouvelles données contiennent encore.
+      Object.keys(carteEtat.cats).forEach(c=>{ if(c in avant.cats) carteEtat.cats[c] = avant.cats[c]; });
+      carteEtat.camps = avant.camps; carteEtat.pertes = avant.pertes; carteEtat.aeros = avant.aeros;
+      carteEtat.pilote = cartePilotes().some(([nom])=> nom === avant.pilote) ? avant.pilote : "";
+    }
     carteLoadState = "ready";
     rrChargeFaite("carte", id);
   } catch(e){
-    if(CARTE_ID !== id) return;
+    if(CARTE_ID !== id || lecture !== carteLecture) return;
+    if(affichee && !(e && e.status >= 400 && e.status < 500)) return;   // une panne passagère n'efface pas la carte affichée
     carteLoadState = "error";
     carteError = e.message || t("error_generic");
     if(rrChargeRefusee("carte", id, e)) return;   // ouverte par l'adresse : une 4xx ramène à Missions
@@ -9279,7 +9299,7 @@ function carteBilanHtml(){
     const quoi = n === 1
       ? `<span class="carte-tag">${escapeHtml(t("carte_epave_identifiee"))}</span>`
       : `<span class="note"> · ${escapeHtml(carteFmt("carte_de_ces", {n: l.length, N: n}))}</span>`;
-    const frat = l[0].cible_camp === l[0].tireur_camp ? `<span class="carte-tag">${escapeHtml(t("carte_tir_fratricide"))}</span>` : "";
+    const frat = (l[0].tireur_camp !== "neutral" && l[0].tireur_camp === l[0].cible_camp) ? `<span class="carte-tag">${escapeHtml(t("carte_tir_fratricide"))}</span>` : "";
     return `<li><span class="carte-t">${escapeHtml(carteTplus(l[0].t))}</span><span><span class="carte-pt c-${l[0].cible_camp}"></span>${escapeHtml(e0 ? e0.nom : l[0].cible)}${l.length > 1 ? " ×" + l.length : ""}${quoi}${frat}</span></li>`;
   }).join("") + `</ul>`;
 }
@@ -9380,6 +9400,7 @@ function renderCarte(garderVue){
       </div>
       <aside class="carte-panneau" id="carte-panneau">${cartePanneauHtml()}</aside>
     </div>`;
+  carteSombreDessine = carteSombre();
   carteDemarrer(cadrage).catch(()=>{
     // Les scripts de la carte n'ont pas pu se charger : l'écran le dit, le panneau reste lisible.
     const note = $("#carte-fond-note");
@@ -9427,25 +9448,36 @@ function carteScript(src){
     const s = document.createElement("script");
     s.src = src;
     s.onload = ()=> ok();
-    s.onerror = ()=> ko(new Error(src));
+    s.onerror = ()=>{ s.remove(); ko(new Error(src)); };
     document.head.appendChild(s);
   });
 }
-// La première ouverture charge la feuille, les deux scripts, puis le module MapLibre ; les suivantes reprennent la promesse.
-function carteChargerScripts(){
-  if(carteScripts) return carteScripts;
-  carteScripts = (async ()=>{
-    const feuille = document.createElement("link");
-    feuille.rel = "stylesheet";
-    feuille.href = "/static/vendor/maplibre-gl-6.17.0/maplibre-gl.css";
-    document.head.appendChild(feuille);
-    await carteScript("/static/vendor/pmtiles-4.5.0/pmtiles.js");
-    await carteScript("/static/vendor/fonds/charger-style.js");
+function carteFeuille(href){
+  return new Promise((ok, ko)=>{
+    const l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = href;
+    l.onload = ()=> ok();
+    l.onerror = ()=>{ l.remove(); ko(new Error(href)); };
+    document.head.appendChild(l);
+  });
+}
+// Chaque ressource se charge une seule fois par page : une promesse par ressource ; après un échec, seule la ressource
+// en échec se rejoue.
+const carteRessources = {};
+function carteUneFois(cle, charge){
+  if(!carteRessources[cle]) carteRessources[cle] = charge().catch(e=>{ delete carteRessources[cle]; throw e; });
+  return carteRessources[cle];
+}
+async function carteChargerScripts(){
+  await carteUneFois("feuille", ()=> carteFeuille("/static/vendor/maplibre-gl-6.17.0/maplibre-gl.css"));
+  await carteUneFois("pmtiles", ()=> carteScript("/static/vendor/pmtiles-4.5.0/pmtiles.js"));
+  await carteUneFois("charger-style", ()=> carteScript("/static/vendor/fonds/charger-style.js"));
+  return carteUneFois("module", async ()=>{
     const ml = await import("/static/vendor/maplibre-gl-6.17.0/maplibre-gl.mjs");
     ml.addProtocol("pmtiles", new window.pmtiles.Protocol().tile);
     return ml;
-  })().catch(e=>{ carteScripts = null; throw e; });
-  return carteScripts;
+  });
 }
 
 function carteBornes(){
@@ -9514,11 +9546,13 @@ function carteCouches(){
 
 async function carteDemarrer(cadrage){
   const jeton = carteJeton;
+  const theatre = CARTE.theatre;
   const ml = await carteChargerScripts();
+  if(jeton !== carteJeton || !$("#carte-carte")) return;   // un redessin plus récent a pris la main pendant l'attente
   // Le fond servi à la même origine ; toute erreur du style : le fond de repli.
   let fond = null;
   try {
-    fond = await window.chargerStyle(`/tuiles/fonds/${CARTE.theatre}/style-${carteSombre() ? "sombre" : "clair"}.json`);
+    fond = await window.chargerStyle(`/tuiles/fonds/${theatre}/style-${carteSombre() ? "sombre" : "clair"}.json`);
   } catch(e){ fond = null; }
   if(jeton !== carteJeton || !$("#carte-carte")) return;   // un redessin plus récent a pris la main
   const images = {};
@@ -9536,6 +9570,7 @@ function carteCreer(ml, fond, images, cadrage, jeton){
   const conteneur = $("#carte-carte");
   if(!conteneur) return;
   let style;
+  const sourcesFond = new Set(fond ? Object.keys(fond.sources || {}) : []);
   if(fond){
     style = fond;
     style.sources = Object.assign({}, fond.sources, carteSources());
@@ -9557,12 +9592,14 @@ function carteCreer(ml, fond, images, cadrage, jeton){
   Object.entries(images).forEach(([k, v])=> carte.addImage(k, v));
   carte.addControl(new ml.NavigationControl({showCompass:true}), "top-left");
   carte.addControl(new ml.ScaleControl({unit:"metric"}), "bottom-left");
-  // Une erreur du style avant le premier dessin (les tuiles ne comptent pas) : le fond de repli, une seule fois.
+  // Une erreur du style, ou d'une source du fond (`fond`, `relief`, …), avant le premier dessin : le fond de repli, une
+  // seule fois. Après le premier `load`, une tuile manquante au zoom n'efface pas le fond.
   if(fond){
     let charge = false;
     carte.once("load", ()=>{ charge = true; });
     carte.on("error", (ev)=>{
-      if(charge || ev.sourceId || ev.tile || carteMap !== carte || jeton !== carteJeton) return;
+      if(charge || carteMap !== carte || jeton !== carteJeton) return;
+      if(ev.sourceId ? !sourcesFond.has(ev.sourceId) : !!ev.tile) return;
       carteMap = null;
       carte.remove();
       carteCreer(ml, null, images, cadrage, jeton);
@@ -9614,7 +9651,7 @@ function carteBrancher(ml, carte){
   });
   // Le thème de l'App redessine la carte (le fond, les couleurs des marques), cadrage gardé.
   if(!carteObservateur){
-    carteObservateur = new MutationObserver(()=>{ if(CARTE && carteLoadState === "ready") renderCarte(true); });
+    carteObservateur = new MutationObserver(()=>{ if(CARTE && carteLoadState === "ready" && carteSombre() !== carteSombreDessine) renderCarte(true); });
     carteObservateur.observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
   }
 }

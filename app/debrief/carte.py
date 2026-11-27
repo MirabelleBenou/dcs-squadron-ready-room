@@ -10,8 +10,8 @@ Ce module lit la base, il n'y écrit rien, et il est HORS de l'empreinte du mote
   décollages et atterrissages (table `app/data/aerodromes_dcs.json`) ;
 - `camp` : le camp lisible d'une coalition de DCS ;
 - `construire_carte` : la réponse de `GET /api/debrief/sessions/{id}/carte`, **fonction
-  pure** -- elle reçoit des objets déjà lus (la route ne fait que quatre lectures,
-  quel que soit le nombre d'évènements) et rend un dictionnaire.
+  pure** -- elle reçoit des objets déjà lus (la route ne fait que cinq lectures
+  (session, vols, cimetière, évènements, noms), quel que soit le nombre d'évènements) et rend un dictionnaire.
 """
 from __future__ import annotations
 
