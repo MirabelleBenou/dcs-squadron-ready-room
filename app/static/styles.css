@@ -3906,3 +3906,43 @@ html[data-layout="intermediate"] #view-carte .carte-carte{height:62vh;}
 html[data-layout="compact"] #view-carte .carte-panneau,
 html[data-layout="intermediate"] #view-carte .carte-panneau{border-left:0;border-top:3px double var(--ink);max-height:none;}
 html[data-layout="compact"] #view-carte .chip{font-size:.74rem;padding:.24rem .6rem;}
+
+/* Escadre · les listes dessinées (rr-listes-dessinees) : la puce .chip.simsw ouvre une feuille de choix dessinée, à la
+   place du sélecteur du système ; le <select> reste, caché, porteur de la valeur. */
+#view-missions .chip.simsw,#view-carte .chip.simsw{position:relative;}
+#view-missions .chip.simsw .rr-lb,#view-carte .chip.simsw .rr-lb{
+  appearance:none;-webkit-appearance:none;max-width:100%;display:inline-block;
+  background:none;border:none;border-radius:0;margin:0;
+  padding:.02rem 1.15rem .02rem 0;
+  font-family:var(--font-label);font-weight:600;font-size:.7rem;
+  letter-spacing:.08em;text-transform:uppercase;color:inherit;cursor:pointer;
+  background-image:conic-gradient(from -45deg at 50% 100%,currentColor 90deg,transparent 0);
+  background-position:right .14rem center;
+  background-size:.52rem .26rem;background-repeat:no-repeat;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;
+}
+#view-missions .chip.simsw.ouverte,#view-carte .chip.simsw.ouverte{background:var(--ink);color:var(--knock);border-color:var(--ink);}
+#view-missions .chip.simsw.ouverte .rr-lb,#view-carte .chip.simsw.ouverte .rr-lb{
+  background-image:conic-gradient(from 135deg at 50% 0%,currentColor 90deg,transparent 0);}
+#view-missions .chip.simsw .rr-lb:focus-visible,#view-carte .chip.simsw .rr-lb:focus-visible{outline:2px solid var(--ink-stamp-tx);outline-offset:2px;}
+.rr-liste{
+  position:fixed;z-index:700;margin:0;padding:0;list-style:none;
+  max-width:min(22rem,calc(100vw - 1.5rem));max-height:min(18rem,60vh);overflow-y:auto;
+  background-color:var(--paper-form);background-image:var(--paper-img);background-size:640px auto;
+  border:1.5px solid var(--ink);
+  box-shadow:3px 3px 0 color-mix(in srgb,var(--ink) 22%,transparent);
+}
+.rr-liste:focus{outline:none;}
+.rr-liste li{
+  display:flex;align-items:center;justify-content:space-between;gap:1.2rem;
+  padding:.42rem .75rem;min-height:32px;box-sizing:border-box;
+  font-family:var(--font-label);font-weight:600;font-size:.7rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink);white-space:nowrap;cursor:pointer;
+}
+.rr-liste li+li{border-top:1px dotted color-mix(in srgb,var(--ink) 32%,transparent);}
+.rr-liste li .n{font-family:var(--font-mono);font-weight:400;letter-spacing:0;font-size:.72rem;color:var(--text-mute);}
+.rr-liste li.actif{background:color-mix(in srgb,var(--ink) 11%,transparent);}
+.rr-liste li[aria-selected="true"]{box-shadow:inset 4px 0 0 var(--ink);}
+.rr-liste li[aria-selected="true"] .n{color:var(--ink);}
+.rr-liste:focus-visible li.actif{outline:2px solid var(--ink-stamp-tx);outline-offset:-3px;}
+html[data-layout="compact"] .rr-liste li{min-height:44px;font-size:.76rem;padding:.5rem .85rem;}

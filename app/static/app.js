@@ -5634,6 +5634,187 @@ async function loadMissions(garderPeriodes){
   missionsFocus = null;
 }
 
+/* ===================================================================
+   Lot « Les listes dessinées » — les listes de Missions et de la carte (`.chip.simsw select`) s'ouvrent comme une feuille
+   de l'écran (papier et encre) et non plus comme le sélecteur du système. Le `<select>` reste dans le DOM, caché, porteur
+   de la valeur : choisir une option fait `select.value = …` puis `change`, et les écoutes de Missions et de la carte
+   n'ont pas bougé. Une seule fonction, `rrListesDessinees(racine)`, appelée à la fin de chaque rendu qui écrit ces listes.
+   =================================================================== */
+let rrListe = null;               // la liste ouverte : {select, puce, bouton, ul, actif} ; une seule à la fois
+let rrListesPosees = false;       // les écoutes du document ne se posent qu'une fois
+let rrListesN = 0;                // un identifiant de repli pour un <select> sans id ni data-filtre
+let rrListeFermeeA = 0;           // l'instant de la dernière fermeture au clavier (voir le clic du bouton)
+
+// Ferme la liste ouverte (et toute liste orpheline : un redessin a pu retirer le bouton de celle qui l'était).
+function rrListeFermer(rendreFocus){
+  const o = rrListe;
+  rrListe = null;
+  document.querySelectorAll(".rr-liste").forEach(u=> u.remove());
+  document.querySelectorAll(".chip.simsw.ouverte").forEach(c=>{
+    c.classList.remove("ouverte");
+    const b = c.querySelector(".rr-lb");
+    if(b){ b.setAttribute("aria-expanded", "false"); b.removeAttribute("aria-controls"); }
+  });
+  if(o && rendreFocus){
+    rrListeFermeeA = performance.now();
+    if(o.bouton.isConnected) o.bouton.focus();
+  }
+}
+
+// Rend une option active : la classe, `aria-activedescendant`, et la liste défile d'elle-même (jamais la page : un
+// défilement de la page ferme la liste).
+function rrListeActiver(o, i){
+  const lis = o.ul.children;
+  if(i < 0 || i >= lis.length) return;
+  o.actif = i;
+  for(let k = 0; k < lis.length; k++) lis[k].classList.toggle("actif", k === i);
+  o.ul.setAttribute("aria-activedescendant", lis[i].id);
+  const li = lis[i];
+  if(li.offsetTop < o.ul.scrollTop) o.ul.scrollTop = li.offsetTop;
+  else if(li.offsetTop + li.offsetHeight > o.ul.scrollTop + o.ul.clientHeight) o.ul.scrollTop = li.offsetTop + li.offsetHeight - o.ul.clientHeight;
+}
+
+// Choisir : la valeur, le texte du bouton, la fermeture (le focus revient au bouton), puis `change` s'il y a changement
+// (comme le sélecteur du système : choisir la valeur déjà choisie ne redessine rien).
+function rrListeChoisir(o, i){
+  const opt = o.select.options[i];
+  if(!opt){ rrListeFermer(true); return; }
+  const change = o.select.selectedIndex !== i;
+  o.select.selectedIndex = i;
+  o.bouton.textContent = opt.textContent;
+  rrListeFermer(true);
+  if(change) o.select.dispatchEvent(new Event("change", {bubbles: true}));
+}
+
+function rrListeOuvrir(select){
+  const puce = select.closest(".chip.simsw");
+  const bouton = puce && puce.querySelector(".rr-lb");
+  const vue = select.closest(".view");
+  if(!bouton || !vue) return;
+  rrListeFermer(false);
+  const ul = document.createElement("ul");
+  ul.className = "rr-liste";
+  ul.id = bouton.id + "-liste";
+  ul.setAttribute("role", "listbox");
+  ul.setAttribute("aria-labelledby", bouton.getAttribute("aria-labelledby") || bouton.id);
+  ul.tabIndex = -1;
+  const o = {select, puce, bouton, ul, actif: -1};
+  Array.prototype.forEach.call(select.options, (opt, i)=>{
+    const li = document.createElement("li");
+    li.id = ul.id + "-" + i;
+    li.setAttribute("role", "option");
+    li.setAttribute("aria-selected", i === select.selectedIndex ? "true" : "false");
+    // « Nom (n) » : le nom, puis le compte à part ; sinon un seul texte (toujours par textContent).
+    const m = /^(.*?)\s*\((\d+)\)$/.exec(opt.textContent);
+    const nom = document.createElement("span");
+    nom.textContent = m ? m[1] : opt.textContent;
+    li.appendChild(nom);
+    if(m){
+      const n = document.createElement("span");
+      n.className = "n";
+      n.textContent = m[2];
+      li.appendChild(n);
+    }
+    ul.appendChild(li);
+  });
+  puce.classList.add("ouverte");
+  bouton.setAttribute("aria-expanded", "true");
+  bouton.setAttribute("aria-controls", ul.id);
+  vue.appendChild(ul);
+  // Placer : le bord gauche de la puce (ramené à 12 px du bord droit), sous la puce, ou au-dessus s'il n'y a pas la place
+  // dessous et qu'il y en a plus dessus ; la liste ne sort jamais de la fenêtre (elle défile alors d'elle-même).
+  const r = puce.getBoundingClientRect();
+  ul.style.minWidth = r.width + "px";
+  const largeur = ul.offsetWidth, hauteur = ul.offsetHeight;
+  ul.style.left = Math.max(0, Math.min(r.left, window.innerWidth - largeur - 12)) + "px";
+  const placeBas = window.innerHeight - 12 - (r.bottom + 4), placeHaut = r.top - 4 - 12;
+  const dessus = hauteur > placeBas && placeHaut > placeBas;
+  const place = Math.max(dessus ? placeHaut : placeBas, 0);
+  if(hauteur > place) ul.style.maxHeight = place + "px";
+  ul.style.top = (dessus ? r.top - 4 - ul.offsetHeight : r.bottom + 4) + "px";
+  rrListe = o;
+  ul.addEventListener("click", (e)=>{
+    const li = e.target.closest("li");
+    if(li && ul.contains(li)) rrListeChoisir(o, Array.prototype.indexOf.call(ul.children, li));
+  });
+  ul.addEventListener("mousemove", (e)=>{
+    const li = e.target.closest("li");
+    if(!li) return;
+    const i = Array.prototype.indexOf.call(ul.children, li);
+    if(i !== o.actif) rrListeActiver(o, i);
+  });
+  ul.addEventListener("keydown", (e)=>{
+    const n = ul.children.length;
+    let pris = true;
+    if(e.key === "ArrowDown") rrListeActiver(o, Math.min(o.actif + 1, n - 1));
+    else if(e.key === "ArrowUp") rrListeActiver(o, Math.max(o.actif - 1, 0));
+    else if(e.key === "Home") rrListeActiver(o, 0);
+    else if(e.key === "End") rrListeActiver(o, n - 1);
+    else if(e.key === "Enter" || e.key === " "){ if(!e.repeat) rrListeChoisir(o, o.actif); }
+    else if(e.key === "Escape" || e.key === "Tab") rrListeFermer(true);
+    else pris = false;
+    if(pris){ e.preventDefault(); e.stopPropagation(); }
+  });
+  rrListeActiver(o, Math.max(select.selectedIndex, 0));
+  ul.focus({preventScroll: true});
+}
+
+// Les écoutes du document, posées une fois : un clic hors de la liste et du bouton, le défilement de la page (hors de
+// la liste elle-même), le redimensionnement et le changement d'adresse ferment la liste.
+function rrListesPoser(){
+  if(rrListesPosees) return;
+  rrListesPosees = true;
+  document.addEventListener("click", (e)=>{
+    if(rrListe && !e.target.closest(".rr-liste, .rr-lb")) rrListeFermer(false);
+  });
+  window.addEventListener("scroll", (e)=>{
+    if(rrListe && !(e.target instanceof Node && rrListe.ul.contains(e.target))) rrListeFermer(false);
+  }, true);
+  window.addEventListener("resize", ()=>{ if(rrListe) rrListeFermer(false); });
+  window.addEventListener("popstate", ()=>{ if(rrListe) rrListeFermer(false); });
+}
+
+// Habille chaque `.chip.simsw select` de `racine` : le `<select>` caché, un bouton à sa place. Idempotente : un <select>
+// déjà habillé ne l'est pas deux fois (son bouton reprend seulement le texte de l'option choisie).
+function rrListesDessinees(racine){
+  if(!racine) return;
+  rrListesPoser();
+  racine.querySelectorAll(".chip.simsw select").forEach(select=>{
+    const puce = select.closest(".chip.simsw");
+    if(!puce || !select.closest(".view")) return;
+    const opt = select.options[select.selectedIndex];
+    const deja = puce.querySelector(".rr-lb");
+    if(deja){ deja.textContent = opt ? opt.textContent : ""; return; }
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.className = "rr-lb";
+    bouton.id = select.id ? select.id + "-lb" : "rr-lb-" + (select.dataset.filtre || ++rrListesN);
+    bouton.setAttribute("aria-haspopup", "listbox");
+    bouton.setAttribute("aria-expanded", "false");
+    bouton.textContent = opt ? opt.textContent : "";
+    // Le nom accessible : l'étiquette du <select> quand il en a une (la carte), puis le bouton lui-même.
+    const etiquette = select.id ? document.querySelector(`label[for="${select.id}"]`) : null;
+    if(etiquette){
+      if(!etiquette.id) etiquette.id = select.id + "-etiquette";
+      bouton.setAttribute("aria-labelledby", etiquette.id + " " + bouton.id);
+    }
+    bouton.addEventListener("click", (e)=>{
+      // Le clic que le navigateur fait naître de la touche qu'on vient de relâcher (Espace choisit, le focus revient au
+      // bouton, puis la touche se relève) ne rouvre pas la liste.
+      if(e.detail === 0 && performance.now() - rrListeFermeeA < 400) return;
+      if(puce.classList.contains("ouverte")) rrListeFermer(true);
+      else rrListeOuvrir(select);
+    });
+    bouton.addEventListener("keydown", (e)=>{
+      if(e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      e.preventDefault();
+      if(!puce.classList.contains("ouverte")) rrListeOuvrir(select);
+    });
+    select.hidden = true;
+    select.after(bouton);
+  });
+}
+
 // Lot « La liste des missions par année » : une seule rangée de quatre listes déroulantes, habillées comme celle du
 // simulateur (`.chip.simsw`) -- simulateur, escadrille, année, mois (absente sans année choisie ou sans mois).
 function missionsToolbarHtml(sims, squadrons, years){
@@ -5800,6 +5981,7 @@ function missionsSkeletonHtml(){
 function renderMissions(){
   const mount = $("#missions-mount");
   if(!mount) return;
+  rrListeFermer(false);   // Lot « Les listes dessinées » : un redessin ferme la liste ouverte
 
   if(missionsLoadState === "loading" && !DEBRIEF_SESSIONS){
     mount.innerHTML = missionsSkeletonHtml();
@@ -5859,10 +6041,13 @@ function renderMissions(){
     });
   }
   mount.innerHTML = html;
-  // La liste qui vient de changer reprend le focus que le redessin lui a pris (sans voler celui d'un autre contrôle).
+  rrListesDessinees(mount);   // Lot « Les listes dessinées » : les listes s'ouvrent dessinées
+  // La liste qui vient de changer reprend le focus que le redessin lui a pris (sans voler celui d'un autre contrôle) :
+  // le focus va au bouton de la liste (le <select> est caché).
   if(missionsFocus && (!document.activeElement || document.activeElement === document.body)){
     const el = mount.querySelector(missionsFocus === "sim-select" ? "#sim-select" : `select[data-filtre="${missionsFocus}"]`);
-    if(el) el.focus();
+    const bouton = el && el.parentElement.querySelector(".rr-lb");
+    if(bouton) bouton.focus();
   }
 }
 
@@ -9084,6 +9269,7 @@ const DEBRIEF_ROOTS = ["accueil","pilotes","campagnes","missions","escadrilles"]
 let debriefStack = ["accueil"]; // Lot « L'écran B » : l'accueil est l'écran d'arrivée.
 
 function renderDebrief(screen){
+  rrListeFermer(false);   // Lot « Les listes dessinées » : changer d'écran ferme la liste ouverte
   ["accueil","pilotes","campagnes","campagne","missions","escadrilles","escadrille","membre","session","flight","carte"].forEach(s=>{
     const el = $("#view-"+s);
     if(el) el.classList.toggle("hidden", s!==screen);
@@ -9357,6 +9543,7 @@ function cartePanneauHtml(){
 
 /* ---------- L'écran ---------- */
 function renderCarte(garderVue){
+  rrListeFermer(false);   // Lot « Les listes dessinées » : un redessin ferme la liste ouverte
   const mount = $("#carte-mount");
   const vue = $("#view-carte");
   if(!mount || !vue || vue.classList.contains("hidden")) return;   // caché : rendu à la prochaine ouverture
@@ -9400,6 +9587,7 @@ function renderCarte(garderVue){
       </div>
       <aside class="carte-panneau" id="carte-panneau">${cartePanneauHtml()}</aside>
     </div>`;
+  rrListesDessinees(mount);   // Lot « Les listes dessinées » : la liste du pilote s'ouvre dessinée
   carteSombreDessine = carteSombre();
   carteDemarrer(cadrage).catch(()=>{
     // Les scripts de la carte n'ont pas pu se charger : l'écran le dit, le panneau reste lisible.
