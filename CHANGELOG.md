@@ -14,6 +14,13 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 
 ## Unreleased
 
+**The mission list opens on the current year**
+- Missions loads one year at a time: the most recent year opens first; pick another year, or "All years", in the filters.
+- The squadron, year and month filters are now drop-down lists, lighter on a phone.
+
+**A faster pilot file**
+- Your logbook loads its full history only when you ask for it with "Show all".
+
 ## RR-V1.1.0 — 2026-11-26
 
 Every time now reads in the wing's time zone, the Pilot Manual gains a Help annex, and four fixes.
