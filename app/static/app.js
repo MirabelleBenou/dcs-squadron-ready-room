@@ -5643,7 +5643,8 @@ async function loadMissions(garderPeriodes){
 let rrListe = null;               // la liste ouverte : {select, puce, bouton, ul, actif} ; une seule à la fois
 let rrListesPosees = false;       // les écoutes du document ne se posent qu'une fois
 let rrListesN = 0;                // un identifiant de repli pour un <select> sans id ni data-filtre
-let rrListeFermeeA = 0;           // l'instant de la dernière fermeture au clavier (voir le clic du bouton)
+let rrListeFermeeA = 0;           // l'instant de la dernière fermeture par Entrée ou Espace (voir le clic du bouton)
+let rrNeutraliseClic = false;     // le clic qui suit le pointerdown ayant fermé la liste ne fait que fermer
 
 // Ferme la liste ouverte (et toute liste orpheline : un redessin a pu retirer le bouton de celle qui l'était).
 function rrListeFermer(rendreFocus){
@@ -5655,10 +5656,17 @@ function rrListeFermer(rendreFocus){
     const b = c.querySelector(".rr-lb");
     if(b){ b.setAttribute("aria-expanded", "false"); b.removeAttribute("aria-controls"); }
   });
-  if(o && rendreFocus){
-    rrListeFermeeA = performance.now();
-    if(o.bouton.isConnected) o.bouton.focus();
-  }
+  if(o && rendreFocus && o.bouton.isConnected) o.bouton.focus();
+}
+
+// Un redessin ne ferme que la liste de sa propre vue. Rend l'id du bouton de la liste fermée si elle tenait le focus
+// (le redessin le rend alors au bouton de même id), sinon null.
+function rrListeFermerDans(vue){
+  if(!rrListe || !vue || !vue.contains(rrListe.ul)) return null;
+  const tenait = rrListe.ul.contains(document.activeElement);
+  const id = rrListe.bouton.id;
+  rrListeFermer(false);
+  return tenait ? id : null;
 }
 
 // Rend une option active : la classe, `aria-activedescendant`, et la liste défile d'elle-même (jamais la page : un
@@ -5725,9 +5733,11 @@ function rrListeOuvrir(select){
   // dessous et qu'il y en a plus dessus ; la liste ne sort jamais de la fenêtre (elle défile alors d'elle-même).
   const r = puce.getBoundingClientRect();
   ul.style.minWidth = r.width + "px";
+  // La fenêtre sans sa barre de défilement : clientWidth / clientHeight, non innerWidth / innerHeight.
+  const fenetreL = document.documentElement.clientWidth, fenetreH = document.documentElement.clientHeight;
   const largeur = ul.offsetWidth, hauteur = ul.offsetHeight;
-  ul.style.left = Math.max(0, Math.min(r.left, window.innerWidth - largeur - 12)) + "px";
-  const placeBas = window.innerHeight - 12 - (r.bottom + 4), placeHaut = r.top - 4 - 12;
+  ul.style.left = Math.max(0, Math.min(r.left, fenetreL - largeur - 12)) + "px";
+  const placeBas = fenetreH - 12 - (r.bottom + 4), placeHaut = r.top - 4 - 12;
   const dessus = hauteur > placeBas && placeHaut > placeBas;
   const place = Math.max(dessus ? placeHaut : placeBas, 0);
   if(hauteur > place) ul.style.maxHeight = place + "px";
@@ -5750,8 +5760,9 @@ function rrListeOuvrir(select){
     else if(e.key === "ArrowUp") rrListeActiver(o, Math.max(o.actif - 1, 0));
     else if(e.key === "Home") rrListeActiver(o, 0);
     else if(e.key === "End") rrListeActiver(o, n - 1);
-    else if(e.key === "Enter" || e.key === " "){ if(!e.repeat) rrListeChoisir(o, o.actif); }
-    else if(e.key === "Escape" || e.key === "Tab") rrListeFermer(true);
+    else if(e.key === "Enter" || e.key === " "){ if(!e.repeat){ rrListeFermeeA = performance.now(); rrListeChoisir(o, o.actif); } }
+    else if(e.key === "Escape") rrListeFermer(true);
+    else if(e.key === "Tab"){ rrListeFermer(true); return; }   // ferme, rend le focus au bouton, et laisse le navigateur avancer (ou reculer) d'un seul appui
     else pris = false;
     if(pris){ e.preventDefault(); e.stopPropagation(); }
   });
@@ -5764,9 +5775,21 @@ function rrListeOuvrir(select){
 function rrListesPoser(){
   if(rrListesPosees) return;
   rrListesPosees = true;
+  // Le clic hors de la liste se prend au pointerdown ; le clic qui le suit est neutralisé (un seul, en capture) : toucher
+  // une pochette ou une épave pour fermer la liste n'ouvre rien, comme avec la liste du système.
+  document.addEventListener("pointerdown", (e)=>{
+    rrNeutraliseClic = false;
+    if(rrListe && !(e.target instanceof Element && e.target.closest(".rr-liste, .rr-lb"))){
+      rrListeFermer(false);
+      rrNeutraliseClic = true;
+    }
+  }, true);
   document.addEventListener("click", (e)=>{
-    if(rrListe && !e.target.closest(".rr-liste, .rr-lb")) rrListeFermer(false);
-  });
+    if(!rrNeutraliseClic) return;
+    rrNeutraliseClic = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
   window.addEventListener("scroll", (e)=>{
     if(rrListe && !(e.target instanceof Node && rrListe.ul.contains(e.target))) rrListeFermer(false);
   }, true);
@@ -5797,6 +5820,7 @@ function rrListesDessinees(racine){
     if(etiquette){
       if(!etiquette.id) etiquette.id = select.id + "-etiquette";
       bouton.setAttribute("aria-labelledby", etiquette.id + " " + bouton.id);
+      etiquette.htmlFor = bouton.id;   // un clic sur l'étiquette agit comme un clic sur la puce
     }
     bouton.addEventListener("click", (e)=>{
       // Le clic que le navigateur fait naître de la touche qu'on vient de relâcher (Espace choisit, le focus revient au
@@ -5981,7 +6005,7 @@ function missionsSkeletonHtml(){
 function renderMissions(){
   const mount = $("#missions-mount");
   if(!mount) return;
-  rrListeFermer(false);   // Lot « Les listes dessinées » : un redessin ferme la liste ouverte
+  const focusListe = rrListeFermerDans($("#view-missions"));   // Lot « Les listes dessinées » : un redessin ferme la liste de sa vue
 
   if(missionsLoadState === "loading" && !DEBRIEF_SESSIONS){
     mount.innerHTML = missionsSkeletonHtml();
@@ -6042,9 +6066,12 @@ function renderMissions(){
   }
   mount.innerHTML = html;
   rrListesDessinees(mount);   // Lot « Les listes dessinées » : les listes s'ouvrent dessinées
-  // La liste qui vient de changer reprend le focus que le redessin lui a pris (sans voler celui d'un autre contrôle) :
-  // le focus va au bouton de la liste (le <select> est caché).
-  if(missionsFocus && (!document.activeElement || document.activeElement === document.body)){
+  // Une liste fermée par ce redessin qui tenait le focus le rend au bouton de même id (cette règle prime) ; sinon la liste
+  // qui vient de changer reprend le focus que le redessin lui a pris (sans voler celui d'un autre contrôle) : le focus
+  // va au bouton de la liste (le <select> est caché).
+  const boutonListe = focusListe && document.getElementById(focusListe);
+  if(boutonListe) boutonListe.focus();
+  else if(missionsFocus && (!document.activeElement || document.activeElement === document.body)){
     const el = mount.querySelector(missionsFocus === "sim-select" ? "#sim-select" : `select[data-filtre="${missionsFocus}"]`);
     const bouton = el && el.parentElement.querySelector(".rr-lb");
     if(bouton) bouton.focus();
@@ -9543,10 +9570,10 @@ function cartePanneauHtml(){
 
 /* ---------- L'écran ---------- */
 function renderCarte(garderVue){
-  rrListeFermer(false);   // Lot « Les listes dessinées » : un redessin ferme la liste ouverte
   const mount = $("#carte-mount");
   const vue = $("#view-carte");
   if(!mount || !vue || vue.classList.contains("hidden")) return;   // caché : rendu à la prochaine ouverture
+  const focusListe = rrListeFermerDans(vue);   // Lot « Les listes dessinées » : un redessin ferme la liste de sa vue
   // La carte précédente part avec le contenu qu'on remplace ; un changement de thème ou de langue en garde le cadrage.
   let cadrage = null;
   if(carteMap){
@@ -9588,6 +9615,8 @@ function renderCarte(garderVue){
       <aside class="carte-panneau" id="carte-panneau">${cartePanneauHtml()}</aside>
     </div>`;
   rrListesDessinees(mount);   // Lot « Les listes dessinées » : la liste du pilote s'ouvre dessinée
+  const boutonListe = focusListe && document.getElementById(focusListe);
+  if(boutonListe) boutonListe.focus();   // la liste fermée par ce redessin tenait le focus : il va au bouton de même id
   carteSombreDessine = carteSombre();
   carteDemarrer(cadrage).catch(()=>{
     // Les scripts de la carte n'ont pas pu se charger : l'écran le dit, le panneau reste lisible.

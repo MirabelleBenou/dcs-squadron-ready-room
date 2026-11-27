@@ -3927,7 +3927,7 @@ html[data-layout="compact"] #view-carte .chip{font-size:.74rem;padding:.24rem .6
 #view-missions .chip.simsw .rr-lb:focus-visible,#view-carte .chip.simsw .rr-lb:focus-visible{outline:2px solid var(--ink-stamp-tx);outline-offset:2px;}
 .rr-liste{
   position:fixed;z-index:700;margin:0;padding:0;list-style:none;
-  max-width:min(22rem,calc(100vw - 1.5rem));max-height:min(18rem,60vh);overflow-y:auto;
+  max-width:min(22rem,calc(100vw - 1.5rem));max-height:min(18rem,60vh);overflow-y:auto;overscroll-behavior:contain;
   background-color:var(--paper-form);background-image:var(--paper-img);background-size:640px auto;
   border:1.5px solid var(--ink);
   box-shadow:3px 3px 0 color-mix(in srgb,var(--ink) 22%,transparent);
