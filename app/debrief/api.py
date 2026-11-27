@@ -39,7 +39,7 @@ from app.auth import get_current_user
 from app.capabilities import can_edit_session, is_admin
 from app.command import journal
 from app.db import AsyncSessionLocal, get_db
-from app.debrief import categorize, referentiel
+from app.debrief import carte, categorize, referentiel
 from app.debrief import engine
 from app.debrief import rattachement
 from app.debrief import report_facts
@@ -1075,6 +1075,9 @@ async def get_session(
         # à t = 0 (secondes), `None` sans `mission start` ; les journaux la lisent.
         "horloge_mission_s": session.horloge_mission_s,
         "duration_s": session.duration_s,
+        # Lot « La carte des destructions » : le théâtre, reconnu par les lieux des
+        # évènements déjà lus ci-dessus (aucune requête de plus) ; `None` sans lieu reconnu.
+        "theatre": carte.theatre_de([e.place for e in all_events if e.place]),
         "acmi_present": session.acmi_present,
         "sim": session.sim,
         # Lot Jauge ② v0.9928 (brief §6.2) : servis désormais, le client ne
@@ -1113,6 +1116,60 @@ async def get_session(
         "n_kills_validated": bilan["n_kills_validated"],
         "n_fratricides": bilan["n_fratricides"],
     }
+
+
+# --- GET /sessions/{id}/carte (Lot « La carte des destructions ») ------------------
+#
+# Les marques de la carte d'une session : épaves, tirs, touches, aérodromes, chutes. Un
+# nombre FIXE de lectures -- la session, ses vols (tous : aucun filtre des vols vides),
+# son cimetière, ses évènements utiles (une seule requête), les noms des membres --
+# quel que soit le nombre d'évènements ; la construction est la fonction pure
+# `carte.construire_carte`. Déclarée après `GET /sessions/{id}`, mêmes droits.
+
+
+@router.get("/sessions/{session_id}/carte")
+async def get_session_carte(
+    session_id: uuid.UUID,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    session = await _session_or_404(db, session_id)
+    flights_all = (
+        await db.execute(
+            select(DebriefFlight)
+            .where(DebriefFlight.session_id == session_id)
+            .order_by(DebriefFlight.t_start.nulls_last())
+        )
+    ).scalars().all()
+    graveyard = (
+        await db.execute(select(DebriefGraveyard).where(DebriefGraveyard.session_id == session_id))
+    ).scalars().all()
+    evenements = (
+        await db.execute(
+            select(DebriefEvent).where(
+                DebriefEvent.session_id == session_id,
+                or_(
+                    DebriefEvent.type.in_(carte.TYPES_EVENEMENTS_CARTE),
+                    DebriefEvent.place.is_not(None),
+                ),
+            )
+        )
+    ).scalars().all()
+    noms_by_pid = await _noms_membres_bulk(
+        db, {f.pilote_profile_id for f in flights_all if f.pilote_profile_id}
+    )
+    return carte.construire_carte(
+        {
+            "id": str(session.id),
+            "display_title": session.display_name or beautify_mission_title(session.title),
+            "mission_date": session.mission_date.isoformat() if session.mission_date else None,
+            "duration_s": session.duration_s,
+        },
+        flights_all,
+        evenements,
+        graveyard,
+        noms_by_pid,
+    )
 
 
 # --- PATCH /sessions/{id} (Lot 2.1 §4.5) --------------------------------------

@@ -678,6 +678,12 @@ class MergedEvent:
     # pour les autres champs. HORS de `natural_key` : il ne distingue pas
     # deux faits, il qualifie celui qu'on a.
     target_coalition: str | None = None
+    # Lot « La carte des destructions » : le lieu nommé du journal (`place`,
+    # détouré) et le camp de l'initiateur (validé par `_coalition_valide`) --
+    # le premier journal qui les donne l'emporte. HORS de `natural_key`, comme
+    # le camp de la cible : ils qualifient le fait, ils ne le distinguent pas.
+    place: str | None = None
+    initiator_coalition: str | None = None
     # Lot « La précision des armes — le moteur » : la famille de l'arme,
     # décodée de `weapon_type` (`_famille_arme`), et le nombre d'obus tirés
     # d'une fin de rafale (`ammo_consumption`, `_munitions_tirees`). Le
@@ -832,6 +838,9 @@ def _merge_events(
             ev_type = e.type or ""
             w = lexique.canon_arme(e.weapon)
             camp_cible = _coalition_valide(e.target_coalition)
+            # Lot « La carte des destructions » : le lieu et le camp de l'initiateur.
+            lieu = str(e.raw.get("place") or "").strip() or None
+            camp_initiateur = _coalition_valide(e.initiator_coalition)
             famille = _famille_arme(e.raw)
             munitions = _munitions_tirees(ev_type, e.raw)
             key = _coarse_event_key(
@@ -872,6 +881,11 @@ def _merge_events(
                 best.weapon = best.weapon or w
                 best.target_object_id = best.target_object_id or e.target_object_id
                 best.target_coalition = best.target_coalition or camp_cible
+                # Lot « La carte des destructions » : le premier journal qui les donne.
+                if best.place is None:
+                    best.place = lieu
+                if best.initiator_coalition is None:
+                    best.initiator_coalition = camp_initiateur
                 # Le premier journal l'emporte -- `is None`, pas `or` : 0 est
                 # une valeur (une famille 0, une rafale de 0 obus).
                 if best.weapon_family is None:
@@ -888,6 +902,8 @@ def _merge_events(
                     target_unit_type=e.target_unit_type,
                     weapon=w,
                     target_coalition=camp_cible,
+                    place=lieu,
+                    initiator_coalition=camp_initiateur,
                     weapon_family=famille,
                     ammo=munitions,
                     seen_in=[upload_id],
@@ -3127,6 +3143,9 @@ async def _persist_events(
                 initiator_unit_type=ev.initiator_unit_type,
                 target_unit_type=ev.target_unit_type,
                 weapon=ev.weapon,
+                place=ev.place,
+                initiator_coalition=ev.initiator_coalition,
+                target_coalition=ev.target_coalition,
                 seen_in=ev.seen_in,
                 event_id_by_upload=ev.event_id_by_upload,
                 linked_event_id_by_upload=ev.linked_event_id_by_upload,

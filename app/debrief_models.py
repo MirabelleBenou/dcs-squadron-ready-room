@@ -307,6 +307,12 @@ class DebriefEvent(Base):
     initiator_unit_type: Mapped[str | None] = mapped_column(Text, nullable=True)
     target_unit_type: Mapped[str | None] = mapped_column(Text, nullable=True)
     weapon: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Lot « La carte des destructions » : le lieu nommé d'un décollage ou d'un
+    # atterrissage (`raw["place"]` du journal), le camp de l'initiateur et celui
+    # de la cible (encodage DCS validé par le moteur). Nullables, sans index.
+    place: Mapped[str | None] = mapped_column(Text, nullable=True)
+    initiator_coalition: Mapped[str | None] = mapped_column(Text, nullable=True)
+    target_coalition: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Traçabilité multi-fichiers (spec §5) : liste des upload_id ayant vu cet
     # event fusionné, et chaînage intra-fichier event_id/linked_event_id
     # (JAMAIS utilisés en clé inter-fichiers — locaux à chaque debrief.log).

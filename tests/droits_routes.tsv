@@ -16,6 +16,7 @@ GET	/api/debrief/sessions	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/sessions/periodes	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/soiree	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/sessions/{session_id}	401	L	403	403	403	L	L	403	403	L
+GET	/api/debrief/sessions/{session_id}/carte	401	L	403	403	403	L	L	403	403	L
 PATCH	/api/debrief/sessions/{session_id}	401	403	403	403	403	E	403	403	403	E
 GET	/api/debrief/sessions/{session_id}/flights/{flight_id}	401	L	403	403	403	L	L	403	403	L
 PATCH	/api/debrief/sessions/{session_id}/flights/{flight_id}/periode	401	403	403	403	403	E	403	403	403	E
