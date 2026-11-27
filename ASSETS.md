@@ -46,11 +46,20 @@ Drawings of the application's screens made by the project, on fictional data (th
 Oswald, Zilla Slab and JetBrains Mono under the SIL Open Font License 1.1; Special Elite under the Apache License 2.0.
 Each font with its copyright and its licence text: [`fonts/LICENSES.md`](app/static/assets/fonts/LICENSES.md).
 
+## Third-party scripts — `app/static/vendor/`
+
+| folder | what | origin and terms |
+|---|---|---|
+| `maplibre-gl-6.17.0/` | MapLibre GL JS 6.17.0, which draws the session map | [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js), BSD 3-Clause licence, text in `LICENSE.txt` next to it; **not covered by the AGPL licence** |
+| `pmtiles-4.5.0/` | the PMTiles reader 4.5.0, which reads the base map tiles | [PMTiles](https://github.com/protomaps/PMTiles), BSD 3-Clause licence, text in `LICENSE.txt` next to it; **not covered by the AGPL licence** |
+| `fonds/charger-style.js` | loads a base map style and resolves its relative addresses | from [dcs-readyroom-basemaps](https://github.com/MirabelleBenou/dcs-readyroom-basemaps) (`web/charger-style.js`, same author, MIT licence) |
+
 ## Data tables
 
 | file | what | origin and terms |
 |---|---|---|
 | `app/data/object_db_v2_index.json` | DCS unit types (name shown, attributes, family) read by the debriefings | the type names and attributes of DCS World's unit database and of the add-on packs named in each entry's `source` field; they belong to Eagle Dynamics and to those packs' authors, and are **not covered by the AGPL licence** — listed so that a debriefing can name what it saw |
+| `app/data/aerodromes_dcs.json` | the position of each airfield of Syria, Germany (Cold War) and Caucasus, by name, in the game's coordinates, read by the session map | extracted from [pydcs](https://github.com/pydcs/dcs) 1.0.0 (`dcs/terrain/*/airports.py`, LGPL-3.0-or-later); the names and positions are those of DCS World; **not covered by the AGPL licence** |
 | `app/static/dcs_types_livrees.json` | DCS aircraft types and their default liveries | from [DCS Mission Plan](https://github.com/MirabelleBenou/dcs-mission-plan) (`data/liveries_default.json`, same author, AGPL-3.0-or-later); the livery and type names are those of DCS World |
 
 ---

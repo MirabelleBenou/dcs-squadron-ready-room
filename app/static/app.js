@@ -383,6 +383,41 @@ const I18N = {
     cart_sub_missions:"{wing} · Registre des missions volées",
     cart_title_session:"SESSION",
     cart_sub_session:"{wing} · Compte rendu de mission",
+    // Lot « La carte des destructions » : l'écran carte de l'Escadre.
+    carte_cta:"Carte",
+    cart_title_carte:"CARTE",
+    cart_sub_carte:"Carte des destructions",
+    carte_epaves:"épaves",
+    theatre_syria:"Syrie",
+    theatre_germanycw:"Allemagne (guerre froide)",
+    theatre_caucasus:"Caucase",
+    carte_pilote_titre:"Pilote",
+    carte_pilote_label:"Afficher les destructions d'un pilote",
+    carte_tous_pilotes:"Tous les pilotes",
+    carte_bilan_aide:"Choisis un pilote pour afficher ses cibles ; le reste s'estompe. Une épave ne lui est attribuée que si elle est la seule de son type ; sinon, tout le groupe s'affiche, avec son compte.",
+    carte_epave_identifiee:"ÉPAVE IDENTIFIÉE",
+    carte_de_ces:"{n} de ces {N}",
+    carte_tir_fratricide:"TIR FRATRICIDE",
+    carte_legende_titre:"Légende — décocher pour masquer",
+    carte_camp_bleu:"Camp bleu",
+    carte_camp_rouge:"Camp rouge",
+    carte_camp_neutre:"Camp neutre",
+    carte_pertes_bleu:"Pertes du camp bleu (avions, hélicoptères)",
+    carte_pertes_rouge:"Pertes du camp rouge (avions, hélicoptères)",
+    carte_aerodromes_legende:"Aérodromes, décollages ↑ et atterrissages ↓",
+    carte_chutes_titre:"Éjections et pilotes tués",
+    carte_chutes_note:"Le journal ne donne pas leur position : une marque se pose sur l'épave de l'appareil quand elle est la seule de son type ({n} sur {N} ici).",
+    carte_ejection:"Éjection",
+    carte_pilote_tue:"Pilote tué",
+    carte_ia:"IA",
+    carte_ia_type:"IA ({type})",
+    carte_aerodromes_titre:"Aérodromes",
+    carte_sans_lieu:"{n} décollages ou atterrissages sans lieu nommé ne sont pas posés.",
+    carte_detruit_par:"Détruit par",
+    carte_touche_par:"Touché par",
+    carte_fond_absent:"Le fond de carte n'est pas disponible : les marques sont posées sur une grille.",
+    carte_aucune:"Pas de carte pour cette session : aucun aérodrome nommé ne permet d'en reconnaître le théâtre.",
+    carte_aria:"Carte des destructions de la session",
     cart_title_flight:"VOL",
     cart_sub_flight:"{wing} · Fiche de vol",
     missions_empty:"Aucune mission déposée",
@@ -1597,6 +1632,41 @@ const I18N = {
     cart_sub_missions:"{wing} · Flown missions register",
     cart_title_session:"SESSION",
     cart_sub_session:"{wing} · Mission report",
+    // Lot « La carte des destructions » : the Wing's session map screen.
+    carte_cta:"Map",
+    cart_title_carte:"MAP",
+    cart_sub_carte:"Destruction map",
+    carte_epaves:"wrecks",
+    theatre_syria:"Syria",
+    theatre_germanycw:"Germany (Cold War)",
+    theatre_caucasus:"Caucasus",
+    carte_pilote_titre:"Pilot",
+    carte_pilote_label:"Show a pilot's kills",
+    carte_tous_pilotes:"All pilots",
+    carte_bilan_aide:"Pick a pilot to show their targets; everything else fades. A wreck is credited to them only if it is the only one of its type; otherwise the whole group is shown, with its count.",
+    carte_epave_identifiee:"WRECK IDENTIFIED",
+    carte_de_ces:"{n} of these {N}",
+    carte_tir_fratricide:"FRIENDLY FIRE",
+    carte_legende_titre:"Legend — untick to hide",
+    carte_camp_bleu:"Blue side",
+    carte_camp_rouge:"Red side",
+    carte_camp_neutre:"Neutral side",
+    carte_pertes_bleu:"Blue side losses (aircraft, helicopters)",
+    carte_pertes_rouge:"Red side losses (aircraft, helicopters)",
+    carte_aerodromes_legende:"Airfields, take-offs ↑ and landings ↓",
+    carte_chutes_titre:"Ejections and pilots killed",
+    carte_chutes_note:"The log does not give their position: a mark is placed on the aircraft's wreck when it is the only one of its type ({n} of {N} here).",
+    carte_ejection:"Ejection",
+    carte_pilote_tue:"Pilot killed",
+    carte_ia:"AI",
+    carte_ia_type:"AI ({type})",
+    carte_aerodromes_titre:"Airfields",
+    carte_sans_lieu:"{n} take-offs or landings without a named place are not shown.",
+    carte_detruit_par:"Destroyed by",
+    carte_touche_par:"Hit by",
+    carte_fond_absent:"The base map is not available: the marks are placed on a grid.",
+    carte_aucune:"No map for this session: no named airfield tells which theatre it was flown on.",
+    carte_aria:"Map of the session's destructions",
     cart_title_flight:"FLIGHT",
     cart_sub_flight:"{wing} · Flight record",
     missions_empty:"No missions uploaded yet",
@@ -3293,6 +3363,7 @@ function setLang(lang){
   if(!$("#modal-deposer").classList.contains("hidden")) renderDeposerFileList();
   if(!$("#modal-report").classList.contains("hidden")) renderModalReport();
   if(CURRENT_SESSION && sessionDetailLoadState === "ready") renderSession();
+  if(CARTE && carteLoadState === "ready") renderCarte(true);   // Lot « La carte des destructions » : le cadrage de la carte est gardé
   if(CURRENT_FLIGHT  && flightDetailLoadState  === "ready") renderFlight();
   if(dossierLoadState === "ready") renderPilotes(); // Lot « L'écran A »
   // Lot « L'écran C » : le registre et la fiche, s'ils ont été demandés.
@@ -6239,6 +6310,10 @@ function sessionHeaderHtml(s){
         t("recompute_all_cta").replace("{n}", staleCount).replace("{s}", staleCount > 1 ? "s" : "")
       )}</button>`
     : "";
+  // Lot « La carte des destructions » : le bouton n'existe que si le théâtre de la session est reconnu.
+  const carteBtnHtml = s.theatre
+    ? `<button type="button" class="btn btn-sm" data-open-carte>${escapeHtml(t("carte_cta"))}</button>`
+    : "";
   return `<div class="idbar">
     <div>
       <div class="kick">${escapeHtml(fmtSessionDateFull(s.mission_date))}</div>
@@ -6249,6 +6324,7 @@ function sessionHeaderHtml(s){
       <div class="idacts">
         ${natureStampHtml(s)}
         <button type="button" class="btn btn-sm" data-open-report>${escapeHtml(t("session_report_cta"))}</button>
+        ${carteBtnHtml}
         ${editBtnHtml}
         ${recomputeBtnHtml}
         ${recomputeAllBtnHtml}
@@ -8301,6 +8377,7 @@ function wireSessionMount(){
       if(retryBtn){ ensureSessionLoaded(CURRENT_SESSION_ID); return; }
       const reportBtn = e.target.closest("[data-open-report]");
       if(reportBtn){ openModalReport(); return; }
+      if(e.target.closest("[data-open-carte]")){ goDebrief("carte"); return; }   // Lot « La carte des destructions »
       // Lot 2.1 §4.8b : bascule/annulation/sauvegarde du bloc d'édition
       // nom/note -- vérifiées avant data-open-flight (aucune collision de
       // sélecteur possible, mais même discipline que groupToggle ci-dessous).
@@ -9007,7 +9084,7 @@ const DEBRIEF_ROOTS = ["accueil","pilotes","campagnes","missions","escadrilles"]
 let debriefStack = ["accueil"]; // Lot « L'écran B » : l'accueil est l'écran d'arrivée.
 
 function renderDebrief(screen){
-  ["accueil","pilotes","campagnes","campagne","missions","escadrilles","escadrille","membre","session","flight"].forEach(s=>{
+  ["accueil","pilotes","campagnes","campagne","missions","escadrilles","escadrille","membre","session","flight","carte"].forEach(s=>{
     const el = $("#view-"+s);
     if(el) el.classList.toggle("hidden", s!==screen);
   });
@@ -9023,6 +9100,7 @@ function renderDebrief(screen){
   if(screen === "missions") ensureMissionsLoaded();
   if(screen === "session") ensureSessionLoaded(CURRENT_SESSION_ID);
   if(screen === "flight") ensureFlightLoaded(CURRENT_FLIGHT_ID);
+  if(screen === "carte") ensureCarteLoaded(CURRENT_SESSION_ID);   // Lot « La carte des destructions »
   if(screen === "escadrilles") ensureEscadreLoaded(); // Lot « L'écran D » (R177)
   // Lot « Les écrans E et F » : E se lit dans la charge de D ; F a sa route.
   if(screen === "escadrille") ensureEscadreLoaded();
@@ -9059,6 +9137,504 @@ function goDebrief(screen, opts){
       (i < debriefStack.length - 1 && bas[i] && bas[i].e === nom) ? bas[i] : rrItem("debrief", nom)));
   }
   renderDebrief(screen);
+}
+
+/* ===================================================================
+   Lot « La carte des destructions » — l'écran carte de l'Escadre (`#debrief/carte/<id>`), ouvert par le bouton
+   « Carte » de l'écran Session. Une lecture (`GET /api/debrief/sessions/{id}/carte`), puis tout se dessine
+   côté client : les épaves par camp et par type, les aérodromes avec leurs décollages et atterrissages, la
+   légende qui est le filtre, un pilote dont on montre les cibles. Les scripts de la carte (MapLibre GL JS,
+   PMTiles, le chargeur de style) ne se chargent qu'à la PREMIÈRE ouverture de l'écran, une fois par page,
+   depuis /static/vendor/ : la politique de contenu de l'App ne change pas.
+   =================================================================== */
+let CARTE_ID = null;              // la session dont CARTE est la carte
+let CARTE = null;                 // la réponse de la route
+let carteLoadState = "idle";      // idle | loading | ready | error
+let carteError = null;
+let carteEtat = {camps:{blue:true, red:true, neutral:true}, cats:{}, pertes:true, aeros:true, pilote:""};
+let carteT0 = 0;                  // le plus petit `t` des tirs, des chutes, des décollages et atterrissages
+let carteMap = null;              // la carte MapLibre en cours
+let carteJeton = 0;               // le dessin le plus récent de la carte l'emporte
+let carteScripts = null;          // la promesse du chargement des scripts : une fois par page
+let carteObservateur = null;      // le changement de thème redessine la carte
+const CARTE_AERONEFS = new Set(["Avion", "Hélicoptère"]);
+const CARTE_CAMPS = ["blue", "red", "neutral"];
+const CARTE_CLE_CAMP = {blue:"bleu", red:"rouge", neutral:"neutre"};   // `carte_camp_<…>`, `carte_pertes_<…>`
+// Si la session n'a ni épave ni aérodrome, la vue de repli de chaque théâtre : [[ouest, sud], [est, nord]].
+const CARTE_EMPRISES = {syria:[[35, 32], [42.5, 37.5]], germanycw:[[5.5, 47], [14, 55]], caucasus:[[36, 40], [48, 46]]};
+
+async function ensureCarteLoaded(id){
+  if(!id) return;
+  if(CARTE && CARTE_ID === id && carteLoadState === "ready"){ renderCarte(); return; }
+  if(CARTE_ID === id && carteLoadState === "loading") return;
+  CARTE_ID = id;
+  CARTE = null;
+  carteEtat = {camps:{blue:true, red:true, neutral:true}, cats:{}, pertes:true, aeros:true, pilote:""};
+  carteLoadState = "loading";
+  carteError = null;
+  renderCarte();
+  try {
+    const donnees = await apiFetch(`/api/debrief/sessions/${id}/carte`);
+    if(CARTE_ID !== id) return;
+    CARTE = donnees;
+    carteInitEtat();
+    carteLoadState = "ready";
+    rrChargeFaite("carte", id);
+  } catch(e){
+    if(CARTE_ID !== id) return;
+    carteLoadState = "error";
+    carteError = e.message || t("error_generic");
+    if(rrChargeRefusee("carte", id, e)) return;   // ouverte par l'adresse : une 4xx ramène à Missions
+  }
+  renderCarte();
+}
+
+// Ce que les données fixent une fois chargées : les catégories (toutes cochées) et l'origine des temps.
+function carteInitEtat(){
+  const cats = new Set(CARTE.epaves.map(e=> e.categorie));
+  carteEtat.cats = {};
+  cats.forEach(c=>{ carteEtat.cats[c] = true; });
+  const ts = [
+    ...CARTE.tirs.map(k=> k.t), ...CARTE.chutes.map(c=> c.t),
+    ...CARTE.aerodromes.flatMap(a=> [...a.dec, ...a.att].map(x=> x.t)),
+  ];
+  carteT0 = ts.length ? Math.min(...ts) : 0;
+}
+
+function carteFmt(cle, vars){
+  return t(cle).replace(/\{(\w+)\}/g, (m, k)=> (k in vars ? String(vars[k]) : m));
+}
+function carteTplus(secondes){ return "t+" + fmtDuree(secondes - carteT0); }
+function carteSombre(){ return document.documentElement.getAttribute("data-theme") === "dark"; }
+
+// Une propriété de `#view-carte` (ou un jeton de l'App) résolue en couleur : une sonde, comme l'écran la lit.
+function carteCouleur(propriete){
+  const vue = $("#view-carte");
+  const sonde = document.createElement("span");
+  sonde.hidden = true;
+  sonde.style.color = `var(${propriete})`;
+  vue.appendChild(sonde);
+  const c = getComputedStyle(sonde).color;
+  sonde.remove();
+  return c;
+}
+function carteCouleurCamp(camp){ return carteCouleur("--" + camp); }
+
+// Les acteurs. Un vol anonyme se nomme comme à l'écran de la Session ; l'IA n'a pas de vol.
+function carteVol(cle){ return cle ? CARTE.vols[cle] : null; }
+function carteNomTireur(k){   // le nom d'un pilote identifié, sinon `null`
+  const f = carteVol(k.vol);
+  return (f && f.identity_state !== "anonyme") ? flightLabelOf(f) : null;
+}
+function carteNomActeur(cle, type){   // la fiche d'une épave : le pilote, ou « IA (type) »
+  const f = carteVol(cle);
+  return f ? flightLabelOf(f) : carteFmt("carte_ia_type", {type: type || "?"});
+}
+function cartePilotes(){
+  const n = new Map();
+  CARTE.tirs.forEach(k=>{ const nom = carteNomTireur(k); if(nom) n.set(nom, (n.get(nom) || 0) + 1); });
+  return [...n.entries()].sort((a, b)=> a[0].localeCompare(b[0], currentLang));
+}
+function carteGroupesDuPilote(nom){
+  const g = new Set();
+  CARTE.tirs.forEach(k=>{ if(carteNomTireur(k) === nom) g.add(k.cible + "|" + k.cible_camp); });
+  return g;
+}
+function carteEstPerte(e){ return !!CARTE.camp_ami && e.camp === CARTE.camp_ami && CARTE_AERONEFS.has(e.categorie); }
+function carteCategories(){
+  return Object.keys(carteEtat.cats).sort((a, b)=>
+    a === "Inconnu" ? 1 : b === "Inconnu" ? -1 : catLabel(a).localeCompare(catLabel(b), currentLang));
+}
+
+/* ---------- Les marques, dessinées comme au crayon ---------- */
+function carteSvgEclat(couleur, cercle){
+  let p = "";
+  for(let i = 0; i < 16; i++){ const r = i % 2 ? 3.2 : 8.5, a = Math.PI * i / 8; p += `${10 + r * Math.sin(a)},${10 - r * Math.cos(a)} `; }
+  return `<svg viewBox="0 0 20 20" class="ico"><polygon points="${p}" fill="${couleur}"/>${cercle ? `<circle cx="10" cy="10" r="9.2" fill="none" stroke="${couleur}" stroke-width="1.4"/>` : ""}</svg>`;
+}
+function carteSvgPiste(couleur){
+  return `<svg viewBox="0 0 20 20" class="ico"><rect x="3" y="8.5" width="14" height="3" rx="1" fill="${couleur}" transform="rotate(-30 10 10)"/></svg>`;
+}
+function carteImage(svg, px){
+  return new Promise((ok, ko)=>{
+    const i = new Image(px, px);
+    i.onload = ()=> ok(i);
+    i.onerror = ()=> ko(new Error("image"));
+    i.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.replace('class="ico"', `width="${px}" height="${px}" xmlns="http://www.w3.org/2000/svg"`));
+  });
+}
+
+/* ---------- Le panneau ---------- */
+function carteBilanHtml(){
+  if(!carteEtat.pilote) return `<p class="note">${escapeHtml(t("carte_bilan_aide"))}</p>`;
+  const par = new Map();
+  CARTE.tirs.filter(k=> carteNomTireur(k) === carteEtat.pilote).forEach(k=>{
+    const cle = k.cible + "|" + k.cible_camp;
+    if(!par.has(cle)) par.set(cle, []);
+    par.get(cle).push(k);
+  });
+  return `<ul class="carte-liste">` + [...par.entries()].map(([cle, l])=>{
+    const epaves = CARTE.epaves.filter(e=> e.type + "|" + e.camp === cle);
+    const n = epaves.length, e0 = epaves[0];
+    const quoi = n === 1
+      ? `<span class="carte-tag">${escapeHtml(t("carte_epave_identifiee"))}</span>`
+      : `<span class="note"> · ${escapeHtml(carteFmt("carte_de_ces", {n: l.length, N: n}))}</span>`;
+    const frat = l[0].cible_camp === l[0].tireur_camp ? `<span class="carte-tag">${escapeHtml(t("carte_tir_fratricide"))}</span>` : "";
+    return `<li><span class="carte-t">${escapeHtml(carteTplus(l[0].t))}</span><span><span class="carte-pt c-${l[0].cible_camp}"></span>${escapeHtml(e0 ? e0.nom : l[0].cible)}${l.length > 1 ? " ×" + l.length : ""}${quoi}${frat}</span></li>`;
+  }).join("") + `</ul>`;
+}
+
+function carteLegendeHtml(){
+  const n = f=> CARTE.epaves.filter(f).length;
+  const rang = (id, ico, lib, cnt, on)=>
+    `<label class="carte-leg${on ? "" : " off"}"><input type="checkbox" data-k="${escapeAttr(id)}"${on ? " checked" : ""}><span class="carte-ico">${ico}</span><span class="lab">${escapeHtml(lib)}</span><span class="n">${cnt}</span></label>`;
+  let h = "";
+  CARTE_CAMPS.filter(c=> n(e=> e.camp === c)).forEach(c=>{
+    h += rang("camp:" + c, carteSvgEclat(carteCouleurCamp(c), false), t("carte_camp_" + CARTE_CLE_CAMP[c]), n(e=> e.camp === c), carteEtat.camps[c]);
+  });
+  if(CARTE.camp_ami){
+    h += rang("pertes", carteSvgEclat(carteCouleurCamp(CARTE.camp_ami), true), t("carte_pertes_" + CARTE_CLE_CAMP[CARTE.camp_ami]),
+      n(e=> carteEstPerte(e)), carteEtat.pertes);
+  }
+  h += `<div class="carte-espace"></div>`;
+  carteCategories().forEach(c=>{ h += rang("cat:" + c, "", catLabel(c), n(e=> e.categorie === c), carteEtat.cats[c]); });
+  h += `<div class="carte-espace"></div>` + rang("aeros", carteSvgPiste(carteCouleur("--ink")), t("carte_aerodromes_legende"), CARTE.aerodromes.length, carteEtat.aeros);
+  return h;
+}
+
+function carteChutesHtml(){
+  const placees = CARTE.chutes.filter(c=> c.lon != null).length;
+  const lignes = CARTE.chutes.map(c=>{
+    const f = carteVol(c.vol);
+    const qui = f ? flightLabelOf(f) : t("carte_ia");
+    return `<li><span class="carte-t">${escapeHtml(carteTplus(c.t))}</span><span><span class="carte-pt c-${c.camp}"></span>${escapeHtml(t(c.quoi === "ejection" ? "carte_ejection" : "carte_pilote_tue"))} — ${escapeHtml(qui)}, ${escapeHtml(c.type)}</span></li>`;
+  }).join("");
+  return `<p class="note">${escapeHtml(carteFmt("carte_chutes_note", {n: placees, N: CARTE.chutes.length}))}</p><ul class="carte-liste">${lignes}</ul>`;
+}
+
+function carteAerosHtml(){
+  const liste = CARTE.aerodromes.slice().sort((a, b)=> (b.dec.length + b.att.length) - (a.dec.length + a.att.length))
+    .map(a=> `<li><span class="carte-t">↑${a.dec.length} ↓${a.att.length}</span><span>${escapeHtml(a.nom)}</span></li>`).join("");
+  const sans = CARTE.sans_lieu ? `<p class="note">${escapeHtml(carteFmt("carte_sans_lieu", {n: CARTE.sans_lieu}))}</p>` : "";
+  return `<ul class="carte-liste">${liste}</ul>${sans}`;
+}
+
+function cartePanneauHtml(){
+  const pilotes = cartePilotes();
+  const options = `<option value="">${escapeHtml(t("carte_tous_pilotes"))}</option>`
+    + pilotes.map(([nom, n])=> `<option value="${escapeAttr(nom)}"${nom === carteEtat.pilote ? " selected" : ""}>${escapeHtml(nom)} (${n})</option>`).join("");
+  return `<div class="sec ink">${escapeHtml(t("carte_pilote_titre"))}</div>
+    <label class="carte-champ" for="carte-pilote">${escapeHtml(t("carte_pilote_label"))}</label>
+    <select id="carte-pilote">${options}</select>
+    <div id="carte-bilan">${carteBilanHtml()}</div>
+    <div class="sec ink">${escapeHtml(t("carte_legende_titre"))}</div>
+    <div id="carte-legende">${carteLegendeHtml()}</div>
+    <div class="sec ink">${escapeHtml(t("carte_chutes_titre"))}</div>
+    ${carteChutesHtml()}
+    <div class="sec ink">${escapeHtml(t("carte_aerodromes_titre"))}</div>
+    ${carteAerosHtml()}`;
+}
+
+/* ---------- L'écran ---------- */
+function renderCarte(garderVue){
+  const mount = $("#carte-mount");
+  const vue = $("#view-carte");
+  if(!mount || !vue || vue.classList.contains("hidden")) return;   // caché : rendu à la prochaine ouverture
+  // La carte précédente part avec le contenu qu'on remplace ; un changement de thème ou de langue en garde le cadrage.
+  let cadrage = null;
+  if(carteMap){
+    if(garderVue) cadrage = {center: carteMap.getCenter(), zoom: carteMap.getZoom()};
+    carteMap.remove();
+    carteMap = null;
+  }
+  carteJeton++;
+  if(carteLoadState === "loading" || (carteLoadState === "ready" && !CARTE)){
+    mount.innerHTML = `<div class="idbar"><div><div class="kick"><span class="bar" style="width:8rem;height:.9rem"></span></div><div class="callsign ink worn"><span class="bar" style="width:14rem;height:2rem"></span></div></div></div><div class="rule2 ink"></div>`;
+    return;
+  }
+  if(carteLoadState === "error"){
+    mount.innerHTML = `<div class="state fail">
+      <p>${escapeHtml(carteError || t("error_generic"))}</p>
+      <button type="button" class="btn btn-sm" data-carte-retry>${escapeHtml(t("session_error_retry"))}</button>
+    </div>`;
+    return;
+  }
+  if(!CARTE) return;
+  if(!CARTE.theatre){
+    mount.innerHTML = `<p class="note">${escapeHtml(t("carte_aucune"))}</p>`;
+    return;
+  }
+  const meta = `${t("theatre_" + CARTE.theatre)} · ${fmtDuree(CARTE.duration_s)} · ${CARTE.epaves.length} ${t("carte_epaves")}`;
+  mount.innerHTML = `<div class="idbar">
+      <div>
+        <div class="kick">${escapeHtml(fmtSessionDateFull(CARTE.mission_date))}</div>
+        <div class="callsign ink worn">${escapeHtml(CARTE.display_title)}</div>
+      </div>
+      <div class="meta"><b>${escapeHtml(meta)}</b></div>
+    </div>
+    <div class="rule2 ink"></div>
+    <div class="carte-corps">
+      <div class="carte-zone">
+        <div id="carte-carte" class="carte-carte" role="img" aria-label="${escapeAttr(t("carte_aria"))}"></div>
+        <p class="note" id="carte-fond-note" hidden>${escapeHtml(t("carte_fond_absent"))}</p>
+      </div>
+      <aside class="carte-panneau" id="carte-panneau">${cartePanneauHtml()}</aside>
+    </div>`;
+  carteDemarrer(cadrage).catch(()=>{
+    // Les scripts de la carte n'ont pas pu se charger : l'écran le dit, le panneau reste lisible.
+    const note = $("#carte-fond-note");
+    if(note){ note.textContent = t("error_generic"); note.hidden = false; }
+  });
+}
+
+function carteRafraichirBilan(){ const el = $("#carte-bilan"); if(el) el.innerHTML = carteBilanHtml(); }
+function carteRafraichirLegende(clef){
+  const el = $("#carte-legende");
+  if(!el) return;
+  el.innerHTML = carteLegendeHtml();
+  if(clef){ const c = [...el.querySelectorAll("input[data-k]")].find(i=> i.dataset.k === clef); if(c) c.focus(); }
+}
+
+function wireCarteMount(){
+  const mount = $("#carte-mount");
+  if(!mount) return;
+  mount.addEventListener("click", (e)=>{
+    if(e.target.closest("[data-carte-retry]")){ carteLoadState = "idle"; CARTE_ID = null; ensureCarteLoaded(CURRENT_SESSION_ID); }
+  });
+  mount.addEventListener("change", (e)=>{
+    if(!CARTE) return;
+    if(e.target.id === "carte-pilote"){
+      carteEtat.pilote = e.target.value;
+      carteRafraichirBilan();
+      carteRafraichirMarques();
+      return;
+    }
+    const k = e.target.dataset && e.target.dataset.k;
+    if(!k) return;
+    const i = k.indexOf(":");
+    const genre = i < 0 ? k : k.slice(0, i), nom = i < 0 ? "" : k.slice(i + 1);
+    if(genre === "camp") carteEtat.camps[nom] = e.target.checked;
+    else if(genre === "cat") carteEtat.cats[nom] = e.target.checked;
+    else carteEtat[genre] = e.target.checked;
+    carteRafraichirLegende(k);
+    carteRafraichirMarques();
+  });
+}
+
+/* ---------- La carte : les scripts, le fond, les couches ---------- */
+function carteScript(src){
+  return new Promise((ok, ko)=>{
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = ()=> ok();
+    s.onerror = ()=> ko(new Error(src));
+    document.head.appendChild(s);
+  });
+}
+// La première ouverture charge la feuille, les deux scripts, puis le module MapLibre ; les suivantes reprennent la promesse.
+function carteChargerScripts(){
+  if(carteScripts) return carteScripts;
+  carteScripts = (async ()=>{
+    const feuille = document.createElement("link");
+    feuille.rel = "stylesheet";
+    feuille.href = "/static/vendor/maplibre-gl-6.17.0/maplibre-gl.css";
+    document.head.appendChild(feuille);
+    await carteScript("/static/vendor/pmtiles-4.5.0/pmtiles.js");
+    await carteScript("/static/vendor/fonds/charger-style.js");
+    const ml = await import("/static/vendor/maplibre-gl-6.17.0/maplibre-gl.mjs");
+    ml.addProtocol("pmtiles", new window.pmtiles.Protocol().tile);
+    return ml;
+  })().catch(e=>{ carteScripts = null; throw e; });
+  return carteScripts;
+}
+
+function carteBornes(){
+  const pts = [...CARTE.epaves.map(e=> [e.lon, e.lat]), ...CARTE.aerodromes.map(a=> [a.lon, a.lat])];
+  if(!pts.length) return CARTE_EMPRISES[CARTE.theatre];
+  const xs = pts.map(p=> p[0]), ys = pts.map(p=> p[1]);
+  let [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  if(x1 - x0 < 0.02){ x0 -= 0.02; x1 += 0.02; }   // un point seul ou des marques confondues : une emprise visible
+  if(y1 - y0 < 0.02){ y0 -= 0.02; y1 += 0.02; }
+  return [[x0, y0], [x1, y1]];
+}
+
+// Le fond de repli : la couleur papier et la grille d'un demi-degré, sur l'emprise des marques élargie d'un degré.
+function carteGrille(){
+  const [[x0, y0], [x1, y1]] = carteBornes();
+  const gx0 = Math.floor((x0 - 1) * 2) / 2, gx1 = Math.ceil((x1 + 1) * 2) / 2;
+  const gy0 = Math.floor((y0 - 1) * 2) / 2, gy1 = Math.ceil((y1 + 1) * 2) / 2;
+  const f = [];
+  for(let x = gx0; x <= gx1; x += 0.5) f.push({type:"Feature", properties:{}, geometry:{type:"LineString", coordinates:[[x, gy0], [x, gy1]]}});
+  for(let y = gy0; y <= gy1; y += 0.5) f.push({type:"Feature", properties:{}, geometry:{type:"LineString", coordinates:[[gx0, y], [gx1, y]]}});
+  return {type:"FeatureCollection", features:f};
+}
+
+function carteGeoEpaves(){
+  const g = carteEtat.pilote ? carteGroupesDuPilote(carteEtat.pilote) : null;
+  const f = [];
+  CARTE.epaves.forEach((e, i)=>{
+    const perte = carteEstPerte(e);
+    if(!(carteEtat.camps[e.camp] && carteEtat.cats[e.categorie] && (carteEtat.pertes || !perte))) return;
+    const cle = e.type + "|" + e.camp;
+    f.push({type:"Feature", geometry:{type:"Point", coordinates:[e.lon, e.lat]},
+      properties:{i, ico:"eclat-" + e.camp + (perte ? "-c" : ""), vu: g ? (g.has(cle) ? 1 : 0) : 1,
+        sur: g && g.has(cle) && e.homonymes === 1 ? 1 : 0}});
+  });
+  return {type:"FeatureCollection", features:f};
+}
+function carteGeoAeros(){
+  return {type:"FeatureCollection", features: carteEtat.aeros ? CARTE.aerodromes.map(a=> ({
+    type:"Feature", geometry:{type:"Point", coordinates:[a.lon, a.lat]},
+    properties:{nom:a.nom, lab:`${a.nom}  ↑${a.dec.length} ↓${a.att.length}`}})) : []};
+}
+function carteRafraichirMarques(){
+  if(!carteMap || !carteMap.getSource("epaves")) return;
+  carteMap.getSource("epaves").setData(carteGeoEpaves());
+  carteMap.getSource("aeros").setData(carteGeoAeros());
+}
+
+// Les sources et les couches des marques, posées AU-DESSUS de celles du fond.
+function carteSources(){
+  return {
+    epaves:{type:"geojson", data:carteGeoEpaves(), cluster:true, clusterRadius:14, clusterMaxZoom:10, clusterProperties:{vus:["+", ["get", "vu"]]}},
+    aeros:{type:"geojson", data:carteGeoAeros()},
+  };
+}
+function carteCouches(){
+  return [
+    {id:"aeros", type:"symbol", source:"aeros", layout:{"icon-image":"piste", "icon-size":1, "icon-allow-overlap":true}},
+    {id:"amas", type:"circle", source:"epaves", filter:["has", "point_count"],
+      paint:{"circle-color":carteCouleur("--ink"), "circle-radius":["step", ["get", "point_count"], 11, 10, 14, 30, 18],
+        "circle-opacity":["case", [">", ["get", "vus"], 0], 0.9, 0.22], "circle-stroke-color":carteCouleur("--paper"), "circle-stroke-width":1.5}},
+    {id:"epaves", type:"symbol", source:"epaves", filter:["!", ["has", "point_count"]],
+      layout:{"icon-image":["get", "ico"], "icon-allow-overlap":true, "icon-size":["case", ["==", ["get", "sur"], 1], 1.35, 1]},
+      paint:{"icon-opacity":["case", ["==", ["get", "vu"], 1], 1, 0.18]}},
+  ];
+}
+
+async function carteDemarrer(cadrage){
+  const jeton = carteJeton;
+  const ml = await carteChargerScripts();
+  // Le fond servi à la même origine ; toute erreur du style : le fond de repli.
+  let fond = null;
+  try {
+    fond = await window.chargerStyle(`/tuiles/fonds/${CARTE.theatre}/style-${carteSombre() ? "sombre" : "clair"}.json`);
+  } catch(e){ fond = null; }
+  if(jeton !== carteJeton || !$("#carte-carte")) return;   // un redessin plus récent a pris la main
+  const images = {};
+  for(const c of CARTE_CAMPS){
+    images["eclat-" + c] = await carteImage(carteSvgEclat(carteCouleurCamp(c), false), 22);
+    images["eclat-" + c + "-c"] = await carteImage(carteSvgEclat(carteCouleurCamp(c), true), 24);
+  }
+  images.piste = await carteImage(carteSvgPiste(carteCouleur("--ink")), 22);
+  if(jeton !== carteJeton || !$("#carte-carte")) return;
+  carteCreer(ml, fond, images, cadrage, jeton);
+}
+
+// La carte elle-même, sur le fond servi (`fond`) ou, sans lui, sur le papier et sa grille.
+function carteCreer(ml, fond, images, cadrage, jeton){
+  const conteneur = $("#carte-carte");
+  if(!conteneur) return;
+  let style;
+  if(fond){
+    style = fond;
+    style.sources = Object.assign({}, fond.sources, carteSources());
+    style.layers = [...(fond.layers || []), ...carteCouches()];
+  } else {
+    style = {version:8,
+      sources:Object.assign({grille:{type:"geojson", data:carteGrille()}}, carteSources()),
+      layers:[
+        {id:"papier", type:"background", paint:{"background-color":carteCouleur("--paper")}},
+        {id:"grille", type:"line", source:"grille", paint:{"line-color":carteCouleur("--gridline"), "line-width":1}},
+        ...carteCouches(),
+      ]};
+  }
+  const note = $("#carte-fond-note");
+  if(note) note.hidden = !!fond;
+  const vue = cadrage || {bounds:carteBornes(), fitBoundsOptions:{padding:40}};
+  const carte = new ml.Map(Object.assign({container:conteneur, style, attributionControl:{compact:true}}, vue));
+  carteMap = carte;
+  Object.entries(images).forEach(([k, v])=> carte.addImage(k, v));
+  carte.addControl(new ml.NavigationControl({showCompass:true}), "top-left");
+  carte.addControl(new ml.ScaleControl({unit:"metric"}), "bottom-left");
+  // Une erreur du style avant le premier dessin (les tuiles ne comptent pas) : le fond de repli, une seule fois.
+  if(fond){
+    let charge = false;
+    carte.once("load", ()=>{ charge = true; });
+    carte.on("error", (ev)=>{
+      if(charge || ev.sourceId || ev.tile || carteMap !== carte || jeton !== carteJeton) return;
+      carteMap = null;
+      carte.remove();
+      carteCreer(ml, null, images, cadrage, jeton);
+    });
+  }
+  carteBrancher(ml, carte);
+}
+
+// Les gestes de la carte : le compte des amas et les noms des aérodromes (en HTML, sans police distante), le clic.
+function carteBrancher(ml, carte){
+  carte.on("load", ()=>{
+    const marques = [];
+    const majMarques = ()=>{
+      marques.forEach(m=> m.remove());
+      marques.length = 0;
+      for(const f of carte.querySourceFeatures("epaves", {filter:["has", "point_count"]})){
+        const cle = "a" + f.properties.cluster_id;
+        if(marques.some(m=> m._k === cle)) continue;
+        const el = document.createElement("div");
+        el.className = "carte-amas-n";
+        el.textContent = f.properties.point_count;
+        const m = new ml.Marker({element:el}).setLngLat(f.geometry.coordinates).addTo(carte);
+        m._k = cle;
+        marques.push(m);
+      }
+      for(const f of carte.querySourceFeatures("aeros")){
+        const cle = "p" + f.properties.nom;
+        if(marques.some(m=> m._k === cle)) continue;
+        const el = document.createElement("div");
+        el.className = "carte-aero-lab";
+        el.textContent = f.properties.lab;
+        const m = new ml.Marker({element:el}).setLngLat(f.geometry.coordinates).addTo(carte);
+        m._k = cle;
+        marques.push(m);
+      }
+    };
+    carte.on("idle", majMarques);
+  });
+  carte.on("click", "amas", (e)=>{
+    const f = e.features[0];
+    carte.getSource("epaves").getClusterExpansionZoom(f.properties.cluster_id).then(z=> carte.easeTo({center:f.geometry.coordinates, zoom:z}));
+  });
+  carte.on("click", "epaves", (e)=>{
+    new ml.Popup({maxWidth:"300px"}).setLngLat(e.lngLat).setHTML(carteFicheHtml(CARTE.epaves[e.features[0].properties.i])).addTo(carte);
+  });
+  ["epaves", "amas"].forEach(id=>{
+    carte.on("mouseenter", id, ()=>{ carte.getCanvas().style.cursor = "pointer"; });
+    carte.on("mouseleave", id, ()=>{ carte.getCanvas().style.cursor = ""; });
+  });
+  // Le thème de l'App redessine la carte (le fond, les couleurs des marques), cadrage gardé.
+  if(!carteObservateur){
+    carteObservateur = new MutationObserver(()=>{ if(CARTE && carteLoadState === "ready") renderCarte(true); });
+    carteObservateur.observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  }
+}
+
+// La fiche d'une épave : ce qui l'a détruite et ce qui l'a touchée.
+function carteFicheHtml(p){
+  const cle = p.type + "|" + p.camp;
+  const tirs = CARTE.tirs.filter(k=> k.cible + "|" + k.cible_camp === cle);
+  const touches = CARTE.touches.filter(k=> k.cible + "|" + k.cible_camp === cle);
+  const noms = (liste)=>{
+    const q = new Map();
+    liste.forEach(k=>{ const n = carteNomActeur(k.vol, k.tireur_type); q.set(n, (q.get(n) || 0) + 1); });
+    return [...q.entries()].map(([n, c])=> escapeHtml(n) + (c > 1 ? " ×" + c : "")).join(", ");
+  };
+  let h = `<b>${escapeHtml(p.nom)}</b><br>${escapeHtml(t("carte_camp_" + CARTE_CLE_CAMP[p.camp]))} · ${escapeHtml(catLabel(p.categorie))}${p.alt != null ? " · " + p.alt + " m" : ""}`;
+  if(tirs.length){
+    h += `<br>${escapeHtml(t("carte_detruit_par"))} ${noms(tirs)}${p.homonymes === 1 && tirs[0].arme ? " — " + escapeHtml(tirs[0].arme) + ", " + escapeHtml(carteTplus(tirs[0].t)) : ""}`;
+  }
+  if(touches.length) h += `<br>${escapeHtml(t("carte_touche_par"))} ${noms(touches)}`;
+  return h;
 }
 
 /* ===================================================================
@@ -15092,6 +15668,7 @@ function wireDebriefNav(){
   });
   wireMissionsMount();
   wireSessionMount();
+  wireCarteMount();   // Lot « La carte des destructions »
   wireModalDeposer();
   wireFlightMount();
   wireModalReport();
@@ -15200,6 +15777,12 @@ const RR_MODULES = {
         args: ["id"], racine: "missions",
         pile: a=> [{e:"missions"}, {e:"session", id:a.id}],
         item: ()=> ({e:"session", id:CURRENT_SESSION_ID}), pose: it=>{ CURRENT_SESSION_ID = it.id; },
+      },
+      // Lot « La carte des destructions » : `#debrief/carte/<id>`, au-dessus de la session (qui est dessous dans la pile).
+      carte: {
+        args: ["id"], racine: "missions",
+        pile: a=> [{e:"missions"}, {e:"session", id:a.id}, {e:"carte", id:a.id}],
+        item: ()=> ({e:"carte", id:CURRENT_SESSION_ID}), pose: it=>{ CURRENT_SESSION_ID = it.id; },
       },
       flight: {
         seg: "vol", args: ["s", "id"], racine: "missions",
