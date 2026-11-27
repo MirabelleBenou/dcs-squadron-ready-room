@@ -9096,7 +9096,7 @@ function renderDebrief(screen){
   window.scrollTo(0,0);
   // Lot « La carte des destructions » : la carte se retire quand on quitte l'écran ; un chargement en cours ne crée
   // plus de carte dans un conteneur caché.
-  if(screen !== "carte" && carteMap){ carteMap.remove(); carteMap = null; carteJeton++; }
+  if(screen !== "carte"){ if(carteMap){ carteMap.remove(); carteMap = null; } carteJeton++; }
   // Lot D2③ : peuplement réel de l'écran Missions (fetch au 1er affichage,
   // re-rendu depuis cache ensuite). Lot D2④ : peuplement réel de Session
   // (fetch/cache par id) ; Vol (⑤) reste un placeholder mécanique.
