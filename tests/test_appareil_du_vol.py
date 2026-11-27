@@ -13,9 +13,9 @@ ligne -- pas de base, pas de navigateur.
    chaque filaire, un PNG RGBA de 1 400 px de large dont l'alpha porte un
    trait fin.
 4. `test_types_du_centre_ont_un_profil` -- chaque code de dcs_types_livrees.json
-   a son profil dans SILHOUETTE_DU_CENTRE, et chacun de ses types DCS trouve la
+   ayant des types DCS a son profil dans SILHOUETTE_DU_CENTRE, et chacun de ses types DCS trouve la
    même clé par les préfixes de AIRCRAFT_SILHOUETTE ; un code sans type DCS
-   n'a pas d'entrée.
+   n'a pas d'entrée ; aucune clé de SILHOUETTE_DU_CENTRE hors de la table.
 """
 from __future__ import annotations
 
@@ -26,7 +26,6 @@ from pathlib import Path
 from PIL import Image
 
 STATIC = Path(__file__).resolve().parent.parent / "app" / "static"
-
 IMG = STATIC / "assets" / "img"
 
 
@@ -89,6 +88,7 @@ def test_types_du_centre_ont_un_profil() -> None:
     du_centre = _du_centre(js)
     table = json.loads((STATIC / "dcs_types_livrees.json").read_text(encoding="utf-8"))["types"]
     assert table and du_centre
+    assert set(du_centre) <= set(table), sorted(set(du_centre) - set(table))
     for code, types in table.items():
         if not types:
             assert code not in du_centre, code

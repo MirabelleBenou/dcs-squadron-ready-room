@@ -7877,7 +7877,7 @@ const AIRCRAFT_SILHOUETTE = [
   [/^AV8B/, "av8b"],
   [/^C-101/, "c101"],
   [/^C-130/, "c130"],
-  [/^Christen Eagle/, "ce2"],
+  [/^Christen/, "ce2"],
   [/^CH-47/, "ch47"],
   [/^F-100/, "f100"],
   [/^F-14/, "f14"],
@@ -7911,7 +7911,7 @@ const AIRCRAFT_SILHOUETTE = [
   [/^Yak-52/, "yak52"],
 ];
 // Le code du Centre (la liste AIRCRAFT_CODES) vers sa clé de profil : le nom déclaré à l'escadrille n'est pas
-// un type DCS, et plusieurs de ses formes (« F-14A », « SU-27 », « J-11A ») ne se rattachent pas à un préfixe.
+// un type DCS, et plusieurs de ses formes (« SU-27 », « F/A-18 », « MIG-29 FC3 », « AV-8B ») ne se rattachent pas à un préfixe.
 const SILHOUETTE_DU_CENTRE = {
   "A-10A": "a10",
   "A-10C": "a10",
