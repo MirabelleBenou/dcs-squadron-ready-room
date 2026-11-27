@@ -13,6 +13,7 @@ GET	/api/hebdo	401	L	L	L	L	L	L	L	L	L
 GET	/api/stream	exclu	exclu	exclu	exclu	exclu	exclu	exclu	exclu	exclu	exclu
 POST	/api/debrief/upload	401	403	403	403	403	E	E	403	403	E
 GET	/api/debrief/sessions	401	L	403	403	403	L	L	403	403	L
+GET	/api/debrief/sessions/periodes	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/soiree	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/sessions/{session_id}	401	L	403	403	403	L	L	403	403	L
 PATCH	/api/debrief/sessions/{session_id}	401	403	403	403	403	E	403	403	403	E
@@ -25,6 +26,7 @@ GET	/api/debrief/members	401	403	403	403	403	403	403	403	403	L
 GET	/api/debrief/escadre	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/membres/{profile_id}	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/dossier	401	L	403	403	403	L	L	403	403	L
+GET	/api/debrief/dossier/carnet	401	L	403	403	403	L	L	403	403	L
 PUT	/api/debrief/dossier/cartes	401	403	403	403	403	E	E	403	403	E
 GET	/api/debrief/accueil	401	L	403	403	403	L	L	403	403	L
 GET	/api/debrief/campagnes	401	L	403	403	403	L	L	403	403	L

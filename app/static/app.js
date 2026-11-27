@@ -390,7 +390,7 @@ const I18N = {
     missions_no_date:"Sans date",
     missions_word:"mission",
     chip_all_squadrons:"Toutes escadrilles",
-    chip_all_years:"Tout",
+    chip_all_years:"Toutes les années",
     chip_all_months:"Tous les mois",
     meta_pilots:"pilotes identifiés",
     meta_anon:"anonymes",
@@ -1604,7 +1604,7 @@ const I18N = {
     missions_no_date:"No date",
     missions_word:"mission",
     chip_all_squadrons:"All squadrons",
-    chip_all_years:"All",
+    chip_all_years:"All years",
     chip_all_months:"All months",
     meta_pilots:"identified pilots",
     meta_anon:"anonymous",
@@ -2701,6 +2701,13 @@ let DEBRIEF_CAMPAIGNS = null;
 let missionsLoadState = "idle";       // idle | loading | error | ready
 let missionsError = null;
 let missionsFilters = { sim: null, squadron: "all", year: "all", month: "all" }; // Lot « Déposer depuis la barre du haut » : month « 01 »…« 12 », dans l'année choisie
+// Lot « La liste des missions par année » : la liste ne porte qu'une année à la fois. `MISSIONS_PERIODES` (GET
+// /sessions/periodes : années, simulateurs, escadrilles) dessine les listes déroulantes ; `missionsAnneeInit` vaut
+// vrai une fois l'année d'ouverture prise de la réponse (`annee`) ; l'année choisie se garde ensuite le temps de la page.
+let MISSIONS_PERIODES = null;
+let missionsAnneeInit = false;
+// Les candidates au déplacement et à la fusion (R7) : leur propre requête, gardées à part de DEBRIEF_SESSIONS.
+let AUTRES_MISSIONS = null;           // { cle, liste } (null = jamais chargées, ou à relire)
 let deposerQueue = [];                // [{id, file, kind, status, error}]
 let deposerPhase = "select";          // select | done
 let deposerBusy = false;
@@ -5393,17 +5400,17 @@ function missionsMonthLabel(key){
   return `${MONTHS[currentLang][m-1]} ${y}`;
 }
 
+// Lot « La liste des missions par année » : les simulateurs, les escadrilles et les années viennent de
+// GET /sessions/periodes (toutes les sessions), non de la liste chargée, qui ne porte qu'une année.
 function missionsDistinctSims(){
-  return Array.from(new Set((DEBRIEF_SESSIONS||[]).map(s=> s.sim))).sort();
+  return ((MISSIONS_PERIODES||{}).sims || []).slice().sort();
 }
 function missionsDistinctSquadrons(){
-  const set = new Set();
-  (DEBRIEF_SESSIONS||[]).forEach(s=> (s.squadrons||[]).forEach(sq=> set.add(sq)));
-  return Array.from(set).sort();
+  return ((MISSIONS_PERIODES||{}).escadrilles || []).slice().sort();
 }
 function missionsDistinctYears(){
-  const set = new Set();
-  (DEBRIEF_SESSIONS||[]).forEach(s=>{ if(s.mission_date) set.add(s.mission_date.slice(0,4)); });
+  const set = new Set(((MISSIONS_PERIODES||{}).annees || []).map(a=> a.annee));
+  if(missionsFilters.year !== "all") set.add(missionsFilters.year); // l'année choisie reste choisissable même si sa dernière mission a disparu
   return Array.from(set).sort().reverse();
 }
 
@@ -5423,7 +5430,7 @@ function missionsFiltered(){
   return (DEBRIEF_SESSIONS||[]).filter(s=>{
     if(missionsFilters.sim && s.sim !== missionsFilters.sim) return false;
     if(missionsFilters.squadron !== "all" && !(s.squadrons||[]).includes(missionsFilters.squadron)) return false;
-    if(missionsFilters.year !== "all" && (!s.mission_date || s.mission_date.slice(0,4) !== missionsFilters.year)) return false;
+    // L'année n'est plus un filtre du navigateur : la liste chargée est celle de l'année choisie (sans date comprises).
     if(missionsFilters.month !== "all" && (!s.mission_date || s.mission_date.slice(5,7) !== missionsFilters.month)) return false;
     return true;
   });
@@ -5504,14 +5511,34 @@ function natureOptionsHtml(cur){
   return ["mission","training"].map(n => `<option value="${n}"${n===cur?" selected":""}>${escapeHtml(t("nature_"+n))}</option>`).join("");
 }
 
+// Lot « La liste des missions par année » : la requête de la liste. Au tout premier chargement, aucun paramètre (le
+// serveur rend l'année la plus récente) ; ensuite, l'année choisie (`tout` pour « Toutes les années »).
+function missionsListeUrl(){
+  if(!missionsAnneeInit) return "/api/debrief/sessions";
+  return "/api/debrief/sessions?annee=" + encodeURIComponent(missionsFilters.year === "all" ? "tout" : missionsFilters.year);
+}
+
 async function loadMissions(){
   missionsLoadState = "loading";
   missionsError = null;
   renderMissions();
   try {
-    const data = await apiFetch("/api/debrief/sessions");
+    const [data, periodes] = await Promise.all([
+      apiFetch(missionsListeUrl()),
+      apiFetch("/api/debrief/sessions/periodes"),
+    ]);
     DEBRIEF_SESSIONS = data.sessions || [];
+    MISSIONS_PERIODES = periodes;
+    if(!missionsAnneeInit){
+      missionsAnneeInit = true;
+      missionsFilters.year = (data.annee && data.annee !== "tout") ? data.annee : "all";
+      missionsFilters.month = "all";
+    }
     missionsLoadState = "ready";
+    // Un dépôt ou une suppression a pu changer les candidates : elles se relisent, et le panneau de déplacement
+    // ou de fusion déjà ouvert se redessine dessus.
+    AUTRES_MISSIONS = null;
+    if(CURRENT_SESSION && (sessionEditOpen || sessionMoveUploadId)) ensureAutresMissions().then(renderSession);
   } catch(e){
     missionsLoadState = "error";
     missionsError = e.message || t("error_generic");
@@ -5519,26 +5546,26 @@ async function loadMissions(){
   renderMissions();
 }
 
+// Lot « La liste des missions par année » : une seule rangée de quatre listes déroulantes, habillées comme celle du
+// simulateur (`.chip.simsw`) -- simulateur, escadrille, année, mois (absente sans année choisie ou sans mois).
 function missionsToolbarHtml(sims, squadrons, years){
-  const simOptions = sims.map(s=>
-    `<option value="${escapeHtml(s)}" ${s===missionsFilters.sim?"selected":""}>${escapeHtml(simLabel(s))}</option>`
-  ).join("");
-  const squadronChips = [`<span class="chip ${missionsFilters.squadron==="all"?"on":""}" data-chip-group="squadron" data-chip="all">${escapeHtml(t("chip_all_squadrons"))}</span>`]
-    .concat(squadrons.map(sq=> `<span class="chip ${missionsFilters.squadron===sq?"on":""}" data-chip-group="squadron" data-chip="${escapeHtml(sq)}">${escapeHtml(sq)}</span>`))
-    .join("");
-  const yearChips = years.map(y=> `<span class="chip ${missionsFilters.year===y?"on":""}" data-chip-group="year" data-chip="${escapeHtml(y)}">${escapeHtml(y)}</span>`)
-    .concat([`<span class="chip ${missionsFilters.year==="all"?"on":""}" data-chip-group="year" data-chip="all">${escapeHtml(t("chip_all_years"))}</span>`])
-    .join("");
-  // Lot « Déposer depuis la barre du haut » : une seconde ligne, les mois de l'année choisie, seulement quand une année l'est.
+  const opt = (v, lib, cur)=> `<option value="${escapeHtml(v)}" ${v===cur?"selected":""}>${escapeHtml(lib)}</option>`;
+  const liste = (filtre, options)=> `<span class="chip simsw"><select data-filtre="${filtre}">${options}</select></span>`;
+  const simOptions = sims.map(s=> opt(s, simLabel(s), missionsFilters.sim)).join("");
+  const squadronOptions = [opt("all", t("chip_all_squadrons"), missionsFilters.squadron)]
+    .concat(squadrons.map(sq=> opt(sq, sq, missionsFilters.squadron))).join("");
+  const yearOptions = years.map(y=> opt(y, y, missionsFilters.year))
+    .concat([opt("all", t("chip_all_years"), missionsFilters.year)]).join("");
+  // Les mois de l'année choisie qui ont une mission (du jeu choisi), seulement quand une année l'est.
   const months = missionsDistinctMonths();
-  const monthRow = months.length ? `<div class="tbar">${months.map(m=> `<span class="chip ${missionsFilters.month===m?"on":""}" data-chip-group="month" data-chip="${m}">${escapeHtml(MONTHS[currentLang][Number(m)-1])}</span>`)
-    .concat([`<span class="chip ${missionsFilters.month==="all"?"on":""}" data-chip-group="month" data-chip="all">${escapeHtml(t("chip_all_months"))}</span>`])
-    .join("")}</div>` : "";
+  const monthOptions = [opt("all", t("chip_all_months"), missionsFilters.month)]
+    .concat(months.map(m=> opt(m, MONTHS[currentLang][Number(m)-1], missionsFilters.month))).join("");
   return `<div class="tbar">
     <span class="chip simsw"><select id="sim-select">${simOptions}</select></span>
-    ${squadronChips}
-    ${yearChips}
-  </div>${monthRow}`;
+    ${liste("squadron", squadronOptions)}
+    ${liste("year", yearOptions)}
+    ${months.length ? liste("month", monthOptions) : ""}
+  </div>`;
 }
 
 function namedSampleHtml(s){
@@ -5700,7 +5727,9 @@ function renderMissions(){
     mount.innerHTML = missionsSkeletonHtml();
     return;
   }
-  if(DEBRIEF_SESSIONS.length === 0){
+  // Lot « La liste des missions par année » : une année sans mission n'est pas un Débrief vide -- les listes restent.
+  const aucuneSession = !MISSIONS_PERIODES || (!(MISSIONS_PERIODES.annees||[]).length && !MISSIONS_PERIODES.sans_date);
+  if(DEBRIEF_SESSIONS.length === 0 && aucuneSession){
     mount.innerHTML = `<div class="state void">
       <p>${escapeHtml(t("missions_empty"))}</p>
       <button type="button" class="btn btn-primary" data-open-deposer>${escapeHtml(t("deposer"))}</button>
@@ -5712,6 +5741,10 @@ function renderMissions(){
   if(!missionsFilters.sim || !sims.includes(missionsFilters.sim)) missionsFilters.sim = sims[0];
   const squadrons = missionsDistinctSquadrons();
   const years = missionsDistinctYears();
+  // Une liste déroulante ne peut pas montrer une valeur qu'elle n'offre pas : l'escadrille ou le mois qui a disparu
+  // (autre simulateur, autre année, mission supprimée) revient à « tous ».
+  if(missionsFilters.squadron !== "all" && !squadrons.includes(missionsFilters.squadron)) missionsFilters.squadron = "all";
+  if(missionsFilters.month !== "all" && !missionsDistinctMonths().includes(missionsFilters.month)) missionsFilters.month = "all";
 
   const filtered = missionsFiltered();
   const groups = missionsGrouped(filtered);
@@ -6322,11 +6355,30 @@ function jourUtc(dateStr){
   return Date.UTC(y, m-1, d) / 86400000;
 }
 
-// Les autres missions proposées au déplacement et à la fusion (de GET /sessions) : celles dont la date est à
+// Lot « La liste des missions par année » (R7) : les candidates au déplacement et à la fusion ne se lisent plus dans la
+// liste affichée (une seule année) : une session datée lit les sessions de ±3 jours (`?du=&au=`), une session sans
+// date lit toutes les sessions (`?annee=tout`) ; elles se gardent à part, dans AUTRES_MISSIONS.
+function autresMissionsCle(s){
+  return s && s.mission_date ? s.mission_date : "tout";
+}
+function autresMissionsAbsentes(){
+  return !!CURRENT_SESSION && !(AUTRES_MISSIONS && AUTRES_MISSIONS.cle === autresMissionsCle(CURRENT_SESSION) && AUTRES_MISSIONS.session === CURRENT_SESSION.id);
+}
+function autresMissionsUrl(s){
+  if(!s.mission_date) return "/api/debrief/sessions?annee=tout";
+  const jour = jourUtc(s.mission_date);
+  const iso = (j)=> new Date(j * 86400000).toISOString().slice(0, 10);
+  return `/api/debrief/sessions?du=${iso(jour - 3)}&au=${iso(jour + 3)}`;
+}
+function autresMissionsListe(s){
+  return (s && AUTRES_MISSIONS && AUTRES_MISSIONS.session === s.id && AUTRES_MISSIONS.cle === autresMissionsCle(s)) ? AUTRES_MISSIONS.liste : [];
+}
+
+// Les autres missions proposées au déplacement et à la fusion (de AUTRES_MISSIONS) : celles dont la date est à
 // trois jours au plus de celle de la session, la plus proche d'abord ; une session sans date propose les dix
 // missions les plus récentes.
 function autresMissions(s){
-  const autres = (DEBRIEF_SESSIONS||[]).filter(x=> x.id !== s.id);
+  const autres = autresMissionsListe(s).filter(x=> x.id !== s.id);
   if(!s.mission_date) return autres.slice(0, 10);
   const jour = jourUtc(s.mission_date);
   return autres
@@ -6337,7 +6389,14 @@ function autresMissions(s){
 }
 
 async function ensureAutresMissions(){
-  if(missionsLoadState !== "ready" || !DEBRIEF_SESSIONS) await loadMissions();
+  const s = CURRENT_SESSION;
+  if(!s || !autresMissionsAbsentes()) return;
+  try {
+    const data = await apiFetch(autresMissionsUrl(s));
+    AUTRES_MISSIONS = { session: s.id, cle: autresMissionsCle(s), liste: data.sessions || [] };
+  } catch(e){
+    AUTRES_MISSIONS = null; // aucune candidate ; la prochaine ouverture du panneau relit
+  }
 }
 
 function sessionMovePanelHtml(s, u){
@@ -6376,6 +6435,7 @@ async function moveUploadGo(btn){
     });
     sessionMoveUploadId = null;
     missionsLoadState = "idle";
+    AUTRES_MISSIONS = null;
     showToast(t("src_move_done"));
     sessionDetailLoadState = "idle";
     if(res.source_supprimee) goDebrief("session", {sessionId: res.session_id});
@@ -6401,7 +6461,7 @@ function sessionMergeFieldHtml(s){
 }
 
 function sessionMergeActHtml(){
-  const x = (DEBRIEF_SESSIONS||[]).find(m=> m.id === sessionMergeChoice);
+  const x = autresMissionsListe(CURRENT_SESSION).find(m=> m.id === sessionMergeChoice);
   if(sessionMergeConfirm && x){
     const n = x.n_uploads||0;
     // Addendum 2 : un seul fichier, une phrase au singulier (`merge_confirm_un`) ; `merge_confirm` à partir de deux.
@@ -6434,6 +6494,7 @@ async function mergeSessionsGo(btn){
     sessionMergeConfirm = false;
     sessionEditOpen = false;
     missionsLoadState = "idle";
+    AUTRES_MISSIONS = null;
     showToast(t("merge_done"));
     sessionDetailLoadState = "idle";
     await ensureSessionLoaded(CURRENT_SESSION_ID);
@@ -8179,6 +8240,7 @@ async function recomputeAllStale(btn){
   if(!ok) return;
   showToast(t("recompute_all_toast").replace("{n}", data.recomputed));
   missionsLoadState = "idle";
+  AUTRES_MISSIONS = null;
   sessionDetailLoadState = "idle";
   await ensureSessionLoaded(CURRENT_SESSION_ID);
 }
@@ -8205,7 +8267,7 @@ function wireSessionMount(){
         // si elle ne l'est pas, puis le panneau se redessine.
         sessionMergeChoice = "";
         sessionMergeConfirm = false;
-        if(sessionEditOpen && (missionsLoadState !== "ready" || !DEBRIEF_SESSIONS)){
+        if(sessionEditOpen && autresMissionsAbsentes()){
           ensureAutresMissions().then(renderSession);
         }
         // Lot 2.3 §4.8b : chargée paresseusement, une seule fois -- si pas
@@ -8228,7 +8290,7 @@ function wireSessionMount(){
       if(moveBtn){
         const id = moveBtn.dataset.moveUpload;
         sessionMoveUploadId = (sessionMoveUploadId === id) ? null : id;
-        if(sessionMoveUploadId && (missionsLoadState !== "ready" || !DEBRIEF_SESSIONS)){
+        if(sessionMoveUploadId && autresMissionsAbsentes()){
           ensureAutresMissions().then(renderSession);
         }
         renderSession();
@@ -8566,15 +8628,6 @@ function wireMissionsMount(){
   const mount = $("#missions-mount");
   if(!mount) return;
   mount.addEventListener("click", (e)=>{
-    const chip = e.target.closest("[data-chip]");
-    if(chip){
-      const group = chip.dataset.chipGroup;
-      if(group === "squadron") missionsFilters.squadron = chip.dataset.chip;
-      if(group === "year"){ missionsFilters.year = chip.dataset.chip; missionsFilters.month = "all"; }
-      if(group === "month") missionsFilters.month = chip.dataset.chip;
-      renderMissions();
-      return;
-    }
     const depBtn = e.target.closest("[data-open-deposer]");
     if(depBtn){ openModalDeposer(); return; }
     const retryBtn = e.target.closest("[data-missions-retry]");
@@ -8599,6 +8652,14 @@ function wireMissionsMount(){
     if(e.target.id === "sim-select"){
       missionsFilters.sim = e.target.value;
       renderMissions();
+    }
+    // Lot « La liste des missions par année » : l'escadrille et le mois filtrent dans le navigateur ; l'année
+    // recharge la liste (les cartes affichées restent jusqu'à la réponse) et remet le mois à « tous ».
+    const filtre = e.target.dataset && e.target.dataset.filtre;
+    if(filtre){
+      missionsFilters[filtre] = e.target.value;
+      if(filtre === "year"){ missionsFilters.month = "all"; loadMissions(); }
+      else renderMissions();
     }
   });
 }
@@ -9600,16 +9661,23 @@ function pilotesMenacesHtml(ds){
   </div>`;
 }
 
-function pilotesCarnetHtml(ds){
+// Lot « La liste des missions par année » (R8) : le dossier ne porte que les 20 premières lignes du carnet et son
+// total (`carnet_total`) ; le carnet entier se lit à la demande (GET /dossier/carnet). Sans `carnet_total` (réponse
+// d'avant), le total est le nombre de lignes reçues.
+function pilotesCarnetTotal(ds){
+  return ds.carnet_total != null ? ds.carnet_total : (ds.carnet || []).length;
+}
+function pilotesCarnetHtml(ds, deplie){
   const lang = currentLang === "fr" ? "fr-FR" : "en-GB";
   const carnet = ds.carnet || [];
   const lignes = carnet.map((l, i) => {
     const issue = flightIssue(l.stats);
     const date = l.date ? new Date(l.date + "T12:00:00Z").toLocaleDateString(lang, {day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"}) : "—";
     const detail = [l.appareil ? libType(l.appareil) : l.appareil, fmtDuree(l.duree_s), l.victoires ? pilotesNombreMot(l.victoires, "pil_vic_un", "pil_vic_n") : null].filter(Boolean).join(" · ");
-    return `<div class="li pil-vol" role="link" tabindex="0" data-ouvre-vol="${escapeAttr(String(l.flight_id))}" data-vol-session="${escapeAttr(String(l.session_id))}"${i >= 10 ? " hidden" : ""}><span class="d">${escapeHtml(date)}</span><span class="mbr-mis-t"><span class="mbr-mis-titre">${escapeHtml(l.titre || "—")}</span>${l.campagne ? `<a class="camp ink" href="#" data-ouvre-campagne="${escapeAttr(String(l.campagne_id))}">${escapeHtml(l.campagne)}</a>` : ""}</span><span class="a">${escapeHtml(detail)}</span><span class="etat ${issue.key}">${escapeHtml(issue.label)}</span></div>`;
+    return `<div class="li pil-vol" role="link" tabindex="0" data-ouvre-vol="${escapeAttr(String(l.flight_id))}" data-vol-session="${escapeAttr(String(l.session_id))}"${i >= 10 && !deplie ? " hidden" : ""}><span class="d">${escapeHtml(date)}</span><span class="mbr-mis-t"><span class="mbr-mis-titre">${escapeHtml(l.titre || "—")}</span>${l.campagne ? `<a class="camp ink" href="#" data-ouvre-campagne="${escapeAttr(String(l.campagne_id))}">${escapeHtml(l.campagne)}</a>` : ""}</span><span class="a">${escapeHtml(detail)}</span><span class="etat ${issue.key}">${escapeHtml(issue.label)}</span></div>`;
   }).join("");
-  const tout = carnet.length > 10 ? `<button type="button" class="btn pil-tout" data-pil-tout>${escapeHtml(t("pil_tout").replace("{n}", carnet.length))}</button>` : "";
+  const total = pilotesCarnetTotal(ds);
+  const tout = total > 10 && !deplie ? `<button type="button" class="btn pil-tout" data-pil-tout>${escapeHtml(t("pil_tout").replace("{n}", total))}</button>` : "";
   return `<div class="framed">
     <div class="sec ink">${escapeHtml(t("pil_carnet_title"))}</div>
     <div class="list">${lignes}</div>
@@ -9713,13 +9781,44 @@ document.addEventListener("click", e => {
   const vol = e.target.closest("[data-ouvre-vol]");
   if(vol){ e.preventDefault(); pilotesOuvreVol(vol); return; }
   const tout = e.target.closest("[data-pil-tout]");
-  if(tout){
-    const suite = Array.from(document.querySelectorAll("#pilotes-mount .pil-vol[hidden]"));
-    suite.forEach(l => { l.hidden = false; });
-    tout.remove();
-    if(suite[0]) suite[0].focus();
-  }
+  if(tout) pilotesToutAfficher(tout);
 });
+// « Tout afficher » : si les lignes reçues couvrent le total, la suite se déplie sur place ; sinon le bouton passe à
+// « Chargement… », le carnet entier de la nature affichée se lit, ses lignes remplacent celles du dossier pour cette
+// nature, tout se déplie et le focus va à la première ligne dépliée. Une erreur : le bouton revient.
+async function pilotesToutAfficher(btn){
+  const nature = pilotesNature;
+  const ds = pilotesNatureDs(DOSSIER || {});
+  if((ds.carnet || []).length < pilotesCarnetTotal(ds)){
+    if(btn.disabled) return;
+    const libelle = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t("loading");
+    let data;
+    try {
+      data = await apiFetch("/api/debrief/dossier/carnet?nature=" + encodeURIComponent(nature));
+    } catch(e){
+      showToast(t("error_generic"));
+      btn.disabled = false;
+      btn.textContent = libelle;
+      return;
+    }
+    const d = (DOSSIER || {}).dossier;
+    const cible = d && (nature === "tout" ? d : (d.par_nature || {})[nature]);
+    if(cible) cible.carnet = data.carnet || [];
+    if(!btn.isConnected || pilotesNature !== nature) return; // la nature a changé pendant la lecture : elle repartira du dossier
+    const bloc = btn.closest(".framed");
+    if(!cible || !bloc){ btn.disabled = false; btn.textContent = libelle; return; }
+    bloc.outerHTML = pilotesCarnetHtml(cible, true);
+    const lignes = document.querySelectorAll("#pilotes-mount .pil-vol");
+    if(lignes[10]) lignes[10].focus();
+    return;
+  }
+  const suite = Array.from(document.querySelectorAll("#pilotes-mount .pil-vol[hidden]"));
+  suite.forEach(l => { l.hidden = false; });
+  btn.remove();
+  if(suite[0]) suite[0].focus();
+}
 document.addEventListener("keydown", e => {
   if(e.key !== "Enter") return;
   if(e.target.closest && e.target.closest("[data-ouvre-campagne]")) return; // Lot « L'écran C » : le lien s'ouvre nativement

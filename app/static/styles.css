@@ -3162,10 +3162,9 @@ html[data-layout="compact"] #modal-report .btn-sm{font-size:.72rem; padding:.32r
   padding:.02rem 1.15rem .02rem 0;
   font-family:var(--font-label);font-weight:600;font-size:.7rem;
   letter-spacing:.08em;text-transform:uppercase;color:var(--ink);cursor:pointer;
-  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
-                   linear-gradient(135deg,currentColor 50%,transparent 50%);
-  background-position:right .40rem center, right .14rem center;
-  background-size:.26rem .26rem,.26rem .26rem;background-repeat:no-repeat;
+  background-image:conic-gradient(from -45deg at 50% 100%,currentColor 90deg,transparent 0);
+  background-position:right .14rem center;
+  background-size:.52rem .26rem;background-repeat:no-repeat;
 }
 #view-missions .chip.simsw select:focus-visible{outline:2px solid var(--ink-stamp-tx);outline-offset:2px;}
 
@@ -3701,7 +3700,7 @@ html[data-layout="compact"] #modal-deposer input[type="text"],
 html[data-layout="compact"] #modal-deposer select,
 html[data-layout="compact"] #modal-deposer textarea,
 html[data-layout="compact"] #screen-app[data-module="debrief"] .view input[type="text"],
-html[data-layout="compact"] #screen-app[data-module="debrief"] .view select:not(#sim-select),
+html[data-layout="compact"] #screen-app[data-module="debrief"] .view select:not(#sim-select):not([data-filtre]),
 html[data-layout="compact"] #screen-app[data-module="debrief"] .view textarea{font-size:16px;min-height:44px;}
 
 /* Lot « Le Centre au doigt et à la charte » (rr-centre-charte, R594, R617) — maquette validée le 11 novembre.

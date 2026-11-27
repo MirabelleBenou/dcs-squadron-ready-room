@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import shutil
 import uuid
 import zipfile
@@ -24,12 +25,14 @@ import zlib
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
-from sqlalchemy import and_, delete, func, or_, select, text
+from sqlalchemy import and_, delete, extract, func, or_, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app import crests, llm, taches
 from app.auth import get_current_user
@@ -490,13 +493,72 @@ async def upload_file(
 # --- GET /sessions ------------------------------------------------------------
 
 
+# Lot « La liste des missions par année » : la période que lit `GET /sessions`. `annee` (`AAAA` ou `tout`) ;
+# `du` et `au` (`AAAA-MM-JJ`, ensemble, bornes comprises), qui servent au déplacement et à la fusion. Une
+# valeur invalide, `du` sans `au` (ou l'inverse), `annee` avec `du`/`au` : 422, avant toute requête.
+def _periode_demandee(annee, du, au):
+    def refus(detail):
+        raise HTTPException(status_code=422, detail=detail)
+
+    def jour(valeur):
+        if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", valeur):
+            refus("Date invalide (AAAA-MM-JJ).")
+        try:
+            return date.fromisoformat(valeur)
+        except ValueError:
+            refus("Date invalide (AAAA-MM-JJ).")
+
+    if (du is None) != (au is None):
+        refus("`du` et `au` vont ensemble.")
+    if du is not None:
+        if annee is not None:
+            refus("`annee` ne se combine pas avec `du` et `au`.")
+        return None, jour(du), jour(au)
+    if annee is not None and annee != "tout" and not re.fullmatch(r"[0-9]{4}", annee):
+        refus("Année invalide (AAAA ou tout).")
+    return annee, None, None
+
+
+def _clause_periode(annee, du, au):
+    """La clause de `GET /sessions`, dans la requête des sessions (jamais après coup). `annee` à `None` : l'année
+    la plus récente qui a une session datée. Les sessions sans date viennent avec cette année-là (demandée
+    ou par défaut) et avec `tout`, jamais avec une autre ; un intervalle les écarte."""
+    md = DebriefSession.mission_date
+    if du is not None:
+        return and_(md >= du, md <= au)
+    if annee == "tout":
+        return None
+    d = aliased(DebriefSession)
+    plus_recente = extract("year", select(func.max(d.mission_date)).scalar_subquery())
+    if annee is None:
+        return or_(md.is_(None), extract("year", md) == plus_recente)
+    return or_(extract("year", md) == int(annee), and_(md.is_(None), plus_recente == int(annee)))
+
+
 @router.get("/sessions")
 async def list_sessions(
     user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    annee: Annotated[str | None, Query()] = None,
+    du: Annotated[str | None, Query()] = None,
+    au: Annotated[str | None, Query()] = None,
 ):
-    result = await db.execute(select(DebriefSession).order_by(DebriefSession.created_at.desc()))
+    annee, du, au = _periode_demandee(annee, du, au)
+    requete = select(DebriefSession).order_by(DebriefSession.created_at.desc())
+    clause = _clause_periode(annee, du, au)
+    if clause is not None:
+        requete = requete.where(clause)
+    result = await db.execute(requete)
     sessions = result.scalars().all()
+    # L'année servie : celle qu'on a demandée, `tout`, ou (par défaut) la plus récente des sessions rendues ;
+    # `None` pour un intervalle, ou sans aucune session datée.
+    if du is not None:
+        annee_rendue = None
+    elif annee is not None:
+        annee_rendue = annee
+    else:
+        datees = [s.mission_date for s in sessions if s.mission_date]
+        annee_rendue = f"{max(datees).year:04d}" if datees else None
 
     # Passe 1 (inchangée dans son principe) : n_uploads + flights par session.
     # On collecte au passage l'ensemble global des pilotes identifiés, pour
@@ -540,9 +602,9 @@ async def list_sessions(
         # `flights_all` (non filtrée) reste disponible pour `_named_pilots`
         # (brief §4.3, exception `n_deposited`).
         significant_ids = significatifs.get(s.id, set())
-        flights = [f for f in flights_all if f.object_id and f.object_id in significant_ids]
+        flights = _vols_significatifs(flights_all, significant_ids)
         n_kills = sum(len(f.stats.get("kills", [])) for f in flights)
-        session_pids = {f.pilote_profile_id for f in flights if f.pilote_profile_id}
+        session_pids = _pilotes_des_vols(flights)
         all_pids.update(session_pids)
         noms_pids.update(f.pilote_profile_id for f in flights_all if f.pilote_profile_id)
         per_session.append(
@@ -592,7 +654,7 @@ async def list_sessions(
         s = item["s"]
         flights = item["flights"]
         n_pilots = len(item["session_pids"])
-        squadrons = sorted({squad_map[pid] for pid in item["session_pids"] if squad_map.get(pid)})
+        squadrons = _escadrilles_de_pilotes(item["session_pids"], squad_map)
         n_named, named_sample, n_anon, n_deposited, n_known = _named_pilots(
             flights, item["flights_all"], noms_map
         )
@@ -632,7 +694,75 @@ async def list_sessions(
                 "a_verifier": s.id in a_verifier_ids,
             }
         )
-    return {"sessions": out}
+    return {"annee": annee_rendue, "sessions": out}
+
+
+# Lot « La liste des missions par année » : la règle qui résout les escadrilles d'une session, écrite une fois --
+# `list_sessions` et `GET /sessions/periodes` l'appellent toutes deux. Un vol compte s'il porte un évènement non
+# mécanique (`_significant_object_ids_par_session`) ; ses pilotes identifiés donnent leurs escadrilles.
+def _vols_significatifs(vols, significant_ids) -> list:
+    return [f for f in vols if f.object_id and f.object_id in significant_ids]
+
+
+def _pilotes_des_vols(vols) -> set:
+    return {f.pilote_profile_id for f in vols if f.pilote_profile_id}
+
+
+def _escadrilles_de_pilotes(pids, squad_map: dict) -> list:
+    return sorted({squad_map[pid] for pid in pids if squad_map.get(pid)})
+
+
+# --- GET /sessions/periodes -----------------------------------------------------
+# Déclarée AVANT `GET /sessions/{session_id}` : sinon `periodes` serait lu comme un identifiant.
+
+
+@router.get("/sessions/periodes")
+async def list_periodes(
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Lot « La liste des missions par année » -- de quoi dessiner les listes déroulantes de Missions sans charger
+    toutes les sessions : les années qui ont une session datée (la plus récente d'abord, avec leur compte), les
+    simulateurs, les escadrilles (résolues comme `list_sessions`) et le compte des sessions sans date. Un nombre
+    fixe de requêtes, quel que soit le nombre de sessions."""
+    annee_sql = extract("year", DebriefSession.mission_date)
+    comptes = (await db.execute(select(annee_sql, func.count()).group_by(annee_sql))).all()
+    annees = sorted(((int(a), n) for a, n in comptes if a is not None), reverse=True)
+    sans_date = sum(n for a, n in comptes if a is None)
+    sims = sorted({
+        sim for (sim,) in (await db.execute(select(DebriefSession.sim).distinct())).all() if sim
+    })
+
+    significatifs = await _significant_object_ids_par_session(db)
+    vols_par_session: dict = defaultdict(list)
+    for vol in (
+        await db.execute(
+            select(DebriefFlight.session_id, DebriefFlight.object_id, DebriefFlight.pilote_profile_id)
+            .where(DebriefFlight.pilote_profile_id.is_not(None))
+        )
+    ).all():
+        vols_par_session[vol.session_id].append(vol)
+    pids_par_session = {
+        sid: _pilotes_des_vols(_vols_significatifs(vols, significatifs.get(sid, set())))
+        for sid, vols in vols_par_session.items()
+    }
+    tous_pids = set().union(*pids_par_session.values()) if pids_par_session else set()
+    squad_map: dict = {}
+    if tous_pids:
+        squad_map = {
+            pid: squad
+            for pid, squad in (
+                await db.execute(select(Profile.id, Profile.squadron).where(Profile.id.in_(tous_pids)))
+            ).all()
+            if squad
+        }
+    escadrilles = sorted({sq for pids in pids_par_session.values() for sq in _escadrilles_de_pilotes(pids, squad_map)})
+    return {
+        "annees": [{"annee": f"{a:04d}", "n": n} for a, n in annees],
+        "sims": sims,
+        "escadrilles": escadrilles,
+        "sans_date": sans_date,
+    }
 
 
 # Lot « Les liens de la soirée » (v1.0107, R796) : le jour d'une session et la soirée d'un jour.
@@ -2271,19 +2401,24 @@ def _vols_par_nature(vols) -> dict:
     return par_nature
 
 
-@router.get("/dossier")
-async def get_dossier(
-    user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Lot « Le dossier du pilote — les données » (R208) -- l'écran A, le
-    dossier personnel du compte connecté : sa fiche publique (F, servie par
-    `_fiche_publique`), plus la part privée (`_dossier_prive`).
+def _carnet_resume(dossier: dict, n: int = 20) -> dict:
+    """Lot « La liste des missions par année » (R3) -- le carnet du dossier en résumé : `carnet` ne garde que ses
+    `n` premières lignes (l'ordre d'entrée, le plus récent d'abord), et une clé sœur `carnet_total` donne le nombre
+    de lignes du carnet entier ; dans le dossier comme dans chaque nature de `par_nature`. Tout le reste est
+    gardé tel quel. Pure : rend un dossier neuf, n'abîme pas celui qu'on lui donne (tests/test_debrief_charge_fenetre.py)."""
+    def coupe(d: dict) -> dict:
+        carnet = d.get("carnet") or []
+        return {**d, "carnet": carnet[:n], "carnet_total": len(carnet)}
 
-    PRIVÉE PAR CONSTRUCTION : la route ne prend aucun identifiant, ni de
-    chemin ni de requête ; elle ne lit que `user["id"]`. Un admin n'obtient
-    que son propre dossier. Les camps de repli lisent tous les vols des
-    sessions du membre, réels ou non, comme l'écran E."""
+    resume = coupe(dossier)
+    if dossier.get("par_nature") is not None:
+        resume["par_nature"] = {nature: coupe(d) for nature, d in dossier["par_nature"].items()}
+    return resume
+
+
+async def _dossier_entier(user: dict, db: AsyncSession) -> dict:
+    """Le dossier complet du compte connecté, carnet entier : la fiche publique et la part privée
+    (`_dossier_prive`), calculées une fois. `get_dossier` le coupe (`_carnet_resume`), `get_dossier_carnet` en lit le carnet."""
     publique = await _fiche_publique(db, int(user["id"]))
     if publique is None:
         raise HTTPException(status_code=404, detail="Membre introuvable")
@@ -2309,6 +2444,45 @@ async def get_dossier(
         "training": _dossier_prive(par_nature["training"], camps, campagnes),
     }
     return {**fiche, "dossier": dossier}
+
+
+@router.get("/dossier")
+async def get_dossier(
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Lot « Le dossier du pilote — les données » (R208) -- l'écran A, le
+    dossier personnel du compte connecté : sa fiche publique (F, servie par
+    `_fiche_publique`), plus la part privée (`_dossier_prive`).
+
+    PRIVÉE PAR CONSTRUCTION : la route ne prend aucun identifiant, ni de
+    chemin ni de requête ; elle ne lit que `user["id"]`. Un admin n'obtient
+    que son propre dossier. Les camps de repli lisent tous les vols des
+    sessions du membre, réels ou non, comme l'écran E.
+
+    Lot « La liste des missions par année » (R3) : le carnet n'y est qu'un
+    résumé (20 lignes et `carnet_total`) ; le reste du dossier est calculé sur
+    tous les vols. Le carnet entier : `GET /dossier/carnet`."""
+    complet = await _dossier_entier(user, db)
+    return {**complet, "dossier": _carnet_resume(complet["dossier"])}
+
+
+@router.get("/dossier/carnet")
+async def get_dossier_carnet(
+    nature: Annotated[str, Query()] = "tout",
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Lot « La liste des missions par année » (R4) -- le carnet entier du dossier, pour la nature demandée (`tout`,
+    `mission` ou `training`), lignes de même forme et même ordre que dans `GET /dossier`.
+
+    PRIVÉE PAR CONSTRUCTION, comme `get_dossier` : aucun identifiant de membre, ni de chemin ni de requête ; elle ne
+    lit que `user["id"]`. Elle reprend le chemin de `get_dossier` (`_dossier_entier`) : le même calcul, sans la coupe."""
+    if nature not in ("tout", "mission", "training"):
+        raise HTTPException(status_code=422, detail="Nature invalide (tout, mission ou training).")
+    dossier = (await _dossier_entier(user, db))["dossier"]
+    source = dossier if nature == "tout" else dossier["par_nature"][nature]
+    return {"carnet": source["carnet"]}
 
 
 @router.put("/dossier/cartes")
