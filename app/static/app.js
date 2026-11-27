@@ -9345,7 +9345,7 @@ function cartePanneauHtml(){
     + pilotes.map(([nom, n])=> `<option value="${escapeAttr(nom)}"${nom === carteEtat.pilote ? " selected" : ""}>${escapeHtml(nom)} (${n})</option>`).join("");
   return `<div class="sec ink">${escapeHtml(t("carte_pilote_titre"))}</div>
     <label class="carte-champ" for="carte-pilote">${escapeHtml(t("carte_pilote_label"))}</label>
-    <select id="carte-pilote">${options}</select>
+    <span class="chip simsw"><select id="carte-pilote" data-filtre="pilote">${options}</select></span>
     <div id="carte-bilan">${carteBilanHtml()}</div>
     <div class="sec ink">${escapeHtml(t("carte_legende_titre"))}</div>
     <div id="carte-legende">${carteLegendeHtml()}</div>
