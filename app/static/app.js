@@ -5518,14 +5518,16 @@ function missionsListeUrl(){
   return "/api/debrief/sessions?annee=" + encodeURIComponent(missionsFilters.year === "all" ? "tout" : missionsFilters.year);
 }
 
-async function loadMissions(){
+// `garderPeriodes` : le changement d'année ne relit que la liste -- années, simulateurs et escadrilles ne dépendent
+// pas de l'année choisie ; tout autre chargement (ouverture, dépôt, suppression, « Réessayer ») relit les deux.
+async function loadMissions(garderPeriodes){
   missionsLoadState = "loading";
   missionsError = null;
   renderMissions();
   try {
     const [data, periodes] = await Promise.all([
       apiFetch(missionsListeUrl()),
-      apiFetch("/api/debrief/sessions/periodes"),
+      garderPeriodes && MISSIONS_PERIODES ? MISSIONS_PERIODES : apiFetch("/api/debrief/sessions/periodes"),
     ]);
     DEBRIEF_SESSIONS = data.sessions || [];
     MISSIONS_PERIODES = periodes;
@@ -8658,7 +8660,7 @@ function wireMissionsMount(){
     const filtre = e.target.dataset && e.target.dataset.filtre;
     if(filtre){
       missionsFilters[filtre] = e.target.value;
-      if(filtre === "year"){ missionsFilters.month = "all"; loadMissions(); }
+      if(filtre === "year"){ missionsFilters.month = "all"; loadMissions(true); }
       else renderMissions();
     }
   });
