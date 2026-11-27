@@ -9594,7 +9594,7 @@ function carteBrancher(ml, carte){
         const el = document.createElement("div");
         el.className = "carte-aero-lab";
         el.textContent = f.properties.lab;
-        const m = new ml.Marker({element:el}).setLngLat(f.geometry.coordinates).addTo(carte);
+        const m = new ml.Marker({element:el, offset:[0, -16]}).setLngLat(f.geometry.coordinates).addTo(carte);
         m._k = cle;
         marques.push(m);
       }
