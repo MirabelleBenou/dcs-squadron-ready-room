@@ -30,12 +30,16 @@ class RsvpState(str, Enum):
 
 AIRCRAFT_CODES: frozenset[str] = frozenset(
     {
-        "A-10A", "AH-64", "AJS-37", "C-101", "C-130", "CH-47", "F-100",
-        "F-14A", "F-14B", "F-15C", "F-16C", "F/A-18", "F-4E", "F-5E",
-        "L-39", "MB-339", "Mi-24P", "Mi-8", "MIG-21Bis", "MIG-29 FC3",
-        "MIG-29 FF", "Mirage F1 CE", "Mirage F1 EE", "OH-58D",
-        "SA-342 Gazelle", "SU-25", "SU-27", "UH-1H",
-        "Combined Arms (JTAC)", "LotATC",
+        "A-10A", "A-10C", "A-10C II", "AH-64", "AJS-37",
+        "AV-8B", "C-101", "C-130", "CH-47", "Christen Eagle II",
+        "F-100", "F-14A", "F-14B", "F-15C", "F-15E",
+        "F-16C", "F/A-18", "F-4E", "F-5E", "F-86F",
+        "Hawk", "J-11A", "JF-17", "Ka-50", "L-39",
+        "M-2000C", "MB-339", "Mi-24P", "Mi-8", "MIG-15Bis",
+        "MIG-19P", "MIG-21Bis", "MIG-29 FC3", "MIG-29 FF", "Mirage F1 BE",
+        "Mirage F1 CE", "Mirage F1 EE", "OH-58D", "SA-342 Gazelle", "SU-25",
+        "SU-27", "SU-33", "UH-1H", "Yak-52", "Combined Arms (JTAC)",
+        "LotATC",
     }
 )
 

@@ -29,6 +29,12 @@ The footer of the home page shows the version the server runs: `RR-V1.2.0` for a
 - On Missions and on the destruction map, the filter and pilot lists now open as a sheet in the screen's paper-and-ink style, on a phone as on a computer, instead of the device's own list.
 - They also work with the keyboard: arrows to move, Enter to choose, Escape to close.
 
+**More aircraft for the squadrons**
+- Squadrons and RSVP preferences can now pick 16 more aircraft: A-10C, A-10C II, AV-8B, Christen Eagle II, F-15E, F-86F, Hawk, J-11A, JF-17, Ka-50, M-2000C, MiG-15bis, MiG-19P, Mirage F1 BE, Su-33 and Yak-52.
+
+**A side outline for every aircraft**
+- The squadron header, the flight screens and the member lists now show a side outline for every aircraft type the wing can fly, not only seven.
+
 ## RR-V1.1.0 — 2026-11-26
 
 Every time now reads in the wing's time zone, the Pilot Manual gains a Help annex, and four fixes.

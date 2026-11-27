@@ -78,11 +78,14 @@ const PIP_RAW = {present:SVG_PIP_PRESENT, maybe:SVG_PIP_MAYBE, absent:SVG_PIP_AB
    (app/schemas.py) -- toute divergence ferait rejeter en 422 des valeurs
    pourtant proposees par ce menu. */
 const AIRCRAFT_CODES = [
-  "A-10A","AH-64","AJS-37","C-101","C-130","CH-47","F-100","F-14A","F-14B",
-  "F-15C","F-16C","F/A-18","F-4E","F-5E","L-39","MB-339","Mi-24P","Mi-8",
-  "MIG-21Bis","MIG-29 FC3","MIG-29 FF","Mirage F1 CE","Mirage F1 EE",
-  "OH-58D","SA-342 Gazelle","SU-25","SU-27","UH-1H",
-  "Combined Arms (JTAC)","LotATC"
+  "A-10A","A-10C","A-10C II","AH-64","AJS-37","AV-8B",
+  "C-101","C-130","CH-47","Christen Eagle II","F-100","F-14A",
+  "F-14B","F-15C","F-15E","F-16C","F/A-18","F-4E",
+  "F-5E","F-86F","Hawk","J-11A","JF-17","Ka-50",
+  "L-39","M-2000C","MB-339","Mi-24P","Mi-8","MIG-15Bis",
+  "MIG-19P","MIG-21Bis","MIG-29 FC3","MIG-29 FF","Mirage F1 BE","Mirage F1 CE",
+  "Mirage F1 EE","OH-58D","SA-342 Gazelle","SU-25","SU-27","SU-33",
+  "UH-1H","Yak-52","Combined Arms (JTAC)","LotATC"
 ];
 const MISSION_TYPES = [
   {code:"CAP", fr:"CAP", en:"CAP"},
@@ -7862,20 +7865,99 @@ function flightTimelineHtml(f){
 
 // Lot « L'appareil du vol » — la silhouette de l'appareil du vol, à gauche des
 // titres de l'écran vol (.ic.wire), à la place du Mi-24 unique posé au lot 1.5.
-// Sept silhouettes pleines (Gemini, conditionnées le 28 septembre) : à 30 × 15 px,
+// Un profil par famille d'appareil du Centre (Gemini ; sept le 28 septembre, le reste au lot « rr-silhouettes-profils ») : à 30 × 15 px,
 // seule une silhouette pleine distingue un appareil d'un autre. Un appareil hors
 // de cette liste n'en montre aucune — un mauvais appareil trompe plus qu'une
 // absence (deux arbitrages du porteur, 28 septembre). Le type DCS est reconnu par
 // son préfixe : « Mi-24P » et « Mi-24V » partagent la même silhouette.
 const AIRCRAFT_SILHOUETTE = [
+  [/^A-10/, "a10"],
+  [/^AH-64/, "ah64"],
+  [/^AJS37/, "aj37"],
+  [/^AV8B/, "av8b"],
+  [/^C-101/, "c101"],
+  [/^C-130/, "c130"],
+  [/^Christen Eagle/, "ce2"],
+  [/^CH-47/, "ch47"],
+  [/^F-100/, "f100"],
+  [/^F-14/, "f14"],
+  [/^F-15C/, "f15"],
+  [/^F-15E/, "f15e"],
+  [/^F-16/, "f16"],
+  [/^Mirage-F1/, "f1"],
+  [/^F-4E/, "f4e"],
+  [/^F-5E/, "f5"],
+  [/^F-86/, "f86"],
+  [/^FA-18/, "fa18"],
+  [/^Hawk/, "hawk"],
+  [/^JF-17/, "jf17"],
+  [/^Ka-50/, "ka50"],
+  [/^L-39/, "l39"],
+  [/^M-2000/, "m2000"],
+  [/^MB-339/, "mb339"],
   [/^Mi-24/, "mi24"],
   [/^Mi-8/, "mi8"],
-  [/^F-4E/, "f4e"],
-  [/^Mirage-F1/, "f1"],
+  [/^MiG-15/, "mig15"],
+  [/^MiG-19/, "mig19"],
+  [/^MiG-21/, "mig21"],
+  [/^MiG-29/, "mig29"],
+  [/^OH58/, "oh58"],
+  [/^SA342/, "sa342"],
+  [/^Su-25/, "su25"],
+  [/^Su-27/, "su27"],
+  [/^J-11/, "su27"],
+  [/^Su-33/, "su33"],
   [/^UH-1/, "uh1"],
-  [/^F-16/, "f16"],
-  [/^F-5E/, "f5"],
+  [/^Yak-52/, "yak52"],
 ];
+// Le code du Centre (la liste AIRCRAFT_CODES) vers sa clé de profil : le nom déclaré à l'escadrille n'est pas
+// un type DCS, et plusieurs de ses formes (« F-14A », « SU-27 », « J-11A ») ne se rattachent pas à un préfixe.
+const SILHOUETTE_DU_CENTRE = {
+  "A-10A": "a10",
+  "A-10C": "a10",
+  "A-10C II": "a10",
+  "AH-64": "ah64",
+  "AJS-37": "aj37",
+  "AV-8B": "av8b",
+  "C-101": "c101",
+  "C-130": "c130",
+  "Christen Eagle II": "ce2",
+  "CH-47": "ch47",
+  "F-100": "f100",
+  "F-14A": "f14",
+  "F-14B": "f14",
+  "F-15C": "f15",
+  "F-15E": "f15e",
+  "F-16C": "f16",
+  "Mirage F1 BE": "f1",
+  "Mirage F1 CE": "f1",
+  "Mirage F1 EE": "f1",
+  "F-4E": "f4e",
+  "F-5E": "f5",
+  "F-86F": "f86",
+  "F/A-18": "fa18",
+  "Hawk": "hawk",
+  "JF-17": "jf17",
+  "Ka-50": "ka50",
+  "L-39": "l39",
+  "M-2000C": "m2000",
+  "MB-339": "mb339",
+  "Mi-24P": "mi24",
+  "Mi-8": "mi8",
+  "MIG-15Bis": "mig15",
+  "MIG-19P": "mig19",
+  "MIG-21Bis": "mig21",
+  "MIG-29 FC3": "mig29",
+  "MIG-29 FF": "mig29",
+  "OH-58D": "oh58",
+  "SA-342 Gazelle": "sa342",
+  "SU-25": "su25",
+  "SU-27": "su27",
+  "J-11A": "su27",
+  "SU-33": "su33",
+  "UH-1H": "uh1",
+  "Yak-52": "yak52",
+};
 function aircraftSilhouetteHtml(aircraftType){
   const hit = AIRCRAFT_SILHOUETTE.find(([re]) => re.test(aircraftType || ""));
   return hit ? `<span class="ic wire ac-${hit[1]}"></span>` : "";
@@ -10094,7 +10176,7 @@ function escadrilleHtml(sq, d){
   const ms = sq.members || [];
   // Retouches (le porteur, 1er octobre) : la tête garde sa ligne à tous les paliers
   // (.esq-tete) ; les appareils de la dotation y figurent en fil de fer, à
-  // droite -- les sept filaires du paquet, teintés par le thème.
+  // droite -- les filaires du paquet, teintés par le thème.
   const sous = [sq.full_name, sq.callsign].filter(Boolean).join(" — ");
   const filaires = (sq.aircraft || []).map(nom => {
     const cle = escadreSilhouetteKey(nom);
@@ -10386,9 +10468,11 @@ function renderPilotes(){
 // photo, la plus haute graine l'emporte, la première dans l'ordre à égalité.
 const PILOTE_PHOTOS = ["h1","h2","h3","h4","h5","h6","j1","j2","j3","j4","j5","j6"];
 const PILOTE_FAMILLES = {
-  h: ["AH-64","CH-47","Mi-24P","Mi-8","OH-58D","SA-342 Gazelle","UH-1H"],
-  j: ["A-10A","AJS-37","C-101","C-130","F-100","F-14A","F-14B","F-15C","F-16C","F/A-18","F-4E","F-5E","L-39","MB-339",
-      "MIG-21Bis","MIG-29 FC3","MIG-29 FF","Mirage F1 CE","Mirage F1 EE","SU-25","SU-27"],
+  h: ["AH-64","CH-47","Ka-50","Mi-24P","Mi-8","OH-58D","SA-342 Gazelle","UH-1H"],
+  j: ["A-10A","A-10C","A-10C II","AJS-37","AV-8B","C-101","C-130","Christen Eagle II","F-100","F-14A",
+      "F-14B","F-15C","F-15E","F-16C","F/A-18","F-4E","F-5E","F-86F","Hawk","J-11A",
+      "JF-17","L-39","M-2000C","MB-339","MIG-15Bis","MIG-19P","MIG-21Bis","MIG-29 FC3","MIG-29 FF","Mirage F1 BE",
+      "Mirage F1 CE","Mirage F1 EE","SU-25","SU-27","SU-33","Yak-52"],
 };
 
 function pilotePhotoTirage(profilId, appareils){
@@ -10887,11 +10971,11 @@ document.addEventListener("keydown", e => {
   if(og){ e.preventDefault(); goDebrief("escadrille", {squadronId: og.dataset.ouvreEscadrille}); }
 });
 
-// Le nom déclaré au Centre (« Mirage F1 EE ») rejoint les préfixes DCS de
-// l'écran vol (« Mirage-F1… ») une fois ses espaces changés en tirets ;
-// hors de la liste, aucune silhouette (R172). Une silhouette par famille.
+// Le nom déclaré au Centre se lit d'abord dans SILHOUETTE_DU_CENTRE, puis par les préfixes DCS (espaces en tirets) ; sinon aucune silhouette (R172).
 function escadreSilhouetteKey(nom){
-  const n = String(nom || "").trim().replace(/\s+/g, "-");
+  let n = String(nom || "").trim();
+  if(Object.prototype.hasOwnProperty.call(SILHOUETTE_DU_CENTRE, n)) return SILHOUETTE_DU_CENTRE[n];
+  n = n.replace(/\s+/g, "-");
   const hit = AIRCRAFT_SILHOUETTE.find(([re]) => re.test(n));
   return hit ? hit[1] : null;
 }
