@@ -166,8 +166,12 @@ def test_liste_annee_par_defaut():
     reponse = _lister(_monde())
     assert reponse["annee"] == "2026"
     assert _titres(reponse) == {"Mission A", "Mission D", "Mission C"}
-    # La forme de chaque session ne change pas : ses clés d'avant, rien de plus.
-    assert {"id", "display_title", "mission_date", "sim", "n_flights", "squadrons", "campaign", "nature"} <= set(reponse["sessions"][0])
+    # La réponse gagne `annee` et rien d'autre ; la forme de chaque session ne change pas : ses clés d'avant, rien de plus.
+    assert set(reponse) == {"annee", "sessions"}
+    assert set(reponse["sessions"][0]) == {
+        "id", "title", "display_title", "mission_date", "acmi_present", "sim", "n_uploads", "n_flights", "n_kills", "duration_s",
+        "doc_ratio", "n_pilots", "squadrons", "n_named", "n_anon", "named_sample", "campaign", "nature", "stats_stale", "a_verifier",
+    }
     # Sans aucune session datée : les seules sessions sans date, `annee` nulle ; sans aucune session : rien.
     seules = _lister(_FauxDb([_session("Mission C")]))
     assert seules["annee"] is None and _titres(seules) == {"Mission C"}
@@ -234,8 +238,14 @@ def test_periodes():
     liste = _lister(_FauxDb(monde, vols, evenements, profils), annee="tout")
     assert sorted({sq for s in liste["sessions"] for sq in s["squadrons"]}) == periodes["escadrilles"]
     # Un nombre fixe de requêtes, quel que soit le nombre de sessions.
-    plus = _FauxDb(monde + [_session(f"x{i}", date(2023, 1, 1 + i)) for i in range(5)], vols, evenements, profils)
-    asyncio.run(list_periodes(user={}, db=plus))
+    # (Le monde de la seconde mesure porte, lui aussi, des vols et des évènements significatifs par session : une
+    # boucle de requêtes par session ferait échouer l'égalité.)
+    en_plus = [_session(f"x{i}", date(2023, 1, 1 + i)) for i in range(5)]
+    vols_plus = vols + [_vol(x.id, 1, pid=7 + i % 3) for i, x in enumerate(en_plus)]
+    evenements_plus = evenements + [(x.id, 1, 99) for x in en_plus]
+    plus = _FauxDb(monde + en_plus, vols_plus, evenements_plus, profils)
+    resultat_plus = asyncio.run(list_periodes(user={}, db=plus))
+    assert resultat_plus["escadrilles"] == ["ALPHA-11", "BRAVO-22", "CHARLIE-33"] and resultat_plus["annees"][-1] == {"annee": "2023", "n": 5}
     assert plus.requetes == db.requetes
 
 

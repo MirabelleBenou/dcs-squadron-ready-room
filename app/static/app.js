@@ -2707,7 +2707,11 @@ let missionsFilters = { sim: null, squadron: "all", year: "all", month: "all" };
 let MISSIONS_PERIODES = null;
 let missionsAnneeInit = false;
 // Les candidates au déplacement et à la fusion (R7) : leur propre requête, gardées à part de DEBRIEF_SESSIONS.
-let AUTRES_MISSIONS = null;           // { cle, liste } (null = jamais chargées, ou à relire)
+let AUTRES_MISSIONS = null;           // { session, cle, liste } (null = jamais chargées, ou à relire)
+let AUTRES_GEN = 0;                   // change quand les sessions changent : une lecture partie avant n'est pas écrite
+let AUTRES_LECTURE = null;            // la lecture en cours { session, cle, gen, p } : pas relancée pour la même session
+let missionsSeq = 0;                  // numéro du dernier appel de la liste : une réponse d'un autre appel est ignorée
+let missionsFocus = null;             // la liste qui vient de changer : le focus lui revient après le redessin
 let deposerQueue = [];                // [{id, file, kind, status, error}]
 let deposerPhase = "select";          // select | done
 let deposerBusy = false;
@@ -5520,7 +5524,11 @@ function missionsListeUrl(){
 
 // `garderPeriodes` : le changement d'année ne relit que la liste -- années, simulateurs et escadrilles ne dépendent
 // pas de l'année choisie ; tout autre chargement (ouverture, dépôt, suppression, « Réessayer ») relit les deux.
+// Chaque appel porte un numéro croissant (`missionsSeq`) : seule la réponse du dernier appel s'écrit -- ni la liste,
+// ni l'état, ni le rendu ne suivent une réponse plus ancienne (deux années choisies à la suite, ou un
+// rechargement puis un changement d'année). La liste rendue est toujours celle de l'année affichée.
 async function loadMissions(garderPeriodes){
+  const seq = ++missionsSeq;
   missionsLoadState = "loading";
   missionsError = null;
   renderMissions();
@@ -5529,23 +5537,30 @@ async function loadMissions(garderPeriodes){
       apiFetch(missionsListeUrl()),
       garderPeriodes && MISSIONS_PERIODES ? MISSIONS_PERIODES : apiFetch("/api/debrief/sessions/periodes"),
     ]);
+    if(seq !== missionsSeq) return;
     DEBRIEF_SESSIONS = data.sessions || [];
     MISSIONS_PERIODES = periodes;
     if(!missionsAnneeInit){
       missionsAnneeInit = true;
       missionsFilters.year = (data.annee && data.annee !== "tout") ? data.annee : "all";
       missionsFilters.month = "all";
+      // Le simulateur d'ouverture : celui par défaut (le premier), sauf si l'année chargée n'en a aucune session --
+      // alors le premier (ordre alphabétique) qui en a. Ensuite le choix de l'utilisateur est gardé tel quel.
+      const sims = missionsDistinctSims();
+      const choisi = missionsFilters.sim && sims.includes(missionsFilters.sim) ? missionsFilters.sim : sims[0];
+      if(!DEBRIEF_SESSIONS.some(x=> x.sim === choisi)){
+        const avecSessions = Array.from(new Set(DEBRIEF_SESSIONS.map(x=> x.sim))).sort();
+        if(avecSessions.length) missionsFilters.sim = avecSessions[0];
+      }
     }
     missionsLoadState = "ready";
-    // Un dépôt ou une suppression a pu changer les candidates : elles se relisent, et le panneau de déplacement
-    // ou de fusion déjà ouvert se redessine dessus.
-    AUTRES_MISSIONS = null;
-    if(CURRENT_SESSION && (sessionEditOpen || sessionMoveUploadId)) ensureAutresMissions().then(renderSession);
   } catch(e){
+    if(seq !== missionsSeq) return;
     missionsLoadState = "error";
     missionsError = e.message || t("error_generic");
   }
   renderMissions();
+  missionsFocus = null;
 }
 
 // Lot « La liste des missions par année » : une seule rangée de quatre listes déroulantes, habillées comme celle du
@@ -5689,6 +5704,7 @@ async function deleteDebriefSession(id, btn){
   });
   if(!ok) return;
   showToast(t("debrief_toast_session_deleted"));
+  autresMissionsPerimees(true);
   await loadMissions(); // retire la carte + rafraîchit la liste (chgt 4)
 }
 
@@ -5772,6 +5788,11 @@ function renderMissions(){
     });
   }
   mount.innerHTML = html;
+  // La liste qui vient de changer reprend le focus que le redessin lui a pris (sans voler celui d'un autre contrôle).
+  if(missionsFocus && (!document.activeElement || document.activeElement === document.body)){
+    const el = mount.querySelector(missionsFocus === "sim-select" ? "#sim-select" : `select[data-filtre="${missionsFocus}"]`);
+    if(el) el.focus();
+  }
 }
 
 function openSession(id){
@@ -6390,15 +6411,36 @@ function autresMissions(s){
     .map(o=> o.x);
 }
 
+// Une réponse ne s'écrit que si elle concerne encore la session du panneau ouvert et que les sessions n'ont pas
+// changé depuis le départ de la lecture ; une lecture déjà en cours pour la même session n'est pas relancée.
 async function ensureAutresMissions(){
   const s = CURRENT_SESSION;
   if(!s || !autresMissionsAbsentes()) return;
-  try {
-    const data = await apiFetch(autresMissionsUrl(s));
-    AUTRES_MISSIONS = { session: s.id, cle: autresMissionsCle(s), liste: data.sessions || [] };
-  } catch(e){
-    AUTRES_MISSIONS = null; // aucune candidate ; la prochaine ouverture du panneau relit
-  }
+  const cle = autresMissionsCle(s);
+  if(AUTRES_LECTURE && AUTRES_LECTURE.session === s.id && AUTRES_LECTURE.cle === cle && AUTRES_LECTURE.gen === AUTRES_GEN) return AUTRES_LECTURE.p;
+  const lecture = { session: s.id, cle, gen: AUTRES_GEN };
+  lecture.p = (async ()=>{
+    let liste = null;
+    try {
+      liste = (await apiFetch(autresMissionsUrl(s))).sessions || [];
+    } catch(e){
+      liste = null; // aucune candidate ; la prochaine ouverture du panneau relit
+    }
+    if(AUTRES_LECTURE === lecture) AUTRES_LECTURE = null;
+    if(liste && CURRENT_SESSION && CURRENT_SESSION.id === s.id && lecture.gen === AUTRES_GEN){
+      AUTRES_MISSIONS = { session: s.id, cle, liste };
+    }
+  })();
+  AUTRES_LECTURE = lecture;
+  return lecture.p;
+}
+
+// Les sessions ont changé (dépôt, suppression, fusion, déplacement, « Tout recalculer ») : les candidates se relisent ;
+// le panneau de déplacement ou de fusion déjà ouvert se redessine dessus. Un changement d'année n'y touche pas.
+function autresMissionsPerimees(releire){
+  AUTRES_MISSIONS = null;
+  AUTRES_GEN++;
+  if(releire && CURRENT_SESSION && (sessionEditOpen || sessionMoveUploadId)) ensureAutresMissions().then(renderSession);
 }
 
 function sessionMovePanelHtml(s, u){
@@ -6437,7 +6479,7 @@ async function moveUploadGo(btn){
     });
     sessionMoveUploadId = null;
     missionsLoadState = "idle";
-    AUTRES_MISSIONS = null;
+    autresMissionsPerimees();
     showToast(t("src_move_done"));
     sessionDetailLoadState = "idle";
     if(res.source_supprimee) goDebrief("session", {sessionId: res.session_id});
@@ -6496,7 +6538,7 @@ async function mergeSessionsGo(btn){
     sessionMergeConfirm = false;
     sessionEditOpen = false;
     missionsLoadState = "idle";
-    AUTRES_MISSIONS = null;
+    autresMissionsPerimees();
     showToast(t("merge_done"));
     sessionDetailLoadState = "idle";
     await ensureSessionLoaded(CURRENT_SESSION_ID);
@@ -8242,7 +8284,7 @@ async function recomputeAllStale(btn){
   if(!ok) return;
   showToast(t("recompute_all_toast").replace("{n}", data.recomputed));
   missionsLoadState = "idle";
-  AUTRES_MISSIONS = null;
+  autresMissionsPerimees();
   sessionDetailLoadState = "idle";
   await ensureSessionLoaded(CURRENT_SESSION_ID);
 }
@@ -8653,15 +8695,19 @@ function wireMissionsMount(){
   mount.addEventListener("change", (e)=>{
     if(e.target.id === "sim-select"){
       missionsFilters.sim = e.target.value;
+      missionsFocus = "sim-select";
       renderMissions();
+      missionsFocus = null;
     }
     // Lot « La liste des missions par année » : l'escadrille et le mois filtrent dans le navigateur ; l'année
-    // recharge la liste (les cartes affichées restent jusqu'à la réponse) et remet le mois à « tous ».
+    // recharge la liste (les cartes affichées restent jusqu'à la réponse) et remet le mois à « tous ». Après le
+    // redessin, le focus revient sur la liste qui a changé.
     const filtre = e.target.dataset && e.target.dataset.filtre;
     if(filtre){
       missionsFilters[filtre] = e.target.value;
+      missionsFocus = filtre;
       if(filtre === "year"){ missionsFilters.month = "all"; loadMissions(true); }
-      else renderMissions();
+      else { renderMissions(); missionsFocus = null; }
     }
   });
 }
@@ -8879,7 +8925,7 @@ async function handleDeposerSubmit(){
   // pas été appliqué, jamais le croire appliqué silencieusement.
   if(anyCampaignConflict) showToast(t("deposer_campaign_conflict"), "erreur");
 
-  if(anyOk) await loadMissions(); // §C.3 : re-fetch + re-rendu Missions
+  if(anyOk){ autresMissionsPerimees(true); await loadMissions(); } // §C.3 : re-fetch + re-rendu Missions
   if(anyOk) debriefApresDepot();   // Lot « Déposer depuis la barre du haut »
 }
 
